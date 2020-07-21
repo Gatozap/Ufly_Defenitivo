@@ -10,7 +10,15 @@ class AjudaPage extends StatefulWidget {
     return _AjudaPageState();
   }
 }
-Widget menuButton(context, text,  isLogout, onPress, {color, size,  }) {
+
+Widget menuButton(
+  context,
+  text,
+  isLogout,
+  onPress, {
+  color,
+  size,
+}) {
   return Container(
       width: MediaQuery.of(context).size.width * .8,
       child: MaterialButton(
@@ -21,22 +29,25 @@ Widget menuButton(context, text,  isLogout, onPress, {color, size,  }) {
           children: <Widget>[
             SizedBox(width: 15),
 
-
             SizedBox(
               width: 10,
             ),
             Container(
                 child: Expanded(
-                    child:Text(
-                      text,
-                      style: TextStyle(fontFamily: 'malgun', fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
-                    )
-                ))
+                    child: Text(
+              text,
+              style: TextStyle(
+                  fontFamily: 'malgun',
+                  fontSize: 18,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
+            )))
             //Icon(Icons.arrow_forward_ios)
           ],
         ),
       ));
 }
+
 class _AjudaPageState extends State<AjudaPage> {
   @override
   void initState() {
@@ -51,45 +62,67 @@ class _AjudaPageState extends State<AjudaPage> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Scaffold( appBar: myAppBar('Ajuda', context, showBack: true),
-            body: Column(
+    return Scaffold(
+      appBar: myAppBar('Ajuda', context,
+          showBack: true,
+          size: getAltura(context)*.15,
+                  estiloTexto: 'BankGothic',
+    ),
+      body: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(top: getAltura(context)*.040, left: getLargura(context)*.060),
+            child: Row(
               children: <Widget>[
-                Padding(
-                  padding:  EdgeInsets.only(top: 30.0, left: 20),
-                  child: Row(
-                    children: <Widget>[
-                      Container(width: 25,child: Image.asset('assets/ajuda_alerta.png'),),
-                      menuButton(context, 'Problemas com uma viagem especifica e reembolsos', true, (){
-
-                      },),
-                    ],
-                  ),
+                Container(
+                  width: getLargura(context)*.075,
+                  child: Image.asset('assets/ajuda_alerta.png'),
                 ),
-                Padding(
-                  padding:  EdgeInsets.only(top: 10.0, left: 20),
-                  child: Row(
-                    children: <Widget>[
-                      Container(width: 25,child: Image.asset('assets/ajuda_pagamento.png'),),
-                      menuButton(context, 'Opções de conta e pagamento', true, (){
-
-                      },),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding:  EdgeInsets.only(top: 10.0, left: 20),
-                  child: Row(
-                    children: <Widget>[
-                      Container(width: 25,child: Image.asset('assets/ajuda_acessibilidade.png'),),
-                      menuButton(context, 'Acessibilidade', true, (){
-
-                      },),
-                    ],
-                  ),
+                menuButton(
+                  context,
+                  'Problemas com uma viagem especifica e reembolsos',
+                  true,
+                  () {},
                 ),
               ],
             ),
-
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: getAltura(context)*.020, left: getLargura(context)*.060),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: getLargura(context)*.075,
+                  child: Image.asset('assets/ajuda_pagamento.png'),
+                ),
+                menuButton(
+                  context,
+                  'Opções de conta e pagamento',
+                  true,
+                  () {},
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: getAltura(context)*.020, left: getLargura(context)*.060),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: getLargura(context)*.075,
+                  child: Image.asset('assets/ajuda_acessibilidade.png'),
+                ),
+                menuButton(
+                  context,
+                  'Acessibilidade',
+                  true,
+                  () {},
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

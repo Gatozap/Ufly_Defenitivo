@@ -92,19 +92,21 @@ int getModificador(int status) {
   }
 }
 
-hTextalgun(text, context,
-    {int size = 55,
+
+
+hTextMal(text, context,
+    {int size = 20,
       Color color = Colors.black,
       FontStyle style = FontStyle.normal,
-
       TextAlign textaling = TextAlign.start,
-      FontWeight weight = FontWeight.normal}) {
+      FontWeight weight = FontWeight.normal, }) {
   ScreenUtil.instance = ScreenUtil(allowFontScaling: true)..init(context);
 
   return Text(
     text,
     textAlign: textaling,
-    style: GoogleFonts.abel(
+    style: TextStyle(
+          fontFamily: 'malgun',
       fontSize: ScreenUtil.getInstance().setSp(size),
       color: color,
       fontWeight: weight,
@@ -112,6 +114,8 @@ hTextalgun(text, context,
     ),
   );
 }
+
+
 
 
 hTextAbel(text, context,
@@ -846,13 +850,13 @@ dToast(String msg, {int timeInSecForIoss, String cor}) {
 }
 
 myAppBar(String titulo, context,
-    {actions, bool showBack = false, bool close = false, size}) {
+    {actions, bool showBack = false, bool close = false, size, estiloTexto, bold, backgroundcolor, color, colorIcon}) {
   if (showBack) {
     return AppBar(
       leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: Colors.black,
+            color: colorIcon == null? Colors.black: colorIcon,
           ),
           onPressed: () {
             if (close) {
@@ -890,26 +894,31 @@ myAppBar(String titulo, context,
               Navigator.of(context).pop();
             }
           }),
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundcolor == null? Colors.white: backgroundcolor,
+
       iconTheme: new IconThemeData(color: Colors.black, size: 100),
       centerTitle: true,
       actionsIconTheme: new IconThemeData(color: Colors.black, ),
       actions: actions,
       title: Text(
         titulo,
-        style: TextStyle(fontFamily: 'BankGothic', fontSize: size, color: Colors.black),
+        style: TextStyle(fontFamily: estiloTexto, fontSize: ScreenUtil.getInstance().setSp(size), color: color == null? Colors.black: color, fontWeight: bold,),
       )
     );
   }
+
+
+
+
   return AppBar(
-    backgroundColor: Colors.white,
-    iconTheme: new IconThemeData(color: Colors.black,size: 100),
+      backgroundColor: backgroundcolor == null? Colors.white: backgroundcolor,
+    iconTheme: new IconThemeData(   color: colorIcon == null? Colors.black: colorIcon,size: 100),
     centerTitle: true,
-    actionsIconTheme: new IconThemeData(color: Colors.black, size: 100),
+    actionsIconTheme: new IconThemeData(   color: colorIcon == null? Colors.black: colorIcon, size: 100),
     actions: actions,
     title: Text(
       titulo,
-      style: TextStyle(fontFamily: 'BankGothic', fontSize: 50, color: Colors.black),
+      style: TextStyle(fontFamily: 'BankGothic', fontSize: ScreenUtil.getInstance().setSp(size), color: color == null? Colors.black: color),
     )
   );
 }

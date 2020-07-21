@@ -23,11 +23,8 @@ class _LoginState extends State<Login> {
   bool logedIn = false;
   ProgressDialog pr;
   bool _obscureText = true;
-  void _toggle() {
-    setState(() {
-      _obscureText = !_obscureText;
-    });
-  }
+
+
   void showLoading(context) {
     pr = new ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
@@ -49,10 +46,16 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    LoginController lc;
+    if (lc == null) {
+      lc = LoginController();
+    }
     // TODO: implement build
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
+        height: getAltura(context),
+          width: getLargura(context),
           child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -60,25 +63,26 @@ class _LoginState extends State<Login> {
           children: <Widget>[
             Center(
                 child: Padding(
-              padding: const EdgeInsets.only(top: 60.0, bottom: 10),
+              padding:  EdgeInsets.only(top: getAltura(context)*.060, bottom: getAltura(context)*.010),
               child: Text(
                 'uFly',
-                style: TextStyle(fontFamily: 'BankGothic', fontSize: 50),
+                style: TextStyle(fontFamily: 'BankGothic', fontSize: getAltura(context)*.070),
               ),
             )),
             Container(
-              width: 234,
-              height: 160,
+
+              width: getLargura(context)*.7,
+              height: getAltura(context)*.250,
               child: Image.asset('assets/login_layout.png'),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10.0, right: 25, left: 25),
+              padding:  EdgeInsets.only(top: getAltura(context)*.010, right: getLargura(context)*.075, left: getLargura(context)*.075),
               child: TextFormField(
                 controller: controllerEmail,
                 style: TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                   labelText: 'E-mail',
-                  contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                  contentPadding: EdgeInsets.fromLTRB(getAltura(context)*.025,getLargura(context)*.020, getAltura(context)*.025, getLargura(context)*.020),
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(9.0),
                       borderSide: BorderSide(color: Colors.blue)),
@@ -89,34 +93,45 @@ class _LoginState extends State<Login> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 15.0, right: 25, left: 25),
-              child: TextFormField(
-                controller: controllerSenha,
-                obscureText: _obscureText,
-                
-                style: TextStyle(color: Colors.black),
-                decoration: InputDecoration(
+              padding:  EdgeInsets.only(top: getAltura(context)*.010, right: getLargura(context)*.075, left: getLargura(context)*.075),
+              child: StreamBuilder<bool>(
+                stream: lc.outHide,
+                builder: (context, snapshot) {
+            if(lc.hide == null){
+            lc.hide = false;
+            }
+                  return TextFormField(
+                    controller: controllerSenha,
+                    obscureText: lc.hide,
+                    style: TextStyle(color: Colors.black),
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      suffixIcon:  IconButton(
+                              icon: Icon(
+                                lc.hide == false
+                                    ? MdiIcons.eye
+                                    : MdiIcons.eyeOff,
+                              ),
+                              onPressed: () {
+                                lc.hide = ! lc.hide;
+                                lc.inHide.add(snapshot.data);
 
-                  labelText: 'Password',
-                        
-                      suffixIcon: IconButton(icon: Icon(_obscureText == false? MdiIcons.eye: MdiIcons.eyeOff, ), onPressed: (){
-                        _toggle;
-                      },),
-                  contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(9.0),
-                      borderSide: BorderSide(color: Colors.blue)),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(9.0),
-                      borderSide: BorderSide(color: Colors.blue)),
-                ),
-                
+                              },
+                            ),
+                      contentPadding: EdgeInsets.fromLTRB(getAltura(context)*.025,getLargura(context)*.020, getAltura(context)*.025, getLargura(context)*.020),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9.0),
+                          borderSide: BorderSide(color: Colors.blue)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9.0),
+                          borderSide: BorderSide(color: Colors.blue)),
+                    ),
+                  );
+                }
               ),
             ),
-
-
             Padding(
-              padding: const EdgeInsets.only(top: 15.0, right: 25, left: 25),
+              padding:  EdgeInsets.only(top:getAltura(context)*.025, right: getLargura(context)*.075, left: getLargura(context)*.075),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -127,26 +142,25 @@ class _LoginState extends State<Login> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 15.0, right: 25, left: 25),
+              padding:  EdgeInsets.only(top:getAltura(context)*.025, right: getLargura(context)*.075, left: getLargura(context)*.075),
               child: GestureDetector(
-                onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          HomePage(
-
-                          )));
+                onTap: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => HomePage()));
                 },
                 child: Container(
-                    height: 70,
-                    width: 310,
+                    height: getAltura(context)*.090,
+                    width: getLargura(context)*.9,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Color.fromRGBO(255, 184, 0, 100),
+                      color: Color.fromRGBO(255, 184, 0, 30),
                     ),
-                    child: Center(child: hTextAbel('Login', context, size: 100))),
+                    child:
+                        Center(child: hTextAbel('Entrar', context, size: 100))),
               ),
             ),
-            sb, sb,
+            sb,
+
             hTextAbel('Ou conecte com', context, size: 60),
             sb,
             Row(
@@ -154,14 +168,14 @@ class _LoginState extends State<Login> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.only(
-                    top: 5.0,left: 5,
+                  padding:  EdgeInsets.only(
+                    top:getAltura(context)*.010,
+                    left: getLargura(context)*.040,
                   ),
                   child: Container(
-                      height: 50,
-                      width: 150,
+                      height: getAltura(context)*.080,
+                      width: getLargura(context)*.4,
                       decoration: BoxDecoration(
-
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Image.asset(
@@ -169,33 +183,52 @@ class _LoginState extends State<Login> {
                         fit: BoxFit.fitWidth,
                       )),
                 ),
-                   sb,
+                sb,
                 Padding(
-                  padding: const EdgeInsets.only(
-                    top: 5.0,
+                  padding:  EdgeInsets.only(
+                    top:getAltura(context)*.010,
+                    left: getLargura(context)*.040,
                   ),
                   child: Container(
-                      height: 50,
-                      width: 150,
+                      height: getAltura(context)*.080,
+                      width: getLargura(context)*.4,
                       decoration: BoxDecoration(
-                         color: Colors.red,
+
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Image.asset(
                         'assets/botom_google.png',
                         fit: BoxFit.fitWidth,
                       )),
-                ),sb,
-
+                ),
+                sb,
               ],
-            ),sb,sb,
-            Row(mainAxisAlignment: MainAxisAlignment.center,crossAxisAlignment: CrossAxisAlignment.center,children: <Widget>[Center(
-              child: IconButton(icon: Icon(MdiIcons.instagram, size: 40,),onPressed: (){
-
-              }, )
-            ), IconButton(icon: Icon(MdiIcons.shareVariant, size: 40, ),onPressed: (){
-
-            }, ),],)
+            ),
+            sb,
+            sb,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Center(
+                    child: IconButton(
+                  icon: Icon(
+                    MdiIcons.instagram,
+                    size: getAltura(context)*.060,
+                  ),
+                  onPressed: () {},
+                )),sb,sb,
+                Center(
+                  child: IconButton(
+                    icon: Icon(
+                      MdiIcons.shareVariant,
+                      size: getAltura(context)*.060,
+                    ),
+                    onPressed: () {},
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       )),

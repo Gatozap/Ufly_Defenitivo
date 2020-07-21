@@ -13,6 +13,10 @@ import 'package:rxdart/rxdart.dart';
 
 class LoginController implements BlocBase {
   BehaviorSubject<User> _UserController = new BehaviorSubject<User>();
+  BehaviorSubject<bool> hideController = BehaviorSubject<bool>();
+  Stream<bool> get outHide => hideController.stream;
+  Sink<bool> get inHide => hideController.sink;
+ bool hide;
   //static final FacebookLogin facebookSignIn = new FacebookLogin();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(

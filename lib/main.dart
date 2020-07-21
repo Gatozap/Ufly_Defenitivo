@@ -7,7 +7,7 @@ void main() async {
     MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: MyApp(),
+        body: Login(),
       ),
     ),
   );
