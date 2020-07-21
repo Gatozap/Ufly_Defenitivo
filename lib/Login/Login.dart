@@ -52,6 +52,7 @@ class _LoginState extends State<Login> {
     }
     // TODO: implement build
     return Scaffold(
+
       backgroundColor: Colors.white,
       body: Container(
         height: getAltura(context),
@@ -205,7 +206,7 @@ class _LoginState extends State<Login> {
               ],
             ),
             sb,
-            sb,
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

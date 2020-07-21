@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                           ]),
                     )),
                 body: Container(
-                  height: getAltura(context),
+                  height: getAltura(context)*.98,
                   width: getLargura(context),
                   color: Colors.white,
                   child: Column(
