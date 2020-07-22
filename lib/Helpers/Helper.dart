@@ -1440,47 +1440,9 @@ final diacriticsMap = {};
 
 final diacriticsRegExp = new RegExp('[^\u0000-\u007E]', multiLine: true);
 
-extension StringExtension on String {
-  get validarDocumento {
-    if (this.toLowerCase().contains('CNH'.toLowerCase()) ||
-        this
-            .toLowerCase()
-            .contains('CARTEIRA NACIONAL DE HABILITAÇÃO'.toLowerCase()) ||
-        this
-            .toLowerCase()
-            .contains('CARTEIRA NACIONAL DE HABILITACAO'.toLowerCase())) {
-      return documentos.CNH;
-    }
-    if (this.toLowerCase().contains('REGISTRO GERAL'.toLowerCase())) {
-      return documentos.RG;
-    }
-    if (this
-            .toLowerCase()
-            .contains('Cadastro de Pessoas Fisicas'.toLowerCase()) ||
-        this.toLowerCase().contains('CPF'.toLowerCase())) {
-      List<String> list = this.split(' ');
-      bool isValid = false;
-      for (String s in list) {
-        if (CPFValidator.isValid(s.replaceAll('.', '').replaceAll('-', ''))) {
-          isValid = true;
-        }
-      }
-      print("AQUI TIPO: CPF > Valido? ${isValid}");
-      if (isValid) {
-        return documentos.CPF;
-      } else {
-        return null;
-      }
-    }
-    if (this.toLowerCase().contains('PASSAPORTE'.toLowerCase()) ||
-        this.toLowerCase().contains('PASSPORT'.toLowerCase()) ||
-        this.toLowerCase().contains('PASAPORT'.toLowerCase())) {
-      return documentos.PASSAPORTE;
-    }
-  }
 
-  String get getCPF {
-    List<String> list = this.split(' ');
+  String getCPF(String s){
+    List<String> list = s.split(' ');
     String cpf = null;
     for (String s in list) {
       if (CPFValidator.isValid(s.replaceAll('.', '').replaceAll('-', ''))) {
@@ -1490,7 +1452,7 @@ extension StringExtension on String {
     return cpf;
   }
 
-  String get removerAcentos {
+  String removerAcentos(s) {
     if (diacriticsMap.isEmpty) {
       for (var i = 0; i < defaultDiacriticsRemovalap.length; i++) {
         var letters = defaultDiacriticsRemovalap[i]['letters'];
@@ -1500,10 +1462,9 @@ extension StringExtension on String {
       }
     }
     // "what?" version ... http://jsperf.com/diacritics/12
-    return this.replaceAllMapped(diacriticsRegExp, (a) {
+    return s.replaceAllMapped(diacriticsRegExp, (a) {
       return diacriticsMap[a.group(0)] != null
           ? diacriticsMap[a.group(0)]
           : a.group(0);
     });
   }
-}

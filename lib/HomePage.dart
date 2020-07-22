@@ -94,7 +94,7 @@ class _HomePageState extends State<HomePage> {
                   context,
                   size: getAltura(context) * .15,
                 ),
-                bottomNavigationBar: BottomAppBar(
+               /* bottomNavigationBar: BottomAppBar(
                     elevation: 20,
                     color: Color.fromRGBO(255, 184, 0, 30),
                     child: Container(
@@ -151,13 +151,13 @@ class _HomePageState extends State<HomePage> {
                               ],
                             )
                           ]),
-                    )),
+                    )),*/
                 body: Container(
                   height: getAltura(context),
                   width: getLargura(context),
                   color: Colors.white,
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,
+                    mainAxisSize: MainAxisSize.max,mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Padding(

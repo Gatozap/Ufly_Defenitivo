@@ -52,7 +52,7 @@ class _FiltroPageState extends State<FiltroPage> {
         stream: pc.outPageController,
         builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
           return Scaffold(
-            bottomNavigationBar: BottomAppBar(
+           /* bottomNavigationBar: BottomAppBar(
                 elevation: 20,
                 color: Color.fromRGBO(255, 184, 0, 30),
                 child: Container(
@@ -107,7 +107,7 @@ class _FiltroPageState extends State<FiltroPage> {
                           ],
                         )
                       ]),
-                )),
+                )),*/
             appBar: myAppBar('Filtros', context,
                 estiloTexto: 'BankGothic',
                 size: getAltura(context) * .15,

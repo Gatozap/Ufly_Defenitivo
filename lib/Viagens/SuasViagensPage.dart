@@ -139,11 +139,6 @@ class _SuasViagensPageState extends State<SuasViagensPage> {
                         ],
                       ),
                       sb,
-                      Container(
-                        height: getLargura(context) * .80,
-                        color: Colors.black,
-                        width: 2,
-                      ),
                       Padding(
                         padding: EdgeInsets.only(
                             bottom: getAltura(context) * .045,

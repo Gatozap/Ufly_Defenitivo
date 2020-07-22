@@ -56,7 +56,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                 child: Image.asset('assets/menu.png'),
               ),
             )]),
-          bottomNavigationBar: BottomAppBar(
+         /* bottomNavigationBar: BottomAppBar(
               elevation: 20,
               color: Color.fromRGBO(255, 184, 0, 30),
               child: Container(
@@ -111,7 +111,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                         ],
                       )
                     ]),
-              )),
+              )),*/
           body: Container(
             width: getLargura(context),
             height: getAltura(context),
