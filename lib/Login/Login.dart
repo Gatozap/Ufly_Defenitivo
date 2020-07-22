@@ -50,7 +50,6 @@ class _LoginState extends State<Login> {
     if (lc == null) {
       lc = LoginController();
     }
-    // TODO: implement build
     return Scaffold(
 
       backgroundColor: Colors.white,
@@ -99,7 +98,7 @@ class _LoginState extends State<Login> {
                 stream: lc.outHide,
                 builder: (context, snapshot) {
             if(lc.hide == null){
-            lc.hide = false;
+            lc.hide = true;
             }
                   return TextFormField(
                     controller: controllerSenha,
@@ -109,7 +108,7 @@ class _LoginState extends State<Login> {
                       labelText: 'Password',
                       suffixIcon:  IconButton(
                               icon: Icon(
-                                lc.hide == false
+                                lc.hide == true
                                     ? MdiIcons.eye
                                     : MdiIcons.eyeOff,
                               ),

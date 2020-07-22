@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:googleapis/admin/directory_v1.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:ufly/Configuracao/AdicionarEnderecoPage.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/HomePage.dart';
 
 class ConfiguracaoPage extends StatefulWidget {
-  ConfiguracaoPage({Key key}) : super(key: key);
+  User u;
+  ConfiguracaoPage(this.u);
 
   @override
   _ConfiguracaoPageState createState() {
