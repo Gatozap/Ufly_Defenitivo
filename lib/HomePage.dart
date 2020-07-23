@@ -2,16 +2,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:ufly/Controllers/ControllerFiltros.dart';
+import 'package:ufly/Controllers/MotoristaController.dart';
+import 'package:ufly/home_page_list.dart';
 import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
 import 'package:ufly/Controllers/PagesController.dart';
 import 'package:ufly/Helpers/Helper.dart';
+import 'package:ufly/Objetos/Motorista.dart';
 import 'package:ufly/Viagens/FiltroPage.dart';
-import 'package:ufly/Viagens/InicioDeViagemPage/InicioDeViagemPage.dart';
-import 'package:ufly/Viagens/SolicitarViagemPage.dart';
+
+import 'Objetos/Carro.dart';
+import 'home_page_list.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -26,10 +31,12 @@ class _HomePageState extends State<HomePage> {
   final PagesController pc = new PagesController(0);
   PageController pageController;
   PagesController pg;
+  ControllerFiltros cf;
   void onTap(int index) {
     pc.inPageController.add(index);
   }
 
+  MotoristaController mt;
   var page0;
   var page1;
   var page2;
@@ -47,8 +54,35 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  static final h = Motorista(
+      foto: 'assets/julio.png',
+      nome: 'Júlio',
+      isOnline: true,
+      carro: Carro(
+          foto: 'assets/carro_julio.png',
+          categoria: 'Luxo',
+          modelo: 'Argo SUV 2020'));
+  static final n = Motorista(
+      foto: 'assets/melissa.png',
+      nome: 'Melissa',
+      isOnline: true,
+      carro: Carro(
+          foto: 'assets/eco_sport.png', categoria: 'Luxo', modelo: 'Ecosport'));
+  static final m = Motorista(
+      foto: 'assets/melissa.png',
+      nome: 'Melissa',
+      isOnline: true,
+      carro: Carro(
+          foto: 'assets/eco_sport.png', categoria: 'Luxo', modelo: 'Ecosport'));
+  List<Motorista> motoristas = [h, n, m];
   @override
   Widget build(BuildContext context) {
+    if (mt == null) {
+      mt = MotoristaController();
+    }
+    if(cf == null){
+      cf = ControllerFiltros();
+    }
     // TODO: implement build
     return StreamBuilder<int>(
         stream: pc.outPageController,
@@ -92,9 +126,9 @@ class _HomePageState extends State<HomePage> {
                 appBar: myAppBar(
                   'UFLY',
                   context,
-                  size: getAltura(context) * .15,
+                  size: ScreenUtil.getInstance().setSp(400),
                 ),
-               /* bottomNavigationBar: BottomAppBar(
+                /* bottomNavigationBar: BottomAppBar(
                     elevation: 20,
                     color: Color.fromRGBO(255, 184, 0, 30),
                     child: Container(
@@ -153,13 +187,95 @@ class _HomePageState extends State<HomePage> {
                           ]),
                     )),*/
                 body: Container(
-                  height: getAltura(context)*.98,
+                  height: getAltura(context),
                   width: getLargura(context),
                   color: Colors.white,
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
+                      StreamBuilder<bool>(
+                        stream: cf.outBool,
+                        builder: (context, snapshot) {
+                          if(cf.viagem == null){
+                            cf.viagem = false;
+                          }
+
+                          if(cf.entregas == null){
+                            cf.entregas = false;
+                          }
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Padding(
+                                padding:
+                                    EdgeInsets.only(top: getAltura(context) * .020),
+                                child: GestureDetector(
+                                  onTap: (){
+                                    cf.entregas = false;
+                                    cf.viagem = true;
+                                    cf.inBool.add(snapshot.data);
+                          }        ,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: cf.viagem == false? Color.fromRGBO(218, 218, 218, 100): Colors.black,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    height: getAltura(context) * .090,
+                                    width: getLargura(context) * .4,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: <Widget>[
+                                        Icon(
+                                          MdiIcons.car,
+                                          color: cf.viagem == false? Colors.black: Colors.white,
+                                          size: 40,
+                                        ),
+                                        hTextAbel('Viagens', context, size: 60, weight: FontWeight.bold, color: cf.viagem == false?Colors.black: Colors.white)
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    top: getAltura(context) * .020,
+                                    left: getLargura(context) * .040),
+                                child: GestureDetector(
+                                  onTap: (){
+                                    cf.entregas = true;
+                                    cf.viagem = false;
+                                    cf.inBool.add(snapshot.data);
+                          }         ,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: cf.entregas == false?Color.fromRGBO(218, 218, 218, 100): Colors.black,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    height: getAltura(context) * .090,
+                                    width: getLargura(context) * .4,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                      children: <Widget>[
+                                        Icon(
+                                          FontAwesomeIcons.rocket,
+                                          color: cf.entregas == false?Colors.black: Colors.white,
+                                          size: 30,
+                                        ),
+                                        hTextAbel('Entregas', context, size: 60, weight: FontWeight.bold, color: cf.entregas == false?Colors.black: Colors.white)
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          );
+                        }
+                      ),
                       Padding(
                         padding: EdgeInsets.only(
                             top: getAltura(context) * .020,
@@ -170,28 +286,24 @@ class _HomePageState extends State<HomePage> {
                           children: <Widget>[
                             Container(
                               color: Color.fromRGBO(248, 248, 248, 100),
-                              width: getLargura(context) * .75,
-                              child: Padding(
-                                padding: EdgeInsets.only(),
-                                child: Center(
-                                  child: TextFormField(
-                                    style: TextStyle(
-                                      color: Colors.black,
+                              width: getLargura(context) * .85,
+                              child: Center(
+                                child: TextFormField(
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                  expands: false,
+                                  decoration: InputDecoration(
+                                    suffixIcon: Icon(FontAwesomeIcons.map),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                    expands: false,
-                                    decoration: InputDecoration(
-                                      suffixIcon: Icon(FontAwesomeIcons.map),
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
-                                      labelText: 'Onde você está?',
-                                      contentPadding: EdgeInsets.fromLTRB(
-                                          getLargura(context) * .040,
-                                          getAltura(context) * .020,
-                                          getLargura(context) * .040,
-                                          getAltura(context) * .020),
-                                    ),
+                                    labelText: 'Onde você está?',
+                                    contentPadding: EdgeInsets.fromLTRB(
+                                        getLargura(context) * .040,
+                                        getAltura(context) * .020,
+                                        getLargura(context) * .040,
+                                        getAltura(context) * .020),
                                   ),
                                 ),
                               ),
@@ -199,7 +311,7 @@ class _HomePageState extends State<HomePage> {
                             sb,
                             Container(
                               color: Color.fromRGBO(248, 248, 248, 100),
-                              width: getLargura(context) * .75,
+                              width: getLargura(context) * .85,
                               child: TextField(
                                 style: TextStyle(color: Colors.black),
                                 expands: false,
@@ -223,284 +335,40 @@ class _HomePageState extends State<HomePage> {
                       ),
                       Container(
                         width: getLargura(context),
-                        height: getAltura(context) * .35,
+                        height: getAltura(context) * .30,
                         child: Image.asset(
                           'assets/mapa_inicial.png',
                           fit: BoxFit.fill,
                         ),
                       ),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => FiltroPage()));
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  border: Border.all(),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: getLargura(context) * .020,
-                                    vertical: getAltura(context) * .025),
-                                height: getLargura(context) * .40,
-                                width: getLargura(context) * .40,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      width: getLargura(context) * .2,
-                                      height: getLargura(context) * .2,
-                                      child: Icon(
-                                        Icons.search,
-                                        color: Colors.white,
-                                        size: getAltura(context) * .075,
-                                      ),
-                                    ),
-                                    hTextAbel('Procurar', context,
-                                        color: Colors.white,
-                                        textaling: TextAlign.center,
-                                        size: 60)
-                                  ],
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        SolicitarViagemPage()));
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  border: Border.all(),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: getLargura(context) * .020,
-                                    vertical: getAltura(context) * .025),
-                                height: getLargura(context) * .40,
-                                width: getLargura(context) * .40,
-                                child: Column(
-                                  children: <Widget>[
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: <Widget>[
-                                        CircleAvatar(
-                                            backgroundImage:
-                                                AssetImage('assets/julio.png'),
-                                            radius: 30),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              top: getAltura(context) * .030,
-                                              left: getLargura(context) * .015),
-                                          child: Container(
-                                            child: hTextAbel('Júlio', context,
-                                                color: Colors.white, size: 65),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              left: getLargura(context) * .030,
-                                              top: getAltura(context) * .015),
-                                          child: CircleAvatar(
-                                            radius: 8,
-                                            backgroundColor:
-                                                Color.fromRGBO(0, 255, 0, 10),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    Container(
-                                      height: getAltura(context) * .075,
-                                      child: Image.asset(
-                                        'assets/carro_julio.png',
-                                        fit: BoxFit.fill,
-                                      ),
-                                    ),
-                                    Container(
-                                        child: hTextAbel(
-                                            'Argo SUV 2020', context,
-                                            size: 50, color: Colors.white))
-                                  ],
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                /*Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => CriarCampanhaPage())); */
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  border: Border.all(),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: getLargura(context) * .020,
-                                    vertical: getAltura(context) * .025),
-                                height: getLargura(context) * .40,
-                                width: getLargura(context) * .40,
-                                child: Column(
-                                  children: <Widget>[
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: <Widget>[
-                                        CircleAvatar(
-                                            backgroundImage:
-                                                AssetImage('assets/ana.png'),
-                                            radius: 30),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              top: getAltura(context) * .030,
-                                              left: getLargura(context) * .015),
-                                          child: Container(
-                                            child: hTextAbel('Ana', context,
-                                                color: Colors.white, size: 65),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              left: getLargura(context) * .030,
-                                              top: getAltura(context) * .015),
-                                          child: CircleAvatar(
-                                            radius: 8,
-                                            backgroundColor:
-                                                Color.fromRGBO(0, 255, 0, 10),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    Container(
-                                      height: getAltura(context) * .075,
-                                      child: Image.asset(
-                                        'assets/c3.png',
-                                        fit: BoxFit.fill,
-                                      ),
-                                    ),
-                                    Container(
-                                        child: hTextAbel(
-                                            'C3 Attraction', context,
-                                            size: 50, color: Colors.white))
-                                  ],
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                /*Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => CriarCampanhaPage())); */
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  border: Border.all(),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: getLargura(context) * .020,
-                                    vertical: getAltura(context) * .025),
-                                height: getLargura(context) * .40,
-                                width: getLargura(context) * .40,
-                                child: Column(
-                                  children: <Widget>[
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: <Widget>[
-                                        CircleAvatar(
-                                            backgroundImage:
-                                                AssetImage('assets/pedro.png'),
-                                            radius: 30),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              top: getAltura(context) * .030,
-                                              left: getLargura(context) * .015),
-                                          child: Container(
-                                            child: hTextAbel('Pedro', context,
-                                                color: Colors.white, size: 65),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              left: getLargura(context) * .030,
-                                              top: getAltura(context) * .015),
-                                          child: CircleAvatar(
-                                            radius: 8,
-                                            backgroundColor:
-                                                Color.fromRGBO(0, 255, 0, 10),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    Container(
-                                      height: getAltura(context) * .075,
-                                      child: Image.asset(
-                                        'assets/fazer250.png',
-                                        fit: BoxFit.fill,
-                                      ),
-                                    ),
-                                    Container(
-                                        child: hTextAbel('Fazer 250', context,
-                                            size: 50, color: Colors.white))
-                                  ],
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                /*Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => CriarCampanhaPage())); */
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Color.fromRGBO(218, 218, 218, 100),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: getLargura(context) * .020,
-                                    vertical: getAltura(context) * .025),
-                                height: getLargura(context) * .40,
-                                width: getLargura(context) * .40,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      height: getLargura(context) * .2,
-                                      width: getLargura(context) * .2,
-                                      child: Icon(
-                                        Icons.add_circle_outline,
-                                        color: Colors.black,
-                                        size: getAltura(context) * .075,
-                                      ),
-                                    ),
-                                    hTextAbel('Adicionar\na Frota', context,
-                                        color: Colors.black,
-                                        textaling: TextAlign.center,
-                                        size: 60)
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          StreamBuilder(
+                              stream: mt.outMotorista,
+                              builder: (context, snapshot) {
+                                return Container(
+                                  width: getLargura(context),
+                                  height: getAltura(context) * .25,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    shrinkWrap: true,
+                                    itemBuilder: (context, index) {
+                                      if (index == 0) {
+                                        return ProcurarWidget();
+                                      } else if (index ==
+                                          motoristas.length + 1) {
+                                        return AdicionarAFrotaWidget();
+                                      } else {
+                                        return HomePageList(
+                                            motoristas[index - 1]);
+                                      }
+                                    },
+                                    itemCount: motoristas.length + 2,
+                                  ),
+                                );
+                              }),
+                        ],
                       )
                     ],
                   ),
@@ -511,5 +379,80 @@ class _HomePageState extends State<HomePage> {
             return Container();
           }
         });
+  }
+
+  Widget AdicionarAFrotaWidget() {
+    return GestureDetector(
+      onTap: () {
+        /*Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => CriarCampanhaPage())); */
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(218, 218, 218, 100),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        margin: EdgeInsets.symmetric(
+            horizontal: getLargura(context) * .020,
+            vertical: getAltura(context) * .025),
+        height: getLargura(context) * .40,
+        width: getLargura(context) * .40,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              height: getLargura(context) * .2,
+              width: getLargura(context) * .2,
+              child: Icon(
+                Icons.add_circle_outline,
+                color: Colors.black,
+                size: getAltura(context) * .075,
+              ),
+            ),
+            hTextAbel('Adicionar\na Frota', context,
+                color: Colors.black, textaling: TextAlign.center, size: 60)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget ProcurarWidget() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => FiltroPage()));
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black,
+          border: Border.all(),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        margin: EdgeInsets.symmetric(
+            horizontal: getLargura(context) * .020,
+            vertical: getAltura(context) * .025),
+        height: getLargura(context) * .40,
+        width: getLargura(context) * .40,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              width: getLargura(context) * .2,
+              height: getLargura(context) * .2,
+              child: Icon(
+                Icons.search,
+                color: Colors.white,
+                size: getAltura(context) * .075,
+              ),
+            ),
+            hTextAbel('Procurar', context,
+                color: Colors.white, textaling: TextAlign.center, size: 60)
+          ],
+        ),
+      ),
+    );
   }
 }

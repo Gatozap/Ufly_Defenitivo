@@ -127,7 +127,9 @@ hTextAbel(text, context,
   ScreenUtil.instance = ScreenUtil(allowFontScaling: true)..init(context);
 
   return Text(
+
     text,
+    overflow: TextOverflow.ellipsis,
     textAlign: textaling,
     style: GoogleFonts.abel(
       fontSize: ScreenUtil.getInstance().setSp(size),

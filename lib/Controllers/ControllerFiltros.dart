@@ -7,6 +7,9 @@ class ControllerFiltros implements BlocBase {
   Stream<bool> get outBool => boolController.stream;
 
   Sink<bool> get inBool => boolController.sink;
+
+  bool viagem;
+  bool entregas;
   bool mtbom;
   bool bom;
   bool ruim;
@@ -32,7 +35,8 @@ class ControllerFiltros implements BlocBase {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    boolController.close();
+
   }
 
 }

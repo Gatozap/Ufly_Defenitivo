@@ -57,7 +57,7 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         return Scaffold(
           appBar: myAppBar('Sua Viagem', context, size: getAltura(context)*.15, backgroundcolor: Colors.black, color: Colors.white, colorIcon: Colors.white),
-          bottomNavigationBar: BottomAppBar(
+          /*bottomNavigationBar: BottomAppBar(
               elevation: 20,
               color: Color.fromRGBO(255, 184, 0, 30),
               child: Container(
@@ -112,7 +112,7 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
                         ],
                       )
                     ]),
-              )),
+              )),*/
           body: Container(
             width: getLargura(context),
             height: getAltura(context),
@@ -396,34 +396,39 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(60.0),
                           color: Color.fromRGBO(218, 218, 218, 100)),
-                      height: getAltura(context) * .070,
-                      width: getLargura(context) * .635,
+                      height: getAltura(context) * .1,
+                      width: getLargura(context) * .80,
                       child: Row(
                         children: <Widget>[
                           sb,
                           Icon(
                             Icons.access_time,
                             color: Colors.black,
-                            size: 40,
+                            size: 50,
                           ),
                           sb,
-                          hTextAbel('Solicitar Agora', context),
-                          sb,
-                          CircleAvatar(
+                          hTextAbel('Solicitar Agora', context, size: 70),
+                                Padding(
+                                  padding:  EdgeInsets.only(left: getLargura(context)*.045),
+                                  child: CircleAvatar(
                             backgroundColor:
                             Color.fromRGBO(170, 170, 170, 180),
-                            radius: 27.5,
-                            child: IconButton(
-                              onPressed: (){
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => ChamandoMotoristaPage()));
-                              },
-                              icon: Icon(
-                                Icons.expand_more,
-                                color: Colors.black,
+                            radius: 35,
+                            child: Center(
+                              child: IconButton(
+                                  onPressed: (){
+                                    Navigator.of(context).push(MaterialPageRoute(
+                                        builder: (context) => ChamandoMotoristaPage()));
+                                  },
+                                  icon: Icon(
+                                    Icons.expand_more,
+                                    color: Colors.black,
+                                    size: 35,
+                                  ),
                               ),
                             ),
-                          )
+                          ),
+                                )
                         ],
                       ),
                     ),

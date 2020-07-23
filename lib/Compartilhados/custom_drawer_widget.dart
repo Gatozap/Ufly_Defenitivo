@@ -168,17 +168,17 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                   padding: EdgeInsets.only(
                       top: getLargura(context) * .45, left: 10, ),
                   child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Container(
                           width: 38,
                           child: Image.asset('assets/sair.png'),
                         ),
-                        menuButton(context, 'Sair', true, () {}),
-                        Padding(
-                          padding:  EdgeInsets.only(right:8.0),
-                          child: hTextAbel('v0.000.001', context),
-                        ),
+                        menuButton(context, 'Sair', true, () {
+                          doLogout(context);
+
+                        }),
+
                       ]),
                 ),
               ],

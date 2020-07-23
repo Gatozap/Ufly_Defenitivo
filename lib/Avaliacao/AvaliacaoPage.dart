@@ -62,6 +62,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                           alignment: Alignment.bottomCenter,
                           child: hTextMal(
                               'Como foi sua corrida?\nAvalie e adicione-a sua frota',
+
                               context,
                               color: Colors.black,
                               size: 70,
@@ -70,7 +71,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                       ),
                     ),
                     sb,
-                    sb,
+               
                     CircleAvatar(
                       backgroundImage: AssetImage('assets/julio.png'),
                       radius: 50,
@@ -78,9 +79,18 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                     hTextMal('Júlio', context, size: 80, weight: FontWeight.bold),
                     Padding(
                       padding: EdgeInsets.only(top: getAltura(context) * .10),
-                      child: Center(
-                          child: hTextAbel('Adicionar a sua Frota', context,
-                              size: 80, color: Colors.black)),
+                      child: Container(
+                        width: getLargura(context)*.80,
+                        height: getAltura(context)*.080,
+
+                        decoration: BoxDecoration(
+                          color: Color.fromRGBO(255, 184, 0, 30),
+                        borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Center(
+                            child: hTextAbel('Adicionar a sua Frota', context,
+                                size: 80, color: Colors.black)),
+                      ),
                     ),
                     sb,
                     sb,
@@ -200,7 +210,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                           ),
                         ],
                       ),
-                    ),sb,sb,sb,sb,
+                    ),sb,sb,
                     Container(width: getLargura(context)*.90, height: getAltura(context)*.1,    decoration: BoxDecoration(
                       color: Color.fromRGBO(255, 184, 0, 30),
                       boxShadow: [

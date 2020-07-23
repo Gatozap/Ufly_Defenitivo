@@ -46,7 +46,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
         stream: pc.outPageController,
         builder: (context, snapshot) {
           return Scaffold(
-            bottomNavigationBar: BottomAppBar(
+            /*bottomNavigationBar: BottomAppBar(
                 elevation: 20,
                 color: Color.fromRGBO(255, 184, 0, 30),
                 child: Container(
@@ -101,7 +101,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                           ],
                         )
                       ]),
-                )),
+                )),*/
             body: Container(
               height: getAltura(context),
               width: getLargura(context),
