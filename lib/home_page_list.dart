@@ -6,83 +6,88 @@ import 'Objetos/Motorista.dart';
 import 'Objetos/User.dart';
 import 'Viagens/SolicitarViagemPage.dart';
 
-class HomePageList extends StatelessWidget {
-
+class FrotaListItem extends StatelessWidget {
   Motorista motorista;
-
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: <Widget>[
-      GestureDetector(
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) =>
-                  SolicitarViagemPage()));
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-            border: Border.all(),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          margin: EdgeInsets.symmetric(
-              horizontal: getLargura(context) * .020,
-              vertical: getAltura(context) * .025),
-
-          child: Column(
-            children: <Widget>[
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
-                mainAxisAlignment:
-                MainAxisAlignment.start,
-                children: <Widget>[
-                  CircleAvatar(
-                      backgroundImage:
-                      AssetImage(motorista.foto),
-                      radius: 30),
-                  Padding(
-                    padding: EdgeInsets.only(
-                        top: getAltura(context) * .030,
-                        left: getLargura(context) * .015),
-                    child: Container(
-                      child: hTextAbel(motorista.nome, context,
-                          color: Colors.white, size: 65),
+    return Row(
+      children: <Widget>[
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => SolicitarViagemPage()));
+          },
+          child: Container(
+            height: getLargura(context) * .42,
+            width: getLargura(context) * .38,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            margin: EdgeInsets.symmetric(
+                horizontal: getLargura(context) * .030,
+                vertical: getAltura(context) * .025),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Stack(
+                  children: <Widget>[
+                    Positioned(
+                      child: CircleAvatar(
+                          backgroundImage: AssetImage(motorista.foto),
+                          radius: 25),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                        left: getLargura(context) * .010,
-                        right: getLargura(context)*.020,
-                        top: getAltura(context) * .005),
-                    child: CircleAvatar(
-                      radius: 8,
-                      backgroundColor:
-                      Color.fromRGBO(0, 255, 0, 10),
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: CircleAvatar(
+                        radius: 8,
+                        backgroundColor: Color.fromRGBO(0, 255, 0, 10),
+                      ),
                     ),
-                  )
-                ],
-              ),
-              Container(
-                height: getAltura(context) * .075,
-                child: Image.asset(
-                  motorista.carro.foto,
-                  fit: BoxFit.fill,
+                  ],
                 ),
-              ),
-              Container(
-                  child: hTextAbel(
-                      motorista.carro.modelo, context,
-                      size: 50, color: Colors.white))
-            ],
+                sb,
+                Padding(
+                  padding: const EdgeInsets.only(left:16.0,right: 16),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+
+                      Expanded(
+                        child: hTextAbel(motorista.nome, context,         textaling: TextAlign.center,
+                            color: Colors.white, size: 50),
+                      ),
+                    ],
+                  ),
+                ),
+                sb,
+                Padding(
+                  padding: const EdgeInsets.only(left:16.0,right: 16),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+
+                      Expanded(
+                        child: hTextAbel(motorista.carro.modelo, context, textaling: TextAlign.center,
+                            color: Colors.white, size: 50),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),],);
+      ],
+    );
   }
 
-  HomePageList(this.motorista);
+  FrotaListItem(this.motorista);
 }
-
-

@@ -48,8 +48,7 @@ class _ConfiguracaoPageState extends State<ConfiguracaoPage> {
         'Configurações',
         context,
         size: ScreenUtil.getInstance().setSp(250),
-        estiloTexto: 'BankGothic',
-        showBack: true,
+        
       ),
       body: SingleChildScrollView(
         child: Column(

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:ufly/Controllers/PagesController.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/HomePage.dart';
+
 
 import 'ChamandoMotoristaPage/ChamandoMotoristaPage.dart';
 
@@ -56,7 +56,7 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
       stream: pc.outPageController,
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         return Scaffold(
-          appBar: myAppBar('Sua Viagem', context, size: getAltura(context)*.15, backgroundcolor: Colors.black, color: Colors.white, colorIcon: Colors.white),
+          appBar: myAppBar('Sua Viagem', context, size: ScreenUtil.getInstance().setSp(250), backgroundcolor: Colors.black, color: Colors.white, colorIcon: Colors.white),
           /*bottomNavigationBar: BottomAppBar(
               elevation: 20,
               color: Color.fromRGBO(255, 184, 0, 30),
@@ -441,4 +441,5 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
       }
     );
   }
+
 }

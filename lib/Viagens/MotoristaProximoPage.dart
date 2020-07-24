@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:ufly/Controllers/MotoristaController.dart';
 import 'package:ufly/Controllers/PagesController.dart';
 import 'package:ufly/Helpers/Helper.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ufly/Objetos/Carro.dart';
 import 'package:ufly/Objetos/Motorista.dart';
 import 'package:ufly/Viagens/motoristas_list_item.dart';
@@ -88,7 +88,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
         builder: (context, snapshot) {
           return Scaffold(
             appBar: myAppBar('Motoristas', context,
-                size: getAltura(context) * .14,
+                size: ScreenUtil.getInstance().setSp(200),
                 backgroundcolor: Color.fromRGBO(255, 184, 0, 30),
                 actions: [
                   Padding(

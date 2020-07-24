@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/HomePage.dart';
 
@@ -65,8 +66,8 @@ class _AjudaPageState extends State<AjudaPage> {
     return Scaffold(
       appBar: myAppBar('Ajuda', context,
           showBack: true,
-          size: getAltura(context)*.15,
-                  estiloTexto: 'BankGothic',
+          size: ScreenUtil.getInstance().setSp(300),
+
     ),
       body: Column(
         children: <Widget>[

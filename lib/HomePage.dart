@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:ufly/Controllers/MotoristaController.dart';
 import 'package:ufly/home_page_list.dart';
@@ -16,6 +18,7 @@ import 'package:ufly/Objetos/Motorista.dart';
 import 'package:ufly/Viagens/FiltroPage.dart';
 
 import 'Objetos/Carro.dart';
+import 'Viagens/InicioDeViagemPage/InicioDeViagemPage.dart';
 import 'home_page_list.dart';
 
 class HomePage extends StatefulWidget {
@@ -56,7 +59,7 @@ class _HomePageState extends State<HomePage> {
 
   static final h = Motorista(
       foto: 'assets/julio.png',
-      nome: 'Júlio',
+      nome: 'JúlianoAlmeidaSauro',
       isOnline: true,
       carro: Carro(
           foto: 'assets/carro_julio.png',
@@ -64,7 +67,7 @@ class _HomePageState extends State<HomePage> {
           modelo: 'Argo SUV 2020'));
   static final n = Motorista(
       foto: 'assets/melissa.png',
-      nome: 'Melissa',
+      nome: 'Melissa Melissa',
       isOnline: true,
       carro: Carro(
           foto: 'assets/eco_sport.png', categoria: 'Luxo', modelo: 'Ecosport'));
@@ -80,7 +83,7 @@ class _HomePageState extends State<HomePage> {
     if (mt == null) {
       mt = MotoristaController();
     }
-    if(cf == null){
+    if (cf == null) {
       cf = ControllerFiltros();
     }
     // TODO: implement build
@@ -89,296 +92,321 @@ class _HomePageState extends State<HomePage> {
         builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
           if (snapshot.data != null) {
             return WillPopScope(
-              onWillPop: () {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      // return object of type Dialog
-                      return AlertDialog(
-                        shape: Border.all(),
-                        title: new Text('Deseja Sair?'),
-                        content: Text('Tem Certeza?'),
-                        actions: <Widget>[
-                          MaterialButton(
-                            child: Text(
-                              'Cancelar',
-                              style: GoogleFonts.openSans(color: Colors.green),
+                onWillPop: () {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        // return object of type Dialog
+                        return AlertDialog(
+                          shape: Border.all(),
+                          title: new Text('Deseja Sair?'),
+                          content: Text('Tem Certeza?'),
+                          actions: <Widget>[
+                            MaterialButton(
+                              child: Text(
+                                'Cancelar',
+                                style:
+                                    GoogleFonts.openSans(color: Colors.green),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
                             ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                          MaterialButton(
-                            child: Text(
-                              'Sair',
-                              style: GoogleFonts.openSans(color: Colors.red),
-                            ),
-                            onPressed: () {
-                              SystemNavigator.pop();
-                            },
-                          )
-                        ],
-                      );
-                    });
-              },
-              child: Scaffold(
-                drawer: CustomDrawerWidget(),
-                appBar: myAppBar(
-                  'UFLY',
-                  context,
-                  size: ScreenUtil.getInstance().setSp(400),
-                ),
-                /* bottomNavigationBar: BottomAppBar(
-                    elevation: 20,
-                    color: Color.fromRGBO(255, 184, 0, 30),
-                    child: Container(
-                      height: getAltura(context) * .1,
-                      width: getLargura(context),
-                      child: new Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                snapshot.data == 0
-                                    ? Shimmer.fromColors(
-                                        baseColor: Colors.black,
-                                        highlightColor: Colors.white,
-                                        child: Container(
-                                          child:
-                                              Image.asset('assets/viagem.png'),
-                                        ))
-                                    : GestureDetector(
-                                        onTap: () {
-                                          onTap(0);
-                                          Navigator.of(context).push(MaterialPageRoute(
-                                              builder: (context) => InicioDeViagemPage()));
-                                        },
-                                        child: Container(
-                                          child:
-                                              Image.asset('assets/viagem.png'),
-                                        )),
-                                hTextAbel('Viagens', context, size: 60)
-                              ],
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                snapshot.data == 1
-                                    ? Shimmer.fromColors(
-                                        baseColor: Colors.black,
-                                        highlightColor: Colors.white,
-                                        child: Container(
-                                          child:
-                                              Image.asset('assets/entregas.png'),
-                                        ))
-                                    : GestureDetector(
-                                    onTap: () {
-                                      onTap(1);
-                                    },
-                                    child: Container(
-                                      child:
-                                      Image.asset('assets/entregas.png'),
-                                    )),
-                                hTextAbel('Entregas', context, size: 60)
-                              ],
+                            MaterialButton(
+                              child: Text(
+                                'Sair',
+                                style: GoogleFonts.openSans(color: Colors.red),
+                              ),
+                              onPressed: () {
+                                SystemNavigator.pop();
+                              },
                             )
-                          ]),
-                    )),*/
-                body: Container(
-                  height: getAltura(context),
-                  width: getLargura(context),
-                  color: Colors.white,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      StreamBuilder<bool>(
-                        stream: cf.outBool,
-                        builder: (context, snapshot) {
-                          if(cf.viagem == null){
-                            cf.viagem = false;
-                          }
-
-                          if(cf.entregas == null){
-                            cf.entregas = false;
-                          }
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                          ],
+                        );
+                      });
+                },
+                child: Scaffold(
+                  drawer: CustomDrawerWidget(),
+                  appBar: myAppBar(
+                    'UFLY',
+                    context,
+                    size: ScreenUtil.getInstance().setSp(300),
+                  ),
+                  body: SlidingUpPanel(
+                    renderPanelSheet: false,
+                    minHeight: 60,
+                    maxHeight: getAltura(context) * .35,
+                    borderRadius: BorderRadius.circular(20),
+                    collapsed:
+                    Container(
+                      margin: const EdgeInsets.only(left: 24.0, right: 24),
+                      child: Row(
+                        children: <Widget>[
+                          Stack(
                             children: <Widget>[
                               Padding(
-                                padding:
-                                    EdgeInsets.only(top: getAltura(context) * .020),
-                                child: GestureDetector(
-                                  onTap: (){
-                                    cf.entregas = false;
-                                    cf.viagem = true;
-                                    cf.inBool.add(snapshot.data);
-                          }        ,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: cf.viagem == false? Color.fromRGBO(218, 218, 218, 100): Colors.black,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    height: getAltura(context) * .090,
-                                    width: getLargura(context) * .4,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        Icon(
-                                          MdiIcons.car,
-                                          color: cf.viagem == false? Colors.black: Colors.white,
-                                          size: 40,
+                                padding: const EdgeInsets.only(top: 30.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(24.0),
+                                          topRight: Radius.circular(24.0)),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          blurRadius: 20.0,
+                                          color: Colors.grey,
                                         ),
-                                        hTextAbel('Viagens', context, size: 60, weight: FontWeight.bold, color: cf.viagem == false?Colors.black: Colors.white)
-                                      ],
-                                    ),
+                                      ]),
+                                  width: getLargura(context) - 48,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: <Widget>[
+                                      sb,
+                                      sb,
+                                      Container(
+                                        child: Container(
+                                            width: getLargura(context) * .4,
+                                            color: Colors.grey,
+                                            height: 3),
+                                      )
+                                    ],
                                   ),
                                 ),
                               ),
+                        
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    panel: _floatingPanel(),
+                    body: Container(
+                      height: getAltura(context),
+                      width: getLargura(context),
+                      color: Colors.white,
+                      child: Stack(
+                        children: <Widget>[
+                          Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              StreamBuilder<bool>(
+                                  stream: cf.outBool,
+                                  builder: (context, snapshot) {
+                                    if (cf.viagem == null) {
+                                      cf.viagem = false;
+                                    }
+
+                                    if (cf.entregas == null) {
+                                      cf.entregas = false;
+                                    }
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              top: getAltura(context) * .020),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              cf.entregas = false;
+                                              cf.viagem = true;
+                                              cf.inBool.add(snapshot.data);
+
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: cf.viagem == false
+                                                    ? Color.fromRGBO(
+                                                        218, 218, 218, 100)
+                                                    : Color.fromRGBO(255, 184, 0, 30),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              height: getAltura(context) * .070,
+                                              width: getLargura(context) * .4,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: <Widget>[
+                                                  Icon(
+                                                    MdiIcons.car,
+                                                    color:  Colors.black
+                                                        ,
+                                                    size: 40,
+                                                  ),
+                                                  hTextAbel('Viagens', context,
+                                                      size: 60,
+                                                      weight: FontWeight.bold,
+                                                      color:  Colors.black
+                                                          )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              top: getAltura(context) * .020,
+                                              left: getLargura(context) * .040),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              cf.entregas = true;
+                                              cf.viagem = false;
+                                              cf.inBool.add(snapshot.data);
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: cf.entregas == false
+                                                    ? Color.fromRGBO(
+                                                        218, 218, 218, 100)
+                                                    : Color.fromRGBO(255, 184, 0, 30),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              height: getAltura(context) * .070,
+                                              width: getLargura(context) * .4,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: <Widget>[
+                                                  Icon(
+                                                    FontAwesomeIcons.rocket,
+                                                    color:  Colors.black
+                                                       ,
+                                                    size: 30,
+                                                  ),
+                                                  hTextAbel('Entregas', context,
+                                                      size: 60,
+                                                      weight: FontWeight.bold,
+                                                      color:
+                                                           Colors.black
+                                                              )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    );
+                                  }),
                               Padding(
                                 padding: EdgeInsets.only(
                                     top: getAltura(context) * .020,
-                                    left: getLargura(context) * .040),
-                                child: GestureDetector(
-                                  onTap: (){
-                                    cf.entregas = true;
-                                    cf.viagem = false;
-                                    cf.inBool.add(snapshot.data);
-                          }         ,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: cf.entregas == false?Color.fromRGBO(218, 218, 218, 100): Colors.black,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    height: getAltura(context) * .090,
-                                    width: getLargura(context) * .4,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        Icon(
-                                          FontAwesomeIcons.rocket,
-                                          color: cf.entregas == false?Colors.black: Colors.white,
-                                          size: 30,
+                                    bottom: getAltura(context) * .010),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      color: Color.fromRGBO(248, 248, 248, 100),
+                                      width: getLargura(context) * .85,
+                                      child: Center(
+                                        child: TextFormField(
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                          ),
+                                          expands: false,
+                                          decoration: InputDecoration(
+                                            suffixIcon:
+                                                Icon(FontAwesomeIcons.map),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            labelText: 'Onde você está?',
+                                            contentPadding: EdgeInsets.fromLTRB(
+                                                getLargura(context) * .040,
+                                                getAltura(context) * .020,
+                                                getLargura(context) * .040,
+                                                getAltura(context) * .020),
+                                          ),
                                         ),
-                                        hTextAbel('Entregas', context, size: 60, weight: FontWeight.bold, color: cf.entregas == false?Colors.black: Colors.white)
-                                      ],
+                                      ),
                                     ),
-                                  ),
+                                    sb,
+                                    Container(
+                                      color: Color.fromRGBO(248, 248, 248, 100),
+                                      width: getLargura(context) * .85,
+                                      child: TextField(
+                                        style: TextStyle(color: Colors.black),
+                                        expands: false,
+                                        decoration: InputDecoration(
+                                          suffixIcon: Icon(
+                                              FontAwesomeIcons.mapMarkedAlt),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                          labelText: 'Qual seu destino?',
+                                          contentPadding: EdgeInsets.fromLTRB(
+                                              getLargura(context) * .040,
+                                              getAltura(context) * .020,
+                                              getLargura(context) * .040,
+                                              getAltura(context) * .020),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              )
+                              ),
+                              Expanded(
+                                child: GoogleMap(mapType: MapType.normal, initialCameraPosition: CameraPosition(target: LatLng(40.712776, -74.005974),zoom: 12, ),markers: {posicao})
+                              ),
                             ],
-                          );
-                        }
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            top: getAltura(context) * .020,
-                            bottom: getAltura(context) * .010),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              color: Color.fromRGBO(248, 248, 248, 100),
-                              width: getLargura(context) * .85,
-                              child: Center(
-                                child: TextFormField(
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                  ),
-                                  expands: false,
-                                  decoration: InputDecoration(
-                                    suffixIcon: Icon(FontAwesomeIcons.map),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    labelText: 'Onde você está?',
-                                    contentPadding: EdgeInsets.fromLTRB(
-                                        getLargura(context) * .040,
-                                        getAltura(context) * .020,
-                                        getLargura(context) * .040,
-                                        getAltura(context) * .020),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            sb,
-                            Container(
-                              color: Color.fromRGBO(248, 248, 248, 100),
-                              width: getLargura(context) * .85,
-                              child: TextField(
-                                style: TextStyle(color: Colors.black),
-                                expands: false,
-                                decoration: InputDecoration(
-                                  suffixIcon:
-                                      Icon(FontAwesomeIcons.mapMarkedAlt),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  labelText: 'Qual seu destino?',
-                                  contentPadding: EdgeInsets.fromLTRB(
-                                      getLargura(context) * .040,
-                                      getAltura(context) * .020,
-                                      getLargura(context) * .040,
-                                      getAltura(context) * .020),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: getLargura(context),
-                        height: getAltura(context) * .30,
-                        child: Image.asset(
-                          'assets/mapa_inicial.png',
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          StreamBuilder(
-                              stream: mt.outMotorista,
-                              builder: (context, snapshot) {
-                                return Container(
-                                  width: getLargura(context),
-                                  height: getAltura(context) * .25,
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    shrinkWrap: true,
-                                    itemBuilder: (context, index) {
-                                      if (index == 0) {
-                                        return ProcurarWidget();
-                                      } else if (index ==
-                                          motoristas.length + 1) {
-                                        return AdicionarAFrotaWidget();
-                                      } else {
-                                        return HomePageList(
-                                            motoristas[index - 1]);
-                                      }
-                                    },
-                                    itemCount: motoristas.length + 2,
-                                  ),
-                                );
-                              }),
+                          ),
                         ],
-                      )
-                    ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            );
+                ));
           } else {
             return Container();
           }
         });
+  }
+  Marker posicao = Marker(
+    markerId: MarkerId('posição'),
+    position: LatLng(40.712776, -74.005974),
+    infoWindow: InfoWindow(title: 'Mapa tester'),
+    icon:     BitmapDescriptor.defaultMarker
+  );
+  Widget _floatingPanel() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        StreamBuilder(
+            stream: mt.outMotorista,
+            builder: (context, snapshot) {
+              return Container(
+                width: getLargura(context),
+                height: getAltura(context) * .25,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return ProcurarWidget();
+                    } else if (index == motoristas.length + 1) {
+                      return AdicionarAFrotaWidget();
+                    } else {
+                      return FrotaListItem(motoristas[index - 1]);
+                    }
+                  },
+                  itemCount: motoristas.length + 2,
+                ),
+              );
+            }),
+      ],
+    );
   }
 
   Widget AdicionarAFrotaWidget() {
@@ -395,8 +423,8 @@ class _HomePageState extends State<HomePage> {
         margin: EdgeInsets.symmetric(
             horizontal: getLargura(context) * .020,
             vertical: getAltura(context) * .025),
-        height: getLargura(context) * .40,
-        width: getLargura(context) * .40,
+        height: getLargura(context) * .37,
+        width: getLargura(context) * .35,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -431,16 +459,16 @@ class _HomePageState extends State<HomePage> {
           borderRadius: BorderRadius.circular(20),
         ),
         margin: EdgeInsets.symmetric(
-            horizontal: getLargura(context) * .020,
+            horizontal: getLargura(context) * .010,
             vertical: getAltura(context) * .025),
-        height: getLargura(context) * .40,
-        width: getLargura(context) * .40,
+        height: getLargura(context) * .37,
+        width: getLargura(context) * .35,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
-              width: getLargura(context) * .2,
+              width: getLargura(context) * .150,
               height: getLargura(context) * .2,
               child: Icon(
                 Icons.search,

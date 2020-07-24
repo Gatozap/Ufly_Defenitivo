@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:ufly/Controllers/PagesController.dart';
 import 'package:ufly/Helpers/Helper.dart';
@@ -110,7 +109,7 @@ class _FiltroPageState extends State<FiltroPage> {
                 )),*/
             appBar: myAppBar('Filtros', context,
                 estiloTexto: 'BankGothic',
-                size: getAltura(context) * .15,
+                size: ScreenUtil.getInstance().setSp(300),
                 showBack: true),
             body: Container(     
               height: getAltura(context),
@@ -160,7 +159,7 @@ class _FiltroPageState extends State<FiltroPage> {
                                 bottom: getAltura(context) * .035,
                                 left: getLargura(context) * .025,
                                 right: getLargura(context) * .025),
-                            backgroundColor: Color.fromRGBO(255, 184, 0, 0.49),
+                            backgroundColor: Color.fromRGBO(255, 184, 0, 30),
                             label: hTextMal('Carros', context, size: 60),
                             avatar: Container(
                               child: Icon(
@@ -184,7 +183,7 @@ class _FiltroPageState extends State<FiltroPage> {
                                 bottom: getAltura(context) * .035,
                                 left: getLargura(context) * .025,
                                 right: getLargura(context) * .025),
-                            backgroundColor: Color.fromRGBO(255, 184, 0, 0.49),
+                            backgroundColor: Color.fromRGBO(255, 184, 0, 30),
                             label:
                                 hTextMal('Motorista Mulher', context, size: 60),
                             avatar: Container(
@@ -209,7 +208,7 @@ class _FiltroPageState extends State<FiltroPage> {
                                 bottom: getAltura(context) * .035,
                                 left: getLargura(context) * .025,
                                 right: getLargura(context) * .025),
-                            backgroundColor: Color.fromRGBO(255, 184, 0, 0.49),
+                            backgroundColor: Color.fromRGBO(255, 184, 0, 30),
                             label: hTextMal('Conforto/Luxo', context, size: 60),
                             avatar: Container(
                               child: Icon(
@@ -233,7 +232,7 @@ class _FiltroPageState extends State<FiltroPage> {
                                 bottom: getAltura(context) * .035,
                                 left: getLargura(context) * .025,
                                 right: getLargura(context) * .025),
-                            backgroundColor: Color.fromRGBO(255, 184, 0, 0.49),
+                            backgroundColor: Color.fromRGBO(255, 184, 0, 30),
                             label: hTextMal('Porta Malas Grande', context,
                                 size: 60),
                             avatar: Container(
@@ -258,7 +257,7 @@ class _FiltroPageState extends State<FiltroPage> {
                                 bottom: getAltura(context) * .035,
                                 left: getLargura(context) * .025,
                                 right: getLargura(context) * .025),
-                            backgroundColor: Color.fromRGBO(255, 184, 0, 0.49),
+                            backgroundColor: Color.fromRGBO(255, 184, 0, 30),
                             label: hTextMal('Chofer', context, size: 60),
                             avatar: Container(
                               child: Icon(
@@ -282,7 +281,7 @@ class _FiltroPageState extends State<FiltroPage> {
                                 bottom: getAltura(context) * .020,
                                 left: getLargura(context) * .025,
                                 right: getLargura(context) * .025),
-                            backgroundColor: Color.fromRGBO(255, 184, 0, 0.49),
+                            backgroundColor: Color.fromRGBO(255, 184, 0, 30),
                             label: hTextMal('6 Passageiros', context, size: 60),
                             avatar: Container(
                               child: Icon(
@@ -306,7 +305,7 @@ class _FiltroPageState extends State<FiltroPage> {
                                 bottom: getAltura(context) * .020,
                                 left: getLargura(context) * .025,
                                 right: getLargura(context) * .025),
-                            backgroundColor: Color.fromRGBO(255, 184, 0, 0.49),
+                            backgroundColor: Color.fromRGBO(255, 184, 0, 30),
                             label: hTextMal('Todas', context, size: 60),
                             avatar: Container(
                               child: Icon(
@@ -330,7 +329,7 @@ class _FiltroPageState extends State<FiltroPage> {
                                 bottom: getAltura(context) * .020,
                                 left: getLargura(context) * .025,
                                 right: getLargura(context) * .025),
-                            backgroundColor: Color.fromRGBO(255, 184, 0, 0.49),
+                            backgroundColor: Color.fromRGBO(255, 184, 0, 30),
                             label: hTextMal('Motos', context, size: 60),
                             avatar: Container(
                               child: Icon(
@@ -355,7 +354,7 @@ class _FiltroPageState extends State<FiltroPage> {
                                 bottom: getAltura(context) * .020,
                                 left: getLargura(context) * .025,
                                 right: getLargura(context) * .025),
-                            backgroundColor: Color.fromRGBO(255, 184, 0, 0.49),
+                            backgroundColor: Color.fromRGBO(255, 184, 0, 30),
                             label: hTextMal('Básico', context, size: 60),
                             avatar: Container(
                               child: Icon(
@@ -578,7 +577,7 @@ class _FiltroPageState extends State<FiltroPage> {
                                 padding: EdgeInsets.only(
                                     left: getLargura(context) * .055,
                                     right: getLargura(context) * .055,
-                                    top: getAltura(context) * .005,
+                                    top: getAltura(context) * .040,
                                     bottom: getAltura(context) * .020),
                                 child: Center(
                                   child: Container(

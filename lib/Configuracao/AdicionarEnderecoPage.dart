@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ufly/Helpers/Helper.dart';
 
 class AdicionarEnderecoPage extends StatefulWidget {
@@ -26,10 +27,10 @@ class _AdicionarEnderecoPageState extends State<AdicionarEnderecoPage> {
     // TODO: implement build
     return Scaffold(
       appBar: myAppBar('Adicionar Endereço', context,
-          estiloTexto: 'malgun',
-          size: 23.0,
+
+          size: ScreenUtil.getInstance().setSp(200),
           showBack: true,
-          bold: FontWeight.bold),
+         ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
