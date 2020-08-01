@@ -10,6 +10,8 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:ufly/Controllers/MotoristaController.dart';
+import 'package:ufly/Helpers/CustomSwitch.dart';
+import 'package:ufly/Viagens/Passageiro/aceitar_passageiro_page.dart';
 import 'package:ufly/home_page_list.dart';
 import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
 import 'package:ufly/Controllers/PagesController.dart';
@@ -35,6 +37,9 @@ class _HomePageState extends State<HomePage> {
   PageController pageController;
   PagesController pg;
   ControllerFiltros cf;
+  Animation _circleAnimation;
+  AnimationController _animationController;
+
   void onTap(int index) {
     pc.inPageController.add(index);
   }
@@ -125,260 +130,277 @@ class _HomePageState extends State<HomePage> {
                         );
                       });
                 },
-                child: Scaffold(
-                  drawer: CustomDrawerWidget(),
-                  appBar: myAppBar(
-                    'UFLY',
-                    context,
-                    size: ScreenUtil.getInstance().setSp(300),
-                  ),
-                  body: SlidingUpPanel(
-                    renderPanelSheet: false,
-                    minHeight: 60,
-                    maxHeight: getAltura(context) * .35,
-                    borderRadius: BorderRadius.circular(20),
-                    collapsed:
-                    Container(
-                      margin: const EdgeInsets.only(left: 24.0, right: 24),
-                      child: Row(
-                        children: <Widget>[
-                          Stack(
+                child: StreamBuilder<bool>(
+                  stream: cf.outBool,
+                  builder: (context, snapshot) {
+                    if(cf.isOnline == null){
+                      cf.isOnline = true;
+                    }
+                    return Scaffold(
+                      drawer: CustomDrawerWidget(),
+                      appBar: myAppBar(
+
+                        'UFLY',
+                        context,
+                        size: ScreenUtil.getInstance().setSp(300),
+                       /* actions: [Container(
+                          width: getLargura(context)*.35,
+
+                          child: customSwitch(activeColor: Color.fromRGBO(255, 184, 0, 30),value: cf.isOnline,onChanged: (v){
+                            cf.isOnline = false;
+                            cf.isOnline = v;
+                            cf.inBool.add(v);
+                          },),
+                        )], */
+                      ),
+                      
+                      body: SlidingUpPanel(
+                        renderPanelSheet: false,
+                        minHeight: 60,
+                        maxHeight: getAltura(context) * .35,
+                        borderRadius: BorderRadius.circular(20),
+                        collapsed:
+                        Container(
+                          margin: const EdgeInsets.only(left: 24.0, right: 24),
+                          child: Row(
                             children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.only(top: 30.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(24.0),
-                                          topRight: Radius.circular(24.0)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          blurRadius: 20.0,
-                                          color: Colors.grey,
-                                        ),
-                                      ]),
-                                  width: getLargura(context) - 48,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      sb,
-                                      sb,
-                                      Container(
-                                        child: Container(
-                                            width: getLargura(context) * .4,
-                                            color: Colors.grey,
-                                            height: 3),
-                                      )
-                                    ],
+                              Stack(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 30.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(24.0),
+                                              topRight: Radius.circular(24.0)),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              blurRadius: 20.0,
+                                              color: Colors.grey,
+                                            ),
+                                          ]),
+                                      width: getLargura(context) - 48,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: <Widget>[
+                                          sb,
+                                          sb,
+                                          Container(
+                                            child: Container(
+                                                width: getLargura(context) * .4,
+                                                color: Colors.grey,
+                                                height: 3),
+                                          )
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ),
+
+                                ],
                               ),
-                        
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                    panel: _floatingPanel(),
-                    body: Container(
-                      height: getAltura(context),
-                      width: getLargura(context),
-                      color: Colors.white,
-                      child: Stack(
-                        children: <Widget>[
-                          Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                        ),
+                        panel: _floatingPanel(),
+                        body: Container(
+                          height: getAltura(context),
+                          width: getLargura(context),
+                          color: Colors.white,
+                          child: Stack(
                             children: <Widget>[
-                              StreamBuilder<bool>(
-                                  stream: cf.outBool,
-                                  builder: (context, snapshot) {
-                                    if (cf.viagem == null) {
-                                      cf.viagem = false;
-                                    }
+                              Column(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  StreamBuilder<bool>(
+                                      stream: cf.outBool,
+                                      builder: (context, snapshot) {
+                                        if (cf.viagem == null) {
+                                          cf.viagem = true;
+                                        }
 
-                                    if (cf.entregas == null) {
-                                      cf.entregas = false;
-                                    }
-                                    return Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: <Widget>[
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              top: getAltura(context) * .020),
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              cf.entregas = false;
-                                              cf.viagem = true;
-                                              cf.inBool.add(snapshot.data);
+                                        if (cf.entregas == null) {
+                                          cf.entregas = false;
+                                        }
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  top: getAltura(context) * .020),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  cf.entregas = false;
+                                                  cf.viagem = true;
+                                                  cf.inBool.add(snapshot.data);
 
-                                            },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: cf.viagem == false
-                                                    ? Color.fromRGBO(
-                                                        218, 218, 218, 100)
-                                                    : Color.fromRGBO(255, 184, 0, 30),
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                              ),
-                                              height: getAltura(context) * .070,
-                                              width: getLargura(context) * .4,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: <Widget>[
-                                                  Icon(
-                                                    MdiIcons.car,
-                                                    color:  Colors.black
-                                                        ,
-                                                    size: 40,
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: cf.viagem == false
+                                                        ? Color.fromRGBO(
+                                                            218, 218, 218, 100)
+                                                        : Color.fromRGBO(255, 184, 0, 30),
+                                                    borderRadius:
+                                                        BorderRadius.circular(20),
                                                   ),
-                                                  hTextAbel('Viagens', context,
-                                                      size: 60,
-                                                      weight: FontWeight.bold,
-                                                      color:  Colors.black
-                                                          )
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              top: getAltura(context) * .020,
-                                              left: getLargura(context) * .040),
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              cf.entregas = true;
-                                              cf.viagem = false;
-                                              cf.inBool.add(snapshot.data);
-                                            },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: cf.entregas == false
-                                                    ? Color.fromRGBO(
-                                                        218, 218, 218, 100)
-                                                    : Color.fromRGBO(255, 184, 0, 30),
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                              ),
-                                              height: getAltura(context) * .070,
-                                              width: getLargura(context) * .4,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: <Widget>[
-                                                  Icon(
-                                                    FontAwesomeIcons.rocket,
-                                                    color:  Colors.black
-                                                       ,
-                                                    size: 30,
-                                                  ),
-                                                  hTextAbel('Entregas', context,
-                                                      size: 60,
-                                                      weight: FontWeight.bold,
-                                                      color:
-                                                           Colors.black
+                                                  height: getAltura(context) * .070,
+                                                  width: getLargura(context) * .4,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceEvenly,
+                                                    children: <Widget>[
+                                                      Icon(
+                                                        MdiIcons.car,
+                                                        color:  Colors.black
+                                                            ,
+                                                        size: 40,
+                                                      ),
+                                                      hTextAbel('Viagens', context,
+                                                          size: 60,
+                                                          weight: FontWeight.bold,
+                                                          color:  Colors.black
                                                               )
-                                                ],
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  top: getAltura(context) * .020,
+                                                  left: getLargura(context) * .040),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  cf.entregas = true;
+                                                  cf.viagem = false;
+                                                  cf.inBool.add(snapshot.data);
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: cf.entregas == false
+                                                        ? Color.fromRGBO(
+                                                            218, 218, 218, 100)
+                                                        : Color.fromRGBO(255, 184, 0, 30),
+                                                    borderRadius:
+                                                        BorderRadius.circular(20),
+                                                  ),
+                                                  height: getAltura(context) * .070,
+                                                  width: getLargura(context) * .4,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceEvenly,
+                                                    children: <Widget>[
+                                                      Icon(
+                                                        FontAwesomeIcons.rocket,
+                                                        color:  Colors.black
+                                                           ,
+                                                        size: 30,
+                                                      ),
+                                                      hTextAbel('Entregas', context,
+                                                          size: 60,
+                                                          weight: FontWeight.bold,
+                                                          color:
+                                                               Colors.black
+                                                                  )
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      }),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        top: getAltura(context) * .020,
+                                        bottom: getAltura(context) * .010),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Container(
+                                          color: Color.fromRGBO(248, 248, 248, 100),
+                                          width: getLargura(context) * .85,
+                                          child: Center(
+                                            child: TextFormField(
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                              expands: false,
+                                              decoration: InputDecoration(
+                                                suffixIcon:
+                                                    Icon(FontAwesomeIcons.map),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10.0),
+                                                ),
+                                                labelText: 'Onde você está?',
+                                                contentPadding: EdgeInsets.fromLTRB(
+                                                    getLargura(context) * .040,
+                                                    getAltura(context) * .020,
+                                                    getLargura(context) * .040,
+                                                    getAltura(context) * .020),
                                               ),
                                             ),
                                           ),
-                                        )
-                                      ],
-                                    );
-                                  }),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    top: getAltura(context) * .020,
-                                    bottom: getAltura(context) * .010),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      color: Color.fromRGBO(248, 248, 248, 100),
-                                      width: getLargura(context) * .85,
-                                      child: Center(
-                                        child: TextFormField(
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                          ),
-                                          expands: false,
-                                          decoration: InputDecoration(
-                                            suffixIcon:
-                                                Icon(FontAwesomeIcons.map),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
+                                        ),
+                                        sb,
+                                        Container(
+                                          color: Color.fromRGBO(248, 248, 248, 100),
+                                          width: getLargura(context) * .85,
+                                          child: TextField(
+                                            style: TextStyle(color: Colors.black),
+                                            expands: false,
+                                            decoration: InputDecoration(
+                                              suffixIcon: Icon(
+                                                  FontAwesomeIcons.mapMarkedAlt),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                              ),
+                                              labelText: 'Qual seu destino?',
+                                              contentPadding: EdgeInsets.fromLTRB(
+                                                  getLargura(context) * .040,
+                                                  getAltura(context) * .020,
+                                                  getLargura(context) * .040,
+                                                  getAltura(context) * .020),
                                             ),
-                                            labelText: 'Onde você está?',
-                                            contentPadding: EdgeInsets.fromLTRB(
-                                                getLargura(context) * .040,
-                                                getAltura(context) * .020,
-                                                getLargura(context) * .040,
-                                                getAltura(context) * .020),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                    sb,
-                                    Container(
-                                      color: Color.fromRGBO(248, 248, 248, 100),
-                                      width: getLargura(context) * .85,
-                                      child: TextField(
-                                        style: TextStyle(color: Colors.black),
-                                        expands: false,
-                                        decoration: InputDecoration(
-                                          suffixIcon: Icon(
-                                              FontAwesomeIcons.mapMarkedAlt),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ),
-                                          labelText: 'Qual seu destino?',
-                                          contentPadding: EdgeInsets.fromLTRB(
-                                              getLargura(context) * .040,
-                                              getAltura(context) * .020,
-                                              getLargura(context) * .040,
-                                              getAltura(context) * .020),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: GoogleMap(mapType: MapType.normal, initialCameraPosition: CameraPosition(target: LatLng(40.712776, -74.005974),zoom: 12, ),markers: {posicao})
+                                  ),
+                                  Expanded(
+                                    child: GoogleMap(mapType: MapType.normal, initialCameraPosition: CameraPosition(target: LatLng(40.712776, -74.005974),zoom: 12, ),markers: {posicao})
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  }
                 ));
           } else {
             return Container();
           }
         });
   }
-  Marker posicao = Marker(
-    markerId: MarkerId('posição'),
-    position: LatLng(40.712776, -74.005974),
-    infoWindow: InfoWindow(title: 'Mapa tester'),
-    icon:     BitmapDescriptor.defaultMarker
-  );
+
+
+
+
   Widget _floatingPanel() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -483,4 +505,15 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+      
+   Marker posicao = Marker(
+      onTap: (){
+        /*Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => AceitarPassageiroPage()));  */
+      },
+      markerId: MarkerId('posição'),
+      position: LatLng(40.712776, -74.005974),
+      infoWindow: InfoWindow(title: 'Mapa tester'),
+      icon:     BitmapDescriptor.defaultMarker
+  );
 }

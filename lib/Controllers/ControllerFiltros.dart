@@ -12,6 +12,8 @@ class ControllerFiltros implements BlocBase {
   bool entregas;
   bool mtbom;
   bool bom;
+  bool isOnline;
+  bool isOffline;
   bool ruim;
   bool pessimo;
   bool reset;

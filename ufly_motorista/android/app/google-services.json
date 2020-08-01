@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1040230764138",
+    "firebase_url": "https://ufly-56615.firebaseio.com",
+    "project_id": "ufly-56615",
+    "storage_bucket": "ufly-56615.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1040230764138:android:4e0ddd503e7c57e3af4413",
+        "android_client_info": {
+          "package_name": "com.example.ufly"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1040230764138-addsr9kprf5rn8dsfe65hug1d5ilco0q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_niut8QCQctZAwMCWUEO5V7wk93ScrrI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1040230764138-addsr9kprf5rn8dsfe65hug1d5ilco0q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
