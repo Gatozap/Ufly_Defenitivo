@@ -963,7 +963,7 @@ nutrannoLogo(context, m1, m2) {
 class Helper {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   static final storage = new FlutterSecureStorage();
-  static FirebaseUser user;
+  static auth.User user;
   static Color blue_default = Colors.blue;
   static User localUser;
   static FirebaseMessaging fbmsg;

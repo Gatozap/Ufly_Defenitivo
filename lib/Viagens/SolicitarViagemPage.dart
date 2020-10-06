@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:ufly/Controllers/PagesController.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/HomePage.dart';
+import 'package:ufly/Objetos/FiltroMotorista.dart';
 
 
 import 'ChamandoMotoristaPage/ChamandoMotoristaPage.dart';
@@ -56,7 +57,7 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
       stream: pc.outPageController,
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         return Scaffold(
-          appBar: myAppBar('Sua Viagem', context, size: ScreenUtil.getInstance().setSp(250), backgroundcolor: Colors.black, color: Colors.white, colorIcon: Colors.white),
+          appBar: myAppBar('Sua Viagem', context, size:250, backgroundcolor: Colors.black, color: Colors.white, colorIcon: Colors.white),
           /*bottomNavigationBar: BottomAppBar(
               elevation: 20,
               color: Color.fromRGBO(255, 184, 0, 30),
@@ -278,18 +279,10 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
                     child:
                     hTextMal('Opções de Pagamento', context, size: 60, weight: FontWeight.bold),
                   ),sb,
-                  StreamBuilder<bool>(
-                    stream: cf.outBool,
+                  StreamBuilder<FiltroMotorista>(
+                    stream: cf.outFiltro,
                     builder: (context, snapshot) {
-                      if(cf.dinheiro == null){
-                        cf.dinheiro = false;
-                      }
-                      if(cf.cartao == null){
-                        cf.cartao = false;
-                      }
-                      if(cf.reset == null){
-                        cf.reset = false;
-                      }
+
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -297,11 +290,12 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
                             padding:  EdgeInsets.only(left: getLargura(context)*.025),
                             child: GestureDetector(
                                      onTap: (){
-                                       if(cf.dinheiro == true){
-                                         cf.dinheiro = false;
+                                       if(snapshot.data.dinheiro == true){
+                                         snapshot.data.dinheiro = false;
+                                         cf.inFiltro.add(snapshot.data);
                                        }
-                                          cf.cartao  = !cf.cartao;
-                                          cf.inBool.add(snapshot.data);
+                                       snapshot.data.cartao  = !snapshot.data.cartao;
+                                          cf.inFiltro.add(snapshot.data);
                       }  ,
                               child: Container(
 
@@ -317,7 +311,7 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
                                 decoration: BoxDecoration(
 
                                   borderRadius: BorderRadius.circular(30.0),
-                                  color: cf.cartao == false? Color.fromRGBO(218, 218, 218, 100):  Color.fromRGBO(255, 184, 0, 30),
+                                  color: snapshot.data.cartao == false? Color.fromRGBO(218, 218, 218, 100):  Color.fromRGBO(255, 184, 0, 30),
                                 ),
                               ),
                             ),
@@ -328,11 +322,12 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
                             child: GestureDetector(
                               onTap: (){
                                 print('aqui');
-                                  if(cf.cartao == true){
-                                    cf.cartao = false;
+                                  if(snapshot.data.cartao == true){
+                                    snapshot.data.cartao = false;
+                                    cf.inFiltro.add(snapshot.data);
                                   }
-                                cf.dinheiro  = !cf.dinheiro;
-                                cf.inBool.add(snapshot.data);
+                                snapshot.data.dinheiro  = !snapshot.data.dinheiro;
+                                cf.inFiltro.add(snapshot.data);
                       }        ,
                               child: Container(
 
@@ -348,7 +343,7 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
                                 decoration: BoxDecoration(
 
                                   borderRadius: BorderRadius.circular(30.0),
-                                  color: cf.dinheiro == false? Color.fromRGBO(218, 218, 218, 100):  Color.fromRGBO(255, 184, 0, 30),
+                                  color: snapshot.data.dinheiro == false? Color.fromRGBO(218, 218, 218, 100):  Color.fromRGBO(255, 184, 0, 30),
                                 ),
                               ),
                             ),
@@ -359,9 +354,9 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
                             getLargura(context)*.025),
                             child: GestureDetector(
                               onTap: (){
-                              cf.cartao = false;
-                              cf.dinheiro = false;
-                              cf.inBool.add(snapshot.data);
+                                snapshot.data.cartao = false;
+                                snapshot.data.dinheiro = false;
+                              cf.inFiltro.add(snapshot.data);
                       }        ,
                               child: Container(
 

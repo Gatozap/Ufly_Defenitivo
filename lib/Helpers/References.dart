@@ -1,45 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-CollectionReference userRef = Firestore.instance.collection('Users').reference();
-CollectionReference chatRef = Firestore.instance.collection('Chats').reference();
-CollectionReference notificacoesRef = Firestore.instance.collection('Notificacoes').reference();
-CollectionReference gruposRef = Firestore.instance.collection('Grupo').reference();
-
+CollectionReference userRef = FirebaseFirestore.instance.collection('Users');
+CollectionReference chatRef = FirebaseFirestore.instance.collection('Chats');
+CollectionReference notificacoesRef = FirebaseFirestore.instance.collection('Notificacoes');
+CollectionReference gruposRef = FirebaseFirestore.instance.collection('Grupo');
+CollectionReference motoristaRef = FirebaseFirestore.instance.collection('Motorista');
 CollectionReference personagensRef =
-    Firestore.instance.collection('Personagens').reference();
+FirebaseFirestore.instance.collection('Personagens');
 
 
 CollectionReference carrosRef =
-Firestore.instance.collection('Carro').reference();
+FirebaseFirestore.instance.collection('Carro');
 
 CollectionReference periciasRef =
-    Firestore.instance.collection('Pericias').reference();
+FirebaseFirestore.instance.collection('Pericias');
 
 CollectionReference talentosRef =
-    Firestore.instance.collection('Talentos').reference();
+FirebaseFirestore.instance.collection('Talentos');
 
 CollectionReference equipamentosRef =
-Firestore.instance.collection('Equipamentos').reference();
+FirebaseFirestore.instance.collection('Equipamentos');
 
 
 CollectionReference prestadorRef =
-Firestore.instance.collection('Prestadores').reference();
+FirebaseFirestore.instance.collection('Prestadores');
 
-CollectionReference tabuleirosRef =
-Firestore.instance.collection('Tabuleiros').reference();
-CollectionReference produtosRef =
-Firestore.instance.collection('Produtos').reference();
-CollectionReference pagamentoRef =
-Firestore.instance.collection('Pagamentos').reference();
-CollectionReference despesasRef =
-Firestore.instance.collection('Despesas').reference();
-CollectionReference comandasRef =
-Firestore.instance.collection('Comandas').reference();
-CollectionReference estoquesRef =
-Firestore.instance.collection('Estoques').reference();
-CollectionReference pacotesRef =
-Firestore.instance.collection('Pacotes').reference();
-CollectionReference carteirasRef =
-Firestore.instance.collection('Carteiras').reference();
-CollectionReference vendedoresRef =
-Firestore.instance.collection('Vendedores').reference();
+

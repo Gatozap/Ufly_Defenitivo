@@ -1,13 +1,21 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:ufly/Ajuda/AjudaPage.dart';
+import 'package:ufly/Carro/CarroController.dart';
+import 'package:ufly/Carro/cadastro_carro_controller.dart';
 import 'package:ufly/Configuracao/ConfiguracaoPage.dart';
 
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/HomePage.dart';
 import 'package:ufly/Login/Login.dart';
+import 'package:ufly/Objetos/Carro.dart';
 import 'package:ufly/Viagens/SuasViagensPage.dart';
 
 class CustomDrawerWidget extends StatefulWidget {
@@ -18,8 +26,14 @@ class CustomDrawerWidget extends StatefulWidget {
 }
 
 class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
+  CadastroCarroController cr;
   @override
   Widget build(BuildContext context) {
+    if(cr == null){
+      cr = CadastroCarroController();
+    }
+
+    Carro c = Carro();
     var linearGradient = const BoxDecoration(
       gradient: const LinearGradient(
         begin: FractionalOffset.topLeft,
@@ -31,9 +45,11 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
       ),
     );
     return Drawer(
+
         child: Stack(children: <Widget>[
       Scrollbar(
         child: Container(
+
           decoration: BoxDecoration(color: Colors.white),
           height: getAltura(context),
           child: SingleChildScrollView(
@@ -48,18 +64,24 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
+                    Helper.localUser.foto == null?
                     CircleAvatar(
                       radius: 50,
                       backgroundImage: AssetImage('assets/logo_drawer.png'),
-                    ),
+                    ):
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage: CachedNetworkImageProvider(Helper.localUser.foto),
+                    )
                   ],
                 ),
                 sb,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
+
                     Text(
-                      'Equipe uFly',
+                      '${Helper.localUser.nome}',
                       style: TextStyle(
                           fontFamily: 'malgun',
                           fontSize: 17,
@@ -126,6 +148,9 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                     ],
                   ),
                 ),
+
+
+
                 /*menuButton(context, 'Cadastrar Novos Carros', Icons.directions_car, true, () {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => CadastrarNovoCarroPage(

@@ -1,44 +1,47 @@
+
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:ufly/Helpers/Helper.dart';
+import 'package:ufly/Objetos/FiltroMotorista.dart';
 
-class ControllerFiltros implements BlocBase {
-  BehaviorSubject<bool> boolController = new BehaviorSubject<bool>();
+class ControllerFiltros extends BlocBase{
+  BehaviorSubject<FiltroMotorista> controllerFiltro = new BehaviorSubject<FiltroMotorista>();
+  Stream<FiltroMotorista> get outFiltro => controllerFiltro.stream;
+  Sink<FiltroMotorista> get inFiltro => controllerFiltro.sink;
+  FiltroMotorista filtroMotorista;
 
-  Stream<bool> get outBool => boolController.stream;
+  ControllerFiltros(){
+    FiltroMotorista filtro = FiltroMotorista(
+      documento_veiculo: false,
+        viagem: true,
+        favorito: Helper.localUser.id,
+        entregas: false,
+        mtbom: false,
+        bom: false,
+        isOnline: false,
+        isOffline: false,
+        ruim: false,
+        pessimo: false,
+        reset: false,
+        dinheiro: false,
+        cartao: false,
+        isCarro: false,
+        isMoto: false,
+        todas: false,
+        basico: false,
+        luxo: false,
+        portaMalasGrande: false,
+        seisPassageiros: false,
+        motoristaMulher: false,
+        chofer: false,
 
-  Sink<bool> get inBool => boolController.sink;
-
-  bool viagem;
-  bool entregas;
-  bool mtbom;
-  bool bom;
-  bool isOnline;
-  bool isOffline;
-  bool ruim;
-  bool pessimo;
-  bool reset;
-  bool dinheiro;
-   bool cartao;
-  bool carros;
-  bool moto;
-  bool todas;
-  bool basico;
-  bool luxo;
-  bool portaMalasGrande;
-  bool seisPassageiros;
-  bool motoristaMulher;
-  bool chofer;
-  
-
-
-
-
-
+    );
+    inFiltro.add(filtro);
+  }
 
   @override
   void dispose() {
-    boolController.close();
-
+    controllerFiltro.close();
   }
 
 }

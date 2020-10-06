@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:ufly/Avaliacao/AvaliacaoPage.dart';
 import 'package:ufly/Controllers/PagesController.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/Viagens/InicioDeViagemPage/InicioDeViagemPage.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 class ChamandoMotoristaPage extends StatefulWidget {
   ChamandoMotoristaPage({Key key}) : super(key: key);

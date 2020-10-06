@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> {
      int time = 25;
      Timer timer;
          timer = Timer.periodic(Duration(seconds: 25), (timer) {
-            StreamBuilder
+            //StreamBuilder
 
 
          });
@@ -447,7 +447,7 @@ class _HomePageState extends State<HomePage> {
                             child:
                             Center(child: hTextAbel('Rejeitar', context, size: 70,weight: FontWeight.bold))),
                       ),
-                      Column(children: <Widget>[Icon(Icons.timer), hTextMal('$time s', context, size: 60)],),
+                      Column(children: <Widget>[Icon(Icons.timer), hTextMal('s', context, size: 60)],),
                       GestureDetector(
                         onTap: () {
                              dToast('Você aceitou a viagem');

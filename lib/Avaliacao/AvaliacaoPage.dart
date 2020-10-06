@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:ufly/Helpers/Helper.dart';
+import 'package:ufly/Objetos/FiltroMotorista.dart';
+import 'package:ufly/Objetos/Motorista.dart';
 
 class AvaliacaoPage extends StatefulWidget {
-
-  AvaliacaoPage({Key key}) : super(key: key);
+      Motorista motorista;
+  AvaliacaoPage({Key key, this.motorista}) : super(key: key);
 
   @override
   _AvaliacaoPageState createState() {
@@ -13,7 +15,7 @@ class AvaliacaoPage extends StatefulWidget {
 }
 
 class _AvaliacaoPageState extends State<AvaliacaoPage> {
-  ControllerFiltros cf;
+
   @override
   void initState() {
     super.initState();
@@ -24,29 +26,17 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
     super.dispose();
   }
 
+   int nota;
+  
+
   @override
   Widget build(BuildContext context) {
-    if(cf == null){
-        cf = ControllerFiltros();
-    }
-    if(cf.mtbom == null){
-      cf.mtbom = false;
-    }
-    if(cf.bom == null){
-      cf.bom = false;
-    }
-    if(cf.ruim == null){
-      cf.ruim = false;
-    }
-    if(cf.pessimo == null){
-      cf.pessimo = false;
-    }
+
+
 
     // TODO: implement build
-    return StreamBuilder<bool>(
-      stream: cf.outBool,
-      builder: (context, snapshot) {
-        return Scaffold(
+    return
+          Scaffold(
             body: Container(
                 width: getLargura(context),
                 height: getAltura(context),
@@ -116,11 +106,12 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                         children: <Widget>[
                           GestureDetector(
                             onTap: (){
-                              cf.mtbom = true;
-                              cf.pessimo = false;
-                              cf.bom = false;
-                              cf.ruim =false;
-                              cf.inBool.add(snapshot.data);
+
+                               setState(() {
+                                 nota = 4;
+                               });
+
+
                             },
                             child: Container(
                               width: getLargura(context) * .230,
@@ -130,7 +121,9 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                                 hTextAbel('Muito Bom', context)
                               ],),
                               decoration: BoxDecoration(
-                                color: cf.mtbom == false? Color.fromRGBO(218, 218, 218, 80): Color.fromRGBO(255, 184, 0, 30),
+                                color:
+
+                                nota == 4? Color.fromRGBO(218, 218, 218, 80): Color.fromRGBO(255, 184, 0, 30),
                                 borderRadius: BorderRadius.circular(15.0),
 
                               ),
@@ -140,11 +133,9 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                             padding:  EdgeInsets.only(right: getLargura(context)*.010, left:getLargura(context)*.010 ),
                             child:     GestureDetector(
                               onTap: (){
-                                cf.mtbom = false;
-                                cf.pessimo = false;
-                                cf.bom = true;
-                                cf.ruim =false;
-                                cf.inBool.add(snapshot.data);
+                                setState(() {
+                                  nota = 3;
+                                });
                               },
                               child: Container(
                                 width: getLargura(context) * .230,
@@ -154,7 +145,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                                   hTextAbel('Bom', context)
                                 ],),
                                 decoration: BoxDecoration(
-                                  color: cf.bom == false? Color.fromRGBO(218, 218, 218, 80): Color.fromRGBO(255, 184, 0, 30),
+                                  color: nota  == 3? Color.fromRGBO(218, 218, 218, 80): Color.fromRGBO(255, 184, 0, 30),
                                   borderRadius: BorderRadius.circular(15.0),
 
                                 ),
@@ -163,11 +154,9 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                           ),
                           GestureDetector(
                             onTap: (){
-                              cf.mtbom = false;
-                              cf.pessimo = false;
-                              cf.bom = false;
-                              cf.ruim =true;
-                              cf.inBool.add(snapshot.data);
+                              setState(() {
+                                nota = 2;
+                              });
                             },
                             child: Container(
                               width: getLargura(context) * .230,
@@ -177,7 +166,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                                 hTextAbel('Ruim', context)
                               ],),
                               decoration: BoxDecoration(
-                                color: cf.ruim == false? Color.fromRGBO(218, 218, 218, 80): Color.fromRGBO(255, 184, 0, 30),
+                                color: nota == 2? Color.fromRGBO(218, 218, 218, 80): Color.fromRGBO(255, 184, 0, 30),
                                 borderRadius: BorderRadius.circular(15.0),
 
                               ),
@@ -187,11 +176,9 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                             padding:  EdgeInsets.only(right: getLargura(context)*.010, left:getLargura(context)*.010 ),
                             child:     GestureDetector(
                               onTap: (){
-                                cf.mtbom = false;
-                                cf.pessimo = true;
-                                cf.bom = false;
-                                cf.ruim =false;
-                                cf.inBool.add(snapshot.data);
+                                setState(() {
+                                  nota = 1;
+                                });
                               },
                               child: Container(
                                 width: getLargura(context) * .230,
@@ -201,7 +188,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                                   hTextAbel('Péssimo', context)
                                 ],),
                                 decoration: BoxDecoration(
-                                  color: cf.pessimo == false? Color.fromRGBO(218, 218, 218, 80): Color.fromRGBO(255, 184, 0, 30),
+                                  color: nota == 1? Color.fromRGBO(218, 218, 218, 80): Color.fromRGBO(255, 184, 0, 30),
                                   borderRadius: BorderRadius.circular(15.0),
 
                                 ),
@@ -225,7 +212,6 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                     ),child: Center(child: hTextMal('Avaliar', context, color: Colors.black, size: 80)))
                   ],
                 )));
-      }
-    );
+
   }
 }

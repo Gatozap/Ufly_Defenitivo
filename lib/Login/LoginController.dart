@@ -1,31 +1,34 @@
-import 'dart:convert';
 
-import 'package:bloc_pattern/bloc_pattern.dart';
-import 'package:ufly/Objetos/User.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:ufly/Helpers/Helper.dart';
-import 'package:ufly/Helpers/Instagram.dart';
-import 'package:ufly/Helpers/References.dart';
+
 import 'package:ufly/Objetos/User.dart';
+import 'package:bloc_pattern/bloc_pattern.dart';
+
+import 'package:firebase_auth/firebase_auth.dart' as auth;
+
+
+
+import 'package:ufly/Helpers/References.dart';
+
 import 'package:rxdart/rxdart.dart';
+
 
 class LoginController implements BlocBase {
   BehaviorSubject<User> _UserController = new BehaviorSubject<User>();
   BehaviorSubject<bool> hideController = BehaviorSubject<bool>();
   Stream<bool> get outHide => hideController.stream;
   Sink<bool> get inHide => hideController.sink;
- bool hide;
+  bool hide;
   //static final FacebookLogin facebookSignIn = new FacebookLogin();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
+  final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
+  /*final GoogleSignIn _googleSignIn = GoogleSignIn(
     signInOption: SignInOption.standard,
     scopes: [
       'email',
       'https://www.googleapis.com/auth/contacts.readonly',
     ],
-  );
+  ); */
   Stream<User> get outUser => _UserController.stream;
 
   Sink<User> get inUser => _UserController.sink;
@@ -111,7 +114,7 @@ class LoginController implements BlocBase {
     }
   }*/
 
-  Future LoginGoogle() async {
+  /*Future LoginGoogle() async {
     return _googleSignIn.signIn().then((googleUser) async {
       print(googleUser.toString());
       final GoogleSignInAuthentication googleAuth =
@@ -151,7 +154,7 @@ class LoginController implements BlocBase {
     }).catchError((err) {
       print('Erro no Login com Google ${err.toString()}');
     });
-  }
+  }   */
 
   /*Future LoginInstagram() async {
     Token t = await getToken();
@@ -330,11 +333,11 @@ class LoginController implements BlocBase {
   }
 */
   Future<User> CadastrarUsuario(User data) {
-    return userRef.document(data.id).get().then((snap) {
-      if (snap.data != null) {
-        return User.fromJson(snap.data);
+    return userRef.doc(data.id).get().then((snap) {
+      if (snap.data() != null) {
+        return User.fromJson(snap.data());
       } else {
-        return userRef.document(data.id).setData(data.toJson()).then((v) {
+        return userRef.doc(data.id).set(data.toJson()).then((v) {
           return data;
         }).catchError((err) {
           print('Erro salvando Usuario: ${err.toString()}');
@@ -406,10 +409,10 @@ class LoginController implements BlocBase {
     return _auth
         .signInWithEmailAndPassword(email: email, password: password)
         .then((result) {
-      FirebaseUser user = result.user;
+      auth.User user = result.user;
       if (user != null) {
-        return userRef.document(user.uid).get().then((d) {
-          Helper.localUser = User.fromJson(d.data);
+        return userRef.doc(user.uid).get().then((d) {
+          Helper.localUser = User.fromJson(d.data());
           Helper.user = user;
           Helper().LogUserData(Helper.localUser);
           Helper().setUserType('Email');

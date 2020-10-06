@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:ufly/Controllers/PagesController.dart';
 import 'package:ufly/Helpers/Helper.dart';
+import 'package:ufly/Objetos/FiltroMotorista.dart';
 import 'package:ufly/Viagens/MotoristaProximoPage.dart';
 
 class FiltroPage extends StatefulWidget {
@@ -17,19 +18,12 @@ class FiltroPage extends StatefulWidget {
 }
 
 class _FiltroPageState extends State<FiltroPage> {
-  final PagesController pc = new PagesController(0);
-  PageController pageController;
-  PagesController pg;
-  void onTap(int index) {
-    pc.inPageController.add(index);
-  }
 
-  var page0;
-  var page1;
-  var page2;
-  var page3;
-  var page4;
-  int page = 0;
+  ControllerFiltros cf;
+
+
+
+
   @override
   void initState() {
     super.initState();
@@ -42,117 +36,33 @@ class _FiltroPageState extends State<FiltroPage> {
 
   @override
   Widget build(BuildContext context) {
-    ControllerFiltros cf;
-    if (cf == null) {
+
+    //if (cf == null) {
       cf = ControllerFiltros();
-    }
+   // }
     // TODO: implement build
-    return StreamBuilder<int>(
-        stream: pc.outPageController,
-        builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-          return Scaffold(
-           /* bottomNavigationBar: BottomAppBar(
-                elevation: 20,
-                color: Color.fromRGBO(255, 184, 0, 30),
-                child: Container(
-                  height: getAltura(context) * .1,
-                  width: getLargura(context),
-                  child: new Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            snapshot.data == 0
-                                ? Shimmer.fromColors(
-                                baseColor: Colors.black,
-                                highlightColor: Colors.white,
-                                child: Container(
-                                  child:
-                                  Image.asset('assets/viagem.png'),
-                                ))
-                                : GestureDetector(
-                                onTap: () {
-                                  onTap(0);
-                                },
-                                child: Container(
-                                  child:
-                                  Image.asset('assets/viagem.png'),
-                                )),
-                            hTextAbel('Viagens', context, size: 60)
-                          ],
-                        ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            snapshot.data == 1
-                                ? Shimmer.fromColors(
-                                baseColor: Colors.black,
-                                highlightColor: Colors.white,
-                                child: Container(
-                                  child:
-                                  Image.asset('assets/entregas.png'),
-                                ))
-                                : GestureDetector(
-                                onTap: () {
-                                  onTap(1);
-                                },
-                                child: Container(
-                                  child:
-                                  Image.asset('assets/entregas.png'),
-                                )),
-                            hTextAbel('Entregas', context, size: 60)
-                          ],
-                        )
-                      ]),
-                )),*/
-            appBar: myAppBar('Filtros', context,
-                estiloTexto: 'BankGothic',
-                size: ScreenUtil.getInstance().setSp(300),
-                showBack: true),
+    return Scaffold(
+
+            appBar: myAppBar('Filtros', context,                                size: 100,                 showBack: true),
             body: Container(     
               height: getAltura(context),
               width: getLargura(context),
-              child: StreamBuilder<bool>(
-                  stream: cf.outBool,
+              child: StreamBuilder<FiltroMotorista>(
+                  stream: cf.outFiltro,
                   builder: (context, snapshot) {
-                    if (cf.carros == null) {
-                      cf.carros = false;
+                    if(snapshot.data == null){
+                      return Container();
                     }
-                    if (cf.moto == null) {
-                      cf.moto = false;
-                    }
-                    if (cf.todas == null) {
-                      cf.todas = false;
-                    }
-                    if (cf.basico == null) {
-                      cf.basico = false;
-                    }
-                    if (cf.luxo == null) {
-                      cf.luxo = false;
-                    }
-                    if (cf.chofer == null) {
-                      cf.chofer = false;
-                    }
-                    if (cf.seisPassageiros == null) {
-                      cf.seisPassageiros = false;
-                    }
-                    if (cf.portaMalasGrande == null) {
-                      cf.portaMalasGrande = false;
-                    }
-                    if (cf.motoristaMulher == null) {
-                      cf.motoristaMulher = false;
-                    }
+
                     List<Widget> itens = new List();
-                    if (cf.carros) {
+                    if (snapshot.data.isCarro) {
                       itens.add(Padding(
                         padding:
                             EdgeInsets.only(left: getLargura(context) * .070),
                         child: GestureDetector(
                           onTap: () {
-                            cf.carros = !cf.carros;
-                            cf.inBool.add(snapshot.data);
+                            snapshot.data.isCarro = !snapshot.data.isCarro;
+                            cf.inFiltro.add(snapshot.data);
                           },
                           child: Chip(
                             padding: EdgeInsets.only(
@@ -170,13 +80,13 @@ class _FiltroPageState extends State<FiltroPage> {
                         ),
                       ));
                     }
-                    if (cf.motoristaMulher) {
+                    if (snapshot.data.motoristaMulher) {
                       itens.add(Padding(
                         padding: EdgeInsets.only(left: 8.0),
                         child: GestureDetector(
                           onTap: () {
-                            cf.motoristaMulher = !cf.motoristaMulher;
-                            cf.inBool.add(snapshot.data);
+                            snapshot.data.motoristaMulher = !snapshot.data.motoristaMulher;
+                            cf.inFiltro.add(snapshot.data);
                           },
                           child: Chip(
                             padding: EdgeInsets.only(
@@ -195,13 +105,13 @@ class _FiltroPageState extends State<FiltroPage> {
                         ),
                       ));
                     }
-                    if (cf.luxo) {
+                    if (snapshot.data.luxo) {
                       itens.add(Padding(
                         padding: EdgeInsets.only(left: 8.0),
                         child: GestureDetector(
                           onTap: () {
-                            cf.luxo = !cf.luxo;
-                            cf.inBool.add(snapshot.data);
+                            snapshot.data.luxo = !snapshot.data.luxo;
+                            cf.inFiltro.add(snapshot.data);
                           },
                           child: Chip(
                             padding: EdgeInsets.only(
@@ -219,13 +129,13 @@ class _FiltroPageState extends State<FiltroPage> {
                         ),
                       ));
                     }
-                    if (cf.portaMalasGrande) {
+                    if (snapshot.data.portaMalasGrande) {
                       itens.add(Padding(
                         padding: EdgeInsets.only(left: 8.0),
                         child: GestureDetector(
                           onTap: () {
-                            cf.portaMalasGrande = !cf.portaMalasGrande;
-                            cf.inBool.add(snapshot.data);
+                            snapshot.data.portaMalasGrande = !snapshot.data.portaMalasGrande;
+                            cf.inFiltro.add(snapshot.data);
                           },
                           child: Chip(
                             padding: EdgeInsets.only(
@@ -244,13 +154,13 @@ class _FiltroPageState extends State<FiltroPage> {
                         ),
                       ));
                     }
-                    if (cf.chofer) {
+                    if (snapshot.data.chofer) {
                       itens.add(Padding(
                         padding: EdgeInsets.only(left: 8.0),
                         child: GestureDetector(
                           onTap: () {
-                            cf.chofer = !cf.chofer;
-                            cf.inBool.add(snapshot.data);
+                            snapshot.data.chofer = !snapshot.data.chofer;
+                            cf.inFiltro.add(snapshot.data);
                           },
                           child: Chip(
                             padding: EdgeInsets.only(
@@ -268,13 +178,13 @@ class _FiltroPageState extends State<FiltroPage> {
                         ),
                       ));
                     }
-                    if (cf.seisPassageiros) {
+                    if (snapshot.data.seisPassageiros) {
                       itens.add(Padding(
                         padding: EdgeInsets.only(left: 8.0),
                         child: GestureDetector(
                           onTap: () {
-                            cf.seisPassageiros = !cf.seisPassageiros;
-                            cf.inBool.add(snapshot.data);
+                            snapshot.data.seisPassageiros = !snapshot.data.seisPassageiros;
+                            cf.inFiltro.add(snapshot.data);
                           },
                           child: Chip(
                             padding: EdgeInsets.only(
@@ -292,13 +202,13 @@ class _FiltroPageState extends State<FiltroPage> {
                         ),
                       ));
                     }
-                    if (cf.todas) {
+                    if (snapshot.data.todas) {
                       itens.add(Padding(
                         padding: EdgeInsets.only(left: 8.0),
                         child: GestureDetector(
                           onTap: () {
-                            cf.todas = !cf.todas;
-                            cf.inBool.add(snapshot.data);
+                            snapshot.data.todas = !snapshot.data.todas;
+                            cf.inFiltro.add(snapshot.data);
                           },
                           child: Chip(
                             padding: EdgeInsets.only(
@@ -316,13 +226,13 @@ class _FiltroPageState extends State<FiltroPage> {
                         ),
                       ));
                     }
-                    if (cf.moto) {
+                    if (snapshot.data.isMoto) {
                       itens.add(Padding(
                         padding: EdgeInsets.only(left: 8.0),
                         child: GestureDetector(
                           onTap: () {
-                            cf.moto = !cf.moto;
-                            cf.inBool.add(snapshot.data);
+                            snapshot.data.isMoto = !snapshot.data.isMoto;
+                            cf.inFiltro.add(snapshot.data);
                           },
                           child: Chip(
                             padding: EdgeInsets.only(
@@ -340,14 +250,14 @@ class _FiltroPageState extends State<FiltroPage> {
                         ),
                       ));
                     }
-                    if (cf.basico) {
+                    if (snapshot.data.basico) {
                       itens.add(Padding(
                         padding:
                             EdgeInsets.only(left: getLargura(context) * .020),
                         child: GestureDetector(
                           onTap: () {
-                            cf.basico = !cf.basico;
-                            cf.inBool.add(snapshot.data);
+                            snapshot.data.basico = !snapshot.data.basico;
+                            cf.inFiltro.add(snapshot.data);
                           },
                           child: Chip(
                             padding: EdgeInsets.only(
@@ -409,42 +319,42 @@ class _FiltroPageState extends State<FiltroPage> {
                                   IconButton(
                                     iconSize: getAltura(context) * .050,
                                     icon: Icon(
-                                      cf.carros == false
+                                      snapshot.data.isCarro == false
                                           ? Icons.add_circle_outline
                                           : MdiIcons.checkboxMarkedCircle,
                                       color: Color.fromRGBO(255, 184, 0, 30),
                                     ),
                                     onPressed: () {
-                                      cf.carros = !cf.carros;
-                                      cf.inBool.add(snapshot.data);
+                                      snapshot.data.isCarro = !snapshot.data.isCarro;
+                                      cf.inFiltro.add(snapshot.data);
                                     },
                                   ),
                                   hTextAbel('Carros', context, size: 65),
                                   IconButton(
                                     iconSize: getAltura(context) * .050,
                                     icon: Icon(
-                                      cf.moto == false
+                                      snapshot.data.isMoto == false
                                           ? Icons.add_circle_outline
                                           : MdiIcons.checkboxMarkedCircle,
                                       color: Color.fromRGBO(255, 184, 0, 30),
                                     ),
                                     onPressed: () {
-                                      cf.moto = !cf.moto;
-                                      cf.inBool.add(snapshot.data);
+                                      snapshot.data.isMoto = !snapshot.data.isMoto;
+                                      cf.inFiltro.add(snapshot.data);
                                     },
                                   ),
                                   hTextAbel('Motos', context, size: 65),
                                   IconButton(
                                     iconSize: getAltura(context) * .050,
                                     icon: Icon(
-                                      cf.todas == false
+                                      snapshot.data.todas == false
                                           ? Icons.add_circle_outline
                                           : MdiIcons.checkboxMarkedCircle,
                                       color: Color.fromRGBO(255, 184, 0, 30),
                                     ),
                                     onPressed: () {
-                                      cf.todas = !cf.todas;
-                                      cf.inBool.add(snapshot.data);
+                                      snapshot.data.todas = !snapshot.data.todas;
+                                      cf.inFiltro.add(snapshot.data);
                                     },
                                   ),
                                   hTextAbel('Todas', context, size: 65),
@@ -463,28 +373,28 @@ class _FiltroPageState extends State<FiltroPage> {
                                   IconButton(
                                     iconSize: getAltura(context) * .050,
                                     icon: Icon(
-                                      cf.basico == false
+                                      snapshot.data.basico == false
                                           ? Icons.add_circle_outline
                                           : MdiIcons.checkboxMarkedCircle,
                                       color: Color.fromRGBO(255, 184, 0, 30),
                                     ),
                                     onPressed: () {
-                                      cf.basico = !cf.basico;
-                                      cf.inBool.add(snapshot.data);
+                                      snapshot.data.basico = !snapshot.data.basico;
+                                      cf.inFiltro.add(snapshot.data);
                                     },
                                   ),
                                   hTextAbel('Básico', context, size: 65),
                                   IconButton(
                                     iconSize: getAltura(context) * .050,
                                     icon: Icon(
-                                      cf.luxo == false
+                                      snapshot.data.luxo == false
                                           ? Icons.add_circle_outline
                                           : MdiIcons.checkboxMarkedCircle,
                                       color: Color.fromRGBO(255, 184, 0, 30),
                                     ),
                                     onPressed: () {
-                                      cf.luxo = !cf.luxo;
-                                      cf.inBool.add(snapshot.data);
+                                      snapshot.data.luxo = !snapshot.data.luxo;
+                                      cf.inFiltro.add(snapshot.data);
                                     },
                                   ),
                                   hTextAbel('Conforto/Luxo', context, size: 65),
@@ -503,15 +413,15 @@ class _FiltroPageState extends State<FiltroPage> {
                                   IconButton(
                                     iconSize: getAltura(context) * .050,
                                     icon: Icon(
-                                      cf.portaMalasGrande == false
+                                      snapshot.data.portaMalasGrande == false
                                           ? Icons.add_circle_outline
                                           : MdiIcons.checkboxMarkedCircle,
                                       color: Color.fromRGBO(255, 184, 0, 30),
                                     ),
                                     onPressed: () {
-                                      cf.portaMalasGrande =
-                                          !cf.portaMalasGrande;
-                                      cf.inBool.add(snapshot.data);
+                                      snapshot.data.portaMalasGrande =
+                                          !snapshot.data.portaMalasGrande;
+                                      cf.inFiltro.add(snapshot.data);
                                     },
                                   ),
                                   hTextAbel('Porta Malas Grande', context,
@@ -523,14 +433,14 @@ class _FiltroPageState extends State<FiltroPage> {
                                   IconButton(
                                     iconSize: getAltura(context) * .050,
                                     icon: Icon(
-                                      cf.seisPassageiros == false
+                                      snapshot.data.seisPassageiros == false
                                           ? Icons.add_circle_outline
                                           : MdiIcons.checkboxMarkedCircle,
                                       color: Color.fromRGBO(255, 184, 0, 30),
                                     ),
                                     onPressed: () {
-                                      cf.seisPassageiros = !cf.seisPassageiros;
-                                      cf.inBool.add(snapshot.data);
+                                      snapshot.data.seisPassageiros = !snapshot.data.seisPassageiros;
+                                      cf.inFiltro.add(snapshot.data);
                                     },
                                   ),
                                   hTextAbel('6 Passageiros', context, size: 65),
@@ -541,14 +451,14 @@ class _FiltroPageState extends State<FiltroPage> {
                                   IconButton(
                                     iconSize: getAltura(context) * .050,
                                     icon: Icon(
-                                      cf.motoristaMulher == false
+                                      snapshot.data.motoristaMulher == false
                                           ? Icons.add_circle_outline
                                           : MdiIcons.checkboxMarkedCircle,
                                       color: Color.fromRGBO(255, 184, 0, 30),
                                     ),
                                     onPressed: () {
-                                      cf.motoristaMulher = !cf.motoristaMulher;
-                                      cf.inBool.add(snapshot.data);
+                                      snapshot.data.motoristaMulher = !snapshot.data.motoristaMulher;
+                                      cf.inFiltro.add(snapshot.data);
                                     },
                                   ),
                                   hTextAbel('Motorista Mulher', context,
@@ -560,14 +470,14 @@ class _FiltroPageState extends State<FiltroPage> {
                                   IconButton(
                                     iconSize: getAltura(context) * .050,
                                     icon: Icon(
-                                      cf.chofer == false
+                                      snapshot.data.chofer == false
                                           ? Icons.add_circle_outline
                                           : MdiIcons.checkboxMarkedCircle,
                                       color: Color.fromRGBO(255, 184, 0, 30),
                                     ),
                                     onPressed: () {
-                                      cf.chofer = !cf.chofer;
-                                      cf.inBool.add(snapshot.data);
+                                      snapshot.data.chofer = !snapshot.data.chofer;
+                                      cf.inFiltro.add(snapshot.data);
                                     },
                                   ),
                                   hTextAbel('Chofer', context, size: 65),
@@ -629,6 +539,6 @@ class _FiltroPageState extends State<FiltroPage> {
                   }),
             ),
           );
-        });
+
   }
 }

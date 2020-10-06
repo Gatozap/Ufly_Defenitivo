@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ufly/Helpers/Helper.dart';
-import 'package:ufly/Objetos/Motorista.dart';
+
 
 class SuasViagemList extends StatelessWidget {
 
-  Motorista motorista;
-  SuasViagemList(this.motorista) ;
+
+  SuasViagemList() ;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class SuasViagemList extends StatelessWidget {
                       height: getAltura(context) * .20,
                       width: getLargura(context) * .58,
                       decoration: BoxDecoration(
-                        image: DecorationImage(image: AssetImage(motorista.carro.foto, ), fit: BoxFit.fill),
+                       // image: DecorationImage(image: AssetImage(motorista.carro.foto, ), fit: BoxFit.fill),
                         borderRadius: BorderRadius.circular(30),
                       ),
 
@@ -49,10 +49,10 @@ class SuasViagemList extends StatelessWidget {
                     padding:  EdgeInsets.only(top: getAltura(context)*.030),
                     child: Row(
                       children: <Widget>[
-                        hTextAbel('${motorista.carro.modelo}| ', context,
-                            color: Colors.black, size: 70),
-                        hTextMal(motorista.carro.categoria, context,
-                            weight: FontWeight.bold, size: 60)
+                       // hTextAbel('${motorista.carro.modelo}| ', context,
+                        //    color: Colors.black, size: 70),
+                       // hTextMal(motorista.carro.categoria, context,
+                        //    weight: FontWeight.bold, size: 60)
                       ],
                     ),
                   ),
@@ -83,23 +83,23 @@ class SuasViagemList extends StatelessWidget {
                           bottom: getAltura(context) * .010,
                           left: getLargura(context) * .040, right:  getLargura(context) * .030),
                       child: CircleAvatar(
-                          backgroundImage:
-                          AssetImage(motorista.foto),
+                         // backgroundImage:
+                         // AssetImage(motorista.foto),
                           radius: 40),
                     ),
 
                     Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          hTextAbel(motorista.nome, context,
-                              size: 90, color: Colors.black),
+                         // hTextAbel(motorista.nome, context,
+                          //    size: 90, color: Colors.black),
                           sb,
                           Container(
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                hTextAbel("${motorista.rating}", context, size: 70),
+                               // hTextAbel("${motorista.rating}", context, size: 70),
                                 Container(
                                   child: Image.asset(
                                       'assets/estrela.png'),
@@ -112,9 +112,10 @@ class SuasViagemList extends StatelessWidget {
                     sb,
                     hTextAbel('06/07/2020\n08:35', context),
                     sb,
-                    Center(
-                        child:
-                        hTextAbel('R\$ ${motorista.preco.toStringAsFixed(2)}', context, size: 80))
+                    //Center(
+                       // child:
+                       // hTextAbel('R\$ ${motorista.preco.toStringAsFixed(2)}', context, size: 80)
+    //)
                   ],
                 ),
               )

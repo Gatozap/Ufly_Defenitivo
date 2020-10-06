@@ -1,18 +1,18 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -27,7 +27,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
-import 'Cielo/flutter_cielo.dart';
 
 import 'Styles.dart';
 
@@ -102,6 +101,7 @@ hTextMal(text, context,
       FontWeight weight = FontWeight.normal, }) {
   ScreenUtil.instance = ScreenUtil(allowFontScaling: true)..init(context);
 
+
   return Text(
     text,
     textAlign: textaling,
@@ -133,6 +133,26 @@ hTextAbel(text, context,
     overflow: TextOverflow.ellipsis,
     textAlign: textaling,
     style: GoogleFonts.abel(
+      fontSize: ScreenUtil.getInstance().setSp(size),
+      color: color,
+      fontWeight: weight,
+      fontStyle: style,
+    ),
+  );
+}
+hTextBank(text, context,
+    {int size = 20,
+      Color color = Colors.black,
+      FontStyle style = FontStyle.normal,
+      TextAlign textaling = TextAlign.start,
+      FontWeight weight = FontWeight.normal, }) {
+  ScreenUtil.instance = ScreenUtil(allowFontScaling: true)..init(context);
+
+  return Text(
+    text,
+    textAlign: textaling,
+    style: TextStyle(
+      fontFamily: 'BankGothic',
       fontSize: ScreenUtil.getInstance().setSp(size),
       color: color,
       fontWeight: weight,
@@ -919,10 +939,9 @@ myAppBar(String titulo, context,
     centerTitle: true,
     actionsIconTheme: new IconThemeData(   color: colorIcon == null? Colors.black: colorIcon, size: 100),
     actions: actions,
-    title: Text(
-      titulo,
-      style: TextStyle(fontFamily: 'BankGothic', fontSize: ScreenUtil.getInstance().setSp(size), color: color == null? Colors.black: color),
-    )
+    title: hTextBank(titulo, context, size: 100)
+
+
   );
 }
 
@@ -946,9 +965,9 @@ nutrannoLogo(context, m1, m2) {
 }
 
 class Helper {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
   static final storage = new FlutterSecureStorage();
-  static FirebaseUser user;
+  static auth.User user;
   static Color blue_default = Colors.blue;
   static User localUser;
   static FirebaseMessaging fbmsg;
@@ -958,7 +977,7 @@ class Helper {
 
   static String token;
   static FirebaseAnalytics analytics = FirebaseAnalytics();
-  static CieloEcommerce cielo;
+ // static CieloEcommerce cielo;
 
   static TextStyle labelStyle = TextStyle(
     color: Colors.grey[400],
@@ -992,7 +1011,7 @@ class Helper {
   }
 
   getUser() async {
-    user = await _auth.currentUser();
+    user =  _auth.currentUser;
   }
 
   /*(List<LatLng> points) {
@@ -1054,7 +1073,7 @@ class Helper {
       filename = 'image_$random.${extension}';
     }
     StorageReference ref = FirebaseStorage.instance.ref().child(filename);
-    StorageUploadTask uploadTask = ref.put(imageFile);
+    StorageUploadTask uploadTask = ref.putFile(imageFile);
     return uploadTask.onComplete.then((d) {
       return d.ref.getDownloadURL().then((url) {
         var downloadUrl = url;
@@ -1442,6 +1461,44 @@ final defaultDiacriticsRemovalap = [
 final diacriticsMap = {};
 
 final diacriticsRegExp = new RegExp('[^\u0000-\u007E]', multiLine: true);
+validarDocumento(String s) {
+  if (s.toLowerCase().contains('CNH'.toLowerCase()) ||
+      s
+          .toLowerCase()
+          .contains('CARTEIRA NACIONAL DE HABILITAÇÃO'.toLowerCase()) ||
+      s
+          .toLowerCase()
+          .contains('CARTEIRA NACIONAL DE HABILITACAO'.toLowerCase())) {
+    return documentos.CNH;
+  }
+  if (s.toLowerCase().contains('REGISTRO GERAL'.toLowerCase())) {
+    return documentos.RG;
+  }
+  if (s
+      .toLowerCase()
+      .contains('Cadastro de Pessoas Fisicas'.toLowerCase()) ||
+      s.toLowerCase().contains('CPF'.toLowerCase())) {
+    List<String> list = s.split(' ');
+    bool isValid = false;
+    for (String s in list) {
+      if (CPFValidator.isValid(s.replaceAll('.', '').replaceAll('-', ''))) {
+        isValid = true;
+      }
+    }
+    print("AQUI TIPO: CPF > Valido? ${isValid}");
+    if (isValid) {
+      return documentos.CPF;
+    } else {
+      return null;
+    }
+  }
+  if (s.toLowerCase().contains('PASSAPORTE'.toLowerCase()) ||
+      s.toLowerCase().contains('PASSPORT'.toLowerCase()) ||
+      s.toLowerCase().contains('PASAPORT'.toLowerCase())) {
+    return documentos.PASSAPORTE;
+  }
+}
+
 
 
   String getCPF(String s){

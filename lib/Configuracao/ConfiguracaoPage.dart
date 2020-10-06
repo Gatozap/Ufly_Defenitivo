@@ -1,14 +1,16 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ufly/Helpers/Helper.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:googleapis/admin/directory_v1.dart';
+
+
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import 'package:ufly/Objetos/Favoritos.dart';
+import 'package:ufly/Objetos/User.dart';
 
 import 'AdicionarEnderecoPage.dart';
 import 'ConfiguracaoPageList.dart';
@@ -47,7 +49,7 @@ class _ConfiguracaoPageState extends State<ConfiguracaoPage> {
       appBar: myAppBar(
         'Configurações',
         context,
-        size: ScreenUtil.getInstance().setSp(250),
+        size: 75,
         
       ),
       body: SingleChildScrollView(
@@ -59,15 +61,20 @@ class _ConfiguracaoPageState extends State<ConfiguracaoPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  CircleAvatar(
+                 Helper.localUser.foto == null? CircleAvatar(
                     radius: 50,
                     backgroundImage: AssetImage('assets/logo_drawer.png'),
-                  ),
+                  ):CircleAvatar(
+                   radius: 50,
+                   backgroundImage: CachedNetworkImageProvider(Helper.localUser.foto),
+                 ),
+
+
                   sb,
-                  hTextMal('Equipe uFly', context,
+                  hTextMal('${Helper.localUser.nome}', context,
                       size: 60, weight: FontWeight.bold),
-                  hTextAbel('+55 (00) 00000-0000', context),
-                  hTextAbel('desenvolvedor@ufly.com.br', context),
+                  hTextAbel('${Helper.localUser.celular}', context),
+                  hTextAbel('${Helper.localUser.email}', context),
                   Divider(
                     color: Colors.black54,
                   ),
