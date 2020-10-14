@@ -923,10 +923,10 @@ myAppBar(String titulo, context,
       centerTitle: true,
       actionsIconTheme: new IconThemeData(color: Colors.black, ),
       actions: actions,
-      title: Text(
-        titulo,
-        style: TextStyle(fontFamily: estiloTexto, fontSize: ScreenUtil.getInstance().setSp(size), color: color == null? Colors.black: color, fontWeight: bold,),
-      )
+      title:  hTextBank(titulo, context, color: color == null? Colors.black: color, weight: FontWeight.bold, size: size)
+      
+
+
     );
   }
 
@@ -944,7 +944,12 @@ myAppBar(String titulo, context,
 
   );
 }
-
+String ROUTE_QUERY(double lat, double lng, double lat1, double lng1) {
+  String url =
+      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$lng1,$lat1?alternatives=true&geometries=geojson&steps=true&access_token=$MAP_TOKEN';
+  print(url);
+  return url;
+}
 nutrannoLogo(context, m1, m2) {
   return SizedBox(
     width: MediaQuery.of(context).size.width * m1,
@@ -1146,7 +1151,15 @@ openMap(String titulo, double latitude, double longitude, context) async {
     barrierDismissible: true,
   );
 }
-
+const String MAP_TOKEN = 'pk.eyJ1IjoiY2hyaXN0b2NyYWN5IiwiYSI6ImVmM2Y2MDA1NzIyMjg1NTdhZGFlYmZiY2QyODVjNzI2In0.htaacx3ZhE5uAWN86-YNAQ';
+double calculateDistance(lat1, lon1, lat2, lon2) {
+  var p = 0.017453292519943295;
+  var c = cos;
+  var a = 0.5 -
+      c((lat2 - lat1) * p) / 2 +
+      c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+  return 12742 * asin(sqrt(a));
+}
 String getMonthString(int month) {
   switch (month) {
     case 1:

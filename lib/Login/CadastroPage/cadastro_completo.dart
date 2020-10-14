@@ -2791,6 +2791,7 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                                       List<Carro> carros =
                                                           new List();
                                                       Carro cccc = Carro(
+                                                        id_usuario: Helper.localUser.id,
                                                         cor: controllerCor.text,
                                                         ano: int.parse(
                                                             controllerAno.text),

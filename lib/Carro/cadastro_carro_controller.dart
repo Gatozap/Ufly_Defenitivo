@@ -44,7 +44,7 @@ class CadastroCarroController extends BlocBase {
     }  */
     return  carrosRef.add(carro.toJson()).then((v) {
       carro.id = v.id;
-
+       carro.id_usuario = Helper.localUser.id;
 
 
       return carrosRef.doc(carro.id).update(carro.toJson()).then((v){

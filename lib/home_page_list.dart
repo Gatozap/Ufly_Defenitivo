@@ -2,20 +2,24 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ufly/Controllers/ControllerFiltros.dart';
+import 'package:ufly/CorridaBackground/corrida_page.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/Objetos/Motorista.dart';
+import 'package:ufly/Rota/rota_page.dart';
 import 'package:ufly/Viagens/InicioDeViagemPage/InicioDeViagemPage.dart';
 
 import 'Carro/CarroController.dart';
 import 'Motorista/motorista_controller.dart';
 import 'Objetos/Carro.dart';
 
+import 'Objetos/Endereco.dart';
 import 'Objetos/User.dart';
 import 'Viagens/SolicitarViagemPage.dart';
 
 class FrotaListItem extends StatelessWidget {
    Motorista motorista;
     User user;
+
    FrotaListItem(this.motorista);
    MotoristaController mt;
    bool isFavorito = false;
@@ -46,8 +50,8 @@ class FrotaListItem extends StatelessWidget {
 
          return GestureDetector(
       onTap: (){
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => InicioDeViagemPage()));
+       /* Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => RotaPage()));*/
     }       ,
       child:       Container(
             width: getLargura(context)*.95,
@@ -62,7 +66,7 @@ class FrotaListItem extends StatelessWidget {
                 stream: mt.outMotoristas,
 
                 builder: (context, AsyncSnapshot<List<Motorista>> snapshot) {
-                  print('aqui snapshot ${snapshot.data}');
+
                   if(snapshot.data == null){
                     return Container();
                   }
@@ -79,7 +83,7 @@ class FrotaListItem extends StatelessWidget {
                         stream: cr.outCarros,
                         builder: (context, snapshot) {
 
-                                    print('carro ${snapshot.data}');
+
                           if(snapshot.data == null){
                             return Container();
                           }

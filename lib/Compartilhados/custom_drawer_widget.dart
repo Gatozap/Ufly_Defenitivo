@@ -4,6 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -16,6 +18,7 @@ import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/HomePage.dart';
 import 'package:ufly/Login/Login.dart';
 import 'package:ufly/Objetos/Carro.dart';
+import 'package:ufly/Rota/rota_controller.dart';
 import 'package:ufly/Viagens/SuasViagensPage.dart';
 
 class CustomDrawerWidget extends StatefulWidget {
@@ -27,6 +30,7 @@ class CustomDrawerWidget extends StatefulWidget {
 
 class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
   CadastroCarroController cr;
+  RotaController rc;
   @override
   Widget build(BuildContext context) {
     if(cr == null){
@@ -128,6 +132,25 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                       menuButton(context, 'Suas Viagens', true, () {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => SuasViagensPage()));
+                      }),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        width: 40,
+                        child: Image.asset('assets/map.png'),
+                      ),
+                      menuButton(context, 'testes', true, () {
+
+                        getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
+                          print("AQUI LOCALIZAÇÂO ${v}");
+                          rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
+                          //CalcularRota(e, v);
+                        });
                       }),
                     ],
                   ),
