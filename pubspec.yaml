@@ -9,7 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_map: 0.10.1+1
-  geolocator: 6.0.0+4
+  geolocator: 5.3.1
   latlong: 0.6.1
   share: 0.6.0+1
   flutter_background_geolocation: 1.9.3
@@ -39,10 +39,14 @@ dependencies:
   firebase_auth: 0.18.0+1
   firebase_core: 0.5.0
   rxdart: ^0.22.0
+  address_search_field: 1.4.2
   geocoder: ^0.2.1
   google_maps_flutter: ^0.5.21+6
-  location: 2.3.5
+  location: 3.0.2
+  flutter_google_places: 0.2.3
+
   get_it: 4.0.4
+  google_maps_webservice: 0.0.18
   i18n_extension: 1.4.4
   cloud_firestore: 0.14.0+2
   google_fonts: ^0.5.0+1

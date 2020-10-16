@@ -146,7 +146,7 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                       ),
                       menuButton(context, 'testes', true, () {
 
-                        getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
+                        Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
                           print("AQUI LOCALIZAÇÂO ${v}");
                           rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
                           //CalcularRota(e, v);

@@ -1,14 +1,27 @@
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:address_search_field/address_search_field.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:provider/provider.dart';
+
+
+import 'package:google_maps_webservice/places.dart' as gg;
+
+
+import 'package:http/http.dart' as http;
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+
+
+
 
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -16,22 +29,21 @@ import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
 as bg;
 import 'package:ufly/GoogleServices/google_maps_services.dart';
-import 'package:ufly/Helpers/CustomSwitch.dart';
+
 import 'package:ufly/Motorista/motorista_controller.dart';
-import 'package:ufly/Objetos/Endereco.dart';
+
 import 'package:ufly/Objetos/Motorista.dart';
 import 'package:ufly/Rota/rota_controller.dart';
-import 'package:ufly/Viagens/Passageiro/aceitar_passageiro_page.dart';
+
 import 'package:ufly/home_page_list.dart';
 import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
-import 'package:ufly/Controllers/PagesController.dart';
+
 import 'package:ufly/Helpers/Helper.dart';
 
 import 'package:ufly/Viagens/FiltroPage.dart';
 import 'Controllers/camera_controller.dart';
 import 'Objetos/FiltroMotorista.dart';
-import 'Objetos/Rota.dart';
-import 'Rota/rota_controller_teste.dart';
+
 
 import 'home_page_list.dart';
 
@@ -44,8 +56,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+
   RotaController rc;
-  //GoogleMapsPlaces googleplcaes;
+
   GoogleMapsServices googleMapsServices = GoogleMapsServices();
   TextEditingController locationController = TextEditingController();
 
@@ -58,6 +71,7 @@ class _HomePageState extends State<HomePage> {
   static LatLng _initialPosition;
   LatLng _lastPosition = _initialPosition;
   String _currentAddress;
+  String filtro;
   LatLng get initialPosition => _initialPosition;
   LatLng get lastPosition => _lastPosition;
   TextEditingController destinationController = TextEditingController();
@@ -65,7 +79,8 @@ class _HomePageState extends State<HomePage> {
 
 
   Position position;
-
+  final homeScaffoldKey = GlobalKey<ScaffoldState>();
+  final searchScaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
 
@@ -82,10 +97,18 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     super.dispose();
   }
+
   GoogleMapController _controller;
   @override
   Widget build(BuildContext context) {
-
+    print('aqui lalalala ${filtro}');
+        String text = '';
+    void onError(gg.PlacesAutocompleteResponse response) {
+      homeScaffoldKey.currentState.showSnackBar(
+        SnackBar(content: Text(response.errorMessage)),
+      );
+    }
+    const apiKey = "AIzaSyB_niut8QCQctZAwMCWUEO5V7wk93ScrrI";
     if (cf == null) {
       cf = ControllerFiltros();
     }
@@ -134,6 +157,7 @@ class _HomePageState extends State<HomePage> {
       },
     );
     return Scaffold(
+      key: homeScaffoldKey,
       drawer: CustomDrawerWidget(),
       appBar: myAppBar('UFLY', context,
           size: 100, backgroundcolor: Colors.white, color: Colors.black),
@@ -201,10 +225,10 @@ class _HomePageState extends State<HomePage> {
                   top: 18,
                   child: GestureDetector(
                     onTap: () {
-                      getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
+                      Geolocator(). getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
                         print("AQUI LOCALIZAÇÂO ${v}");
                         rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
-                        //rc.CalcularRota(widget.endereco, v);
+                        
                       });
                     },
                     child: CircleAvatar(
@@ -249,6 +273,7 @@ class _HomePageState extends State<HomePage> {
                                   children: <Widget>[
                                     GestureDetector(
                                       onTap: () async {
+                                      
                                         FiltroMotorista f =
                                         await cf.outFiltro.first;
                                         f.viagem = true;
@@ -298,10 +323,44 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
+
                         Container(
                           color: Color.fromRGBO(248, 248, 248, 100),
                           width: getLargura(context) * .85,
-                          child: TextField(
+                          child:      AddressSearchField(
+                            
+                            decoration: InputDecoration(
+                               fillColor: Colors.grey[200],
+                              filled: true,
+
+                              prefixIcon: Icon(Icons.map, color: Colors.black),
+                              labelText: 'Onde vamos?',
+                              contentPadding: EdgeInsets.fromLTRB(getAltura(context)*.025,getLargura(context)*.020, getAltura(context)*.025, getLargura(context)*.020),
+                              enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9.0),
+                                  borderSide: BorderSide(color: Colors.black)),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9.0),
+                                  borderSide: BorderSide(color: Colors.black)),
+                            ),
+                            controller: locationController,
+                            country: "Brasil",
+                            city: '${filtro}',
+                            hintText: "Pontos",
+                            noResultsText: "Nenhum local encontrado...",
+
+                            onDone: (BuildContext dialogContext, AddressPoint point) async {
+                              requisicao(locationController.text);
+                              Navigator.of(context).pop();
+                            },
+                            onCleaned: () => print("clean"),
+                          ),
+
+
+                          /*TextField(
+                            onTap: ()async{
+
+                            },
                             controller: locationController,
                             textInputAction: TextInputAction.go,
                             onSubmitted: (value){
@@ -326,7 +385,7 @@ class _HomePageState extends State<HomePage> {
                                   getLargura(context) * .040,
                                   getAltura(context) * .020),
                             ),
-                          ),
+                          ),*/
                         ),
                       ],
                     ),
@@ -339,36 +398,17 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  
    requisicao(String intendedLocation)async {
-     List<LatLng> polylineCoordinates = [];
-     getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
-       List<Location> location = await locationFromAddress(intendedLocation);
-       double latitude = location[0].latitude;
-       double longitude = location[0].longitude;
+
+     Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
+       List<Placemark> location = await Geolocator().placemarkFromAddress(intendedLocation);
+       double latitude = location[0].position.latitude;
+       double longitude = location[0].position.longitude;
        LatLng destination = LatLng(latitude, longitude);
        getMarkers(destination,  intendedLocation);
-       
-       http
-           .get(
-         ROUTE_QUERY(v.longitude, v.latitude, destination.longitude, destination.latitude),
-       ).then((result) {
-         polylineCoordinates.add(LatLng(v.latitude, v.longitude));
-         print("RESULTADO ${result.body}");
-
-         Rota r = Rota.fromJson(json.decode(result.body));
-         for (var i in r.routes[0].legs) {
-           for (var j in i.steps) {
-             for (var k in j.intersections) {
-               print(k.location);
-               polylineCoordinates.add(LatLng(k.location[1], k.location[0]));
-             }
-           }
-         }
-         polylineCoordinates.add(LatLng(destination.latitude, destination.longitude));
-         print("RETORNOU ROTA CALCULADA ${polylineCoordinates.length}");
-         rc.inPoly.add(polylineCoordinates);
-       });
-
+       rc.CalcularRota(v, destination);
      });
    }
   Widget _floatingPanel() {
@@ -419,6 +459,23 @@ class _HomePageState extends State<HomePage> {
         ]);
   }
 
+
+
+    Future<void> pesquisaEndereco() async{
+                                         try{
+                                              final center = await localizacaoInicial();
+                                           gg.Prediction p = await PlacesAutocomplete.show(context: context, mode: Mode.overlay,apiKey:'AIzaSyB_niut8QCQctZAwMCWUEO5V7wk93ScrrI', language: 'pt-BR', components: [
+                                             gg.Component(gg.Component.country, 'BR'),
+
+                                           ],
+                                               sessionToken: Uuid().generateV4(),
+
+                                               radius: center == null ? null : 10000
+                                           ) ;
+                                         } catch (e) {
+                                           return;
+                                         }
+    }
   Widget AdicionarAFrotaWidget() {
     return GestureDetector(
       onTap: () {},
@@ -452,17 +509,19 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-  localizacaoInicial() {
-    getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
+ localizacaoInicial() {
+    Geolocator(). getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
       print('aqui localizacao ${v}');
       rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
 
       _initialPosition = LatLng(v.latitude, v.longitude);
 
       List<Placemark> mark =
-      await placemarkFromCoordinates(v.latitude, v.longitude);
+      await Geolocator().placemarkFromCoordinates(v.latitude, v.longitude);
       Placemark place = mark[0];
       _currentAddress = '${place.name.isNotEmpty ? place.name + ', ' : ''}${place.thoroughfare.isNotEmpty ? place.thoroughfare + ', ' : ''}${place.subLocality.isNotEmpty ? place.subLocality+ ', ' : ''}${place.locality.isNotEmpty ? place.locality+ ', ' : ''}${place.subAdministrativeArea.isNotEmpty ? place.subAdministrativeArea + ', ' : ''}${place.postalCode.isNotEmpty ? place.postalCode + ', ' : ''}${place.administrativeArea.isNotEmpty ? place.administrativeArea : ''}';
+      filtro = '${place.subAdministrativeArea.isNotEmpty ? place.subAdministrativeArea: ''}';
+
       destinationController.text = _currentAddress;
 
 
@@ -528,6 +587,28 @@ List<Polyline> getPolys(data) {
   return poly;
 }
 
+class Uuid {
+  final Random _random = Random();
+
+  String generateV4() {
+    // Generate xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx / 8-4-4-4-12.
+    final int special = 8 + _random.nextInt(4);
+
+    return '${_bitsDigits(16, 4)}${_bitsDigits(16, 4)}-'
+        '${_bitsDigits(16, 4)}-'
+        '4${_bitsDigits(12, 3)}-'
+        '${_printDigits(special, 1)}${_bitsDigits(12, 3)}-'
+        '${_bitsDigits(16, 4)}${_bitsDigits(16, 4)}${_bitsDigits(16, 4)}';
+  }
+
+  String _bitsDigits(int bitCount, int digitCount) =>
+      _printDigits(_generateBits(bitCount), digitCount);
+
+  int _generateBits(int bitCount) => _random.nextInt(1 << bitCount);
+
+  String _printDigits(int value, int count) =>
+      value.toRadixString(16).padLeft(count, '0');
+}
 List<Marker> getMarkers(LatLng data, String addres) {
 
   List<Marker> markers = new List();

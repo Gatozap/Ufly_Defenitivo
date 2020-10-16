@@ -27,15 +27,15 @@ class RotaController extends BlocBase {
   RotaController() {
     PolylinePoints polylinePoints = PolylinePoints();
 
-    getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
+    Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
       print("AQUI LOCALIZAÇÂO ${v}");
       inLocalizacao.add(LatLng(v.latitude, v.longitude));
 
-     // CalcularRota(v);
+
     });
   }
 
-  /*CalcularRota(Position v) async {
+  CalcularRota(Position v, LatLng c) async {
     List<LatLng> polylineCoordinates = [];
     print(v.latitude);
     print(v.longitude);
@@ -43,7 +43,7 @@ class RotaController extends BlocBase {
     print(e.longitude);  */
     http
         .get(
-      ROUTE_QUERY(v.latitude, v.longitude, e.latitude, e.longitude),
+      ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude),
     )
         .then((result) {
       polylineCoordinates.add(LatLng(v.latitude, v.longitude));
@@ -58,11 +58,11 @@ class RotaController extends BlocBase {
           }
         }
       }
-      polylineCoordinates.add(LatLng(e.latitude, e.longitude));
+      polylineCoordinates.add(LatLng(c.latitude, c.longitude));
       print("RETORNOU ROTA CALCULADA ${polylineCoordinates.length}");
       inPoly.add(polylineCoordinates);
     });
-  } */
+  }
 
   @override
   void dispose() {
