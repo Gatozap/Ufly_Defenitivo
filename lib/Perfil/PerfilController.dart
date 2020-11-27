@@ -28,13 +28,13 @@ class PerfilController extends BlocBase {
         u.data_nascimento = DateTime.now();
       }
       u.data_nascimento = u.data_nascimento.add(Duration(hours: 3));
-      print("data de nascimento AQUI ${u.data_nascimento.toIso8601String()}");
+
       inUser.add(u);
       userRef.doc(u.id).snapshots().listen((snap) {
         u = new User.fromJson(snap.data());
 
         u.data_nascimento = u.data_nascimento.add(Duration(hours: 3));
-        print("data de nascimento AQUI ${u.data_nascimento.toIso8601String()}");
+
         inUser.add(u);
       });
     }

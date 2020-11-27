@@ -7,7 +7,7 @@ CollectionReference notificacoesRef = FirebaseFirestore.instance.collection('Not
 CollectionReference gruposRef = FirebaseFirestore.instance.collection('Grupo');
 CollectionReference motoristaRef = FirebaseFirestore.instance.collection('Motorista');
 CollectionReference corridasRef = FirebaseFirestore.instance.collection('CorridasNovo');
-
+CollectionReference requisicaoRef = FirebaseFirestore.instance.collection('Requisicao');
 CollectionReference personagensRef =
 FirebaseFirestore.instance.collection('Personagens');
 DatabaseReference carrosAtivosRef =FirebaseDatabase.instance
@@ -16,6 +16,7 @@ DatabaseReference carrosAtivosRef =FirebaseDatabase.instance
 
 CollectionReference carrosRef =
 FirebaseFirestore.instance.collection('Carro');
+
 
 CollectionReference periciasRef =
 FirebaseFirestore.instance.collection('Pericias');

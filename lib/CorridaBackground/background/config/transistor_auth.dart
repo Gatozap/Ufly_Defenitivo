@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
+import 'package:ufly/CorridaBackground/background/config/env.dart';
 import 'package:ufly/main.dart';
 
 import 'ENV.dart';

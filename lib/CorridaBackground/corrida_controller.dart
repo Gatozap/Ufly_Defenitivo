@@ -11,6 +11,7 @@ import 'package:ufly/Objetos/Carro.dart';
 import 'package:ufly/Objetos/CorridaTeste.dart';
 
 import 'package:ufly/Objetos/Localizacao.dart';
+import 'package:ufly/Objetos/Motorista.dart';
 
 import 'package:ufly/Objetos/User.dart';
 import 'package:bloc_pattern/bloc_pattern.dart';
@@ -55,7 +56,7 @@ void headlessTask(bg.HeadlessEvent headlessEvent) async {
 
       break;
      }
-   }
+}
 
 
 
@@ -117,10 +118,11 @@ class CorridaController extends BlocBase {
           .then((v) {
         List<Carro> carros = new List<Carro>();
         for (var d in v.docs) {
-          Carro c = Carro.fromJson(d.data);
+          Carro c = Carro.fromJson(d.data());
           carros.add(c);
         }
         carro = carros[0];
+        print('aqui a porra do carro ${carro.toString()}');
         cfs.PararLigacao(carro);
       });
     } else {
@@ -165,12 +167,14 @@ class CorridaController extends BlocBase {
         }
         print("AQUI CAPETA CORRIDA");
         var LocalizacoesTemp = await getAll();
+
         rota = LocalizacoesTemp == null ? new List() : LocalizacoesTemp;
         inRota.add(rota);
         distanciaPercorrida = 0.0;
         if (rota.length != 0) {
           var lastPoint;
           for (var l in rota) {
+
             if (lastPoint != null) {
               distanciaPercorrida += calculateDistance(
                 l.latitude,
@@ -215,7 +219,9 @@ class CorridaController extends BlocBase {
       bg.BackgroundGeolocation.start().then(callback).catchError((onError) {
         print("Error: ${onError.toString()}");
       });
-    } else {
+    } 
+
+    else {
       try {
         sp.setBool('started', started);
       } catch (err) {
@@ -228,8 +234,10 @@ class CorridaController extends BlocBase {
       } catch (err) {
         print('Error ${err.toString()}');
       }
+
       print("AQUI CAPETA CORRIDA");
       var LocalizacoesTemp = await getAll();
+
       rota = LocalizacoesTemp == null ? new List() : LocalizacoesTemp;
       inRota.add(rota);
       distanciaPercorrida = 0.0;
@@ -248,7 +256,7 @@ class CorridaController extends BlocBase {
         }
       }
       print("CHEGOU AQUI LOLO2  ");
-      ;
+
 
       inDistanciaPercorrida.add(distanciaPercorrida);
       //if (started) {
@@ -260,7 +268,7 @@ class CorridaController extends BlocBase {
         print('[changePace] ERROR: ' + e.toString());
         //setupBackground();
       });
-      print("CHEGOU AQUI ");
+      print("CHEGOU AQUI 32");
       bg.BackgroundGeolocation.onLocation((bg.Location location) {
         novaLocalizacao(
             LatLng(location.coords.latitude, location.coords.longitude));
@@ -335,25 +343,24 @@ class CorridaController extends BlocBase {
     inStarted.add(started);
     distanciaPercorrida = 0;
     inDistanciaPercorrida.add(distanciaPercorrida);
-
     setupBackground();
     // Fired whenever a location is recorded
-
-    carrosRef
+    print('aqui usuario ${Helper.localUser.id}');
+    carrosRef.where('id_usuario', isEqualTo: Helper.localUser.id)
         .get()
         .then((v) {
       List<Carro> carros = new List<Carro>();
       for (var d in v.docs) {
-        Carro c = Carro.fromJson(d.data);
+        Carro c = Carro.fromJson(d.data());
+             print('aqui carro 232 ${c.toJson()}');
 
           carros.add(c);
-
       }
       carro = carros[0];
-
       inCarro.add(carro);
       SharedPreferences.getInstance().then((value) {
         sp = value;
+        
         started =
             value.getBool('started') == null ? false : value.getBool('started');
         if (started) {
@@ -379,11 +386,10 @@ class CorridaController extends BlocBase {
           new Marker(
             width: 25,
             height: 25,
+
             point: l,
             builder: (ctx) => new Container(
-              child: Image.asset(
-                "assets/marker.png",
-              ),
+              child: Icon(Icons.account_circle),
             ),
           ),
         ],

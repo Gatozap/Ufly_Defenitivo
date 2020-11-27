@@ -3,9 +3,13 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
+import 'package:ufly/CorridaBackground/corrida_page.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/Helpers/References.dart';
 import 'package:ufly/HomePage.dart';
+
 import 'package:ufly/Objetos/Carro.dart';
 import 'package:ufly/Objetos/Documentos/DocumentoCNH.dart';
 
@@ -266,6 +270,7 @@ class CadastroController implements BlocBase {
           Helper.localUser.RG = RG;
           Helper.localUser.CNH = CNH;
           Helper.localUser.cpf = CPF;
+          Helper.localUser.zoom = 18.00;
           if(Helper.localUser.cpf == null){
             dToast('Preencha o CPF');
           }
@@ -330,7 +335,15 @@ class CadastroController implements BlocBase {
             dToast('Conta criada com sucesso!');
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                    builder: (context) => HomePage()));
+                    builder: (context) => Helper.localUser.isMotorista == true? Consumer<Position>(
+                        builder: (context, position, widget) {
+                          return CorridaPage(position);
+                        }
+                    ): Consumer<Position>(
+                        builder: (context, position, widget) {
+                          return HomePage(position);
+                        }
+                    )));
           }).catchError((err) {
             return null;
           });

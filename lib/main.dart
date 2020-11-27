@@ -3,6 +3,8 @@ import 'dart:io';
 
 
 
+import 'package:google_directions_api/google_directions_api.dart';
+import 'package:provider/provider.dart';
 import 'package:ufly/Objetos/Notificacao.dart';
 import 'package:ufly/Objetos/User.dart';
 import 'package:ufly/splash_page.dart';
@@ -14,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:ufly/Objetos/Notificacao.dart';
+import 'GoogleServices/geolocator_service.dart';
 import 'Helpers/Helper.dart';
 import 'Helpers/NotificacoesHelper.dart';
 
@@ -48,15 +51,19 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
+  final geoService = GeolocatorService();
 
   @override
   Widget build(BuildContext context) {
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home:SplashPage(),
-    );
+    return
+      FutureProvider(
+        create: (context) => geoService.getPosicaoInicial(),
+        child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home:SplashPage(),
+    ),
+      );
   }
 
   Future onSelectNotification() async {
@@ -84,6 +91,7 @@ class _MyAppState extends State<MyApp> {
   var flutterLocalNotificationsPlugin;
   @override
   void initState() {
+
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     var initializationSettingsAndroid =
     new AndroidInitializationSettings('ic_launcher');

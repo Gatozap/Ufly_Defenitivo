@@ -12,7 +12,7 @@ import 'Carro/CarroController.dart';
 import 'Motorista/motorista_controller.dart';
 import 'Objetos/Carro.dart';
 
-import 'Objetos/Endereco.dart';
+
 import 'Objetos/User.dart';
 import 'Viagens/SolicitarViagemPage.dart';
 

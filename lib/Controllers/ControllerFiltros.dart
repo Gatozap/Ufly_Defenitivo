@@ -10,7 +10,19 @@ class ControllerFiltros extends BlocBase{
   Sink<FiltroMotorista> get inFiltro => controllerFiltro.sink;
   FiltroMotorista filtroMotorista;
 
+  BehaviorSubject<double> controllerZoom = new BehaviorSubject<double>();
+  Stream<double> get outZoom => controllerZoom.stream;
+  Sink<double> get inZoom => controllerZoom.sink;
+  double Zoom;
+
+  BehaviorSubject<bool> controllerHide = new BehaviorSubject<bool>();
+  Stream<bool> get outHide => controllerHide.stream;
+  Sink<bool> get inHide => controllerHide.sink;
+  bool hide;
+
   ControllerFiltros(){
+    inHide.add(false);
+    inZoom.add(0);
     FiltroMotorista filtro = FiltroMotorista(
       documento_veiculo: false,
         viagem: true,
@@ -41,7 +53,9 @@ class ControllerFiltros extends BlocBase{
 
   @override
   void dispose() {
+    controllerZoom.close();
     controllerFiltro.close();
+    controllerHide.close();
   }
 
 }

@@ -10,7 +10,7 @@ import 'Documentos/DocumentoRg.dart';
 class User {
   String id;
   String nome;
-
+    double zoom;
   String celular;
   String cpf;
   bool isMale;
@@ -53,6 +53,7 @@ class User {
   User(
       {this.id,
       this.nome,
+        this.zoom,
         this.documento_veiculo,
         this.tipo,
       this.data_nascimento,
@@ -83,7 +84,7 @@ class User {
 
 
 
-
+        this.zoom = j['zoom'] == null? 18.00: j['zoom'];
     this.id = j['id'] == null ? null : j['id'];
     this.CPF = j['CPF'] == null ? null : getDocumentosCPF(json.decode(j['CPF']));
     this.cnh = j['cnh'] == null ? null : getDocumentosCNH(json.decode(j['cnh']));
@@ -134,12 +135,14 @@ class User {
         : DateTime.fromMicrosecondsSinceEpoch(j['data_nascimento']);
   }
 
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['cpf'] = this.cpf;
     data['RG'] = this.RG;
     data['CNH'] = this.CNH;
     data['id'] = this.id;
+    data['zoom'] = this.zoom;
     data['telefone'] = this.telefone;
     data['CPF'] = this.CPF == null ? null : json.encode(this.CPF);
     data['nome'] = this.nome;
@@ -189,7 +192,7 @@ class User {
 
   @override
   String toString() {
-    return 'User{id: $id, nome: $nome, celular: $celular, cpf: $cpf, isMale: $isMale, email: $email, tipo: $tipo, senha: $senha, permissao: $permissao, created_at: $created_at, updated_at: $updated_at, deleted_at: $deleted_at, data_nascimento: $data_nascimento, antecedentes: $antecedentes, antecendete_verificados_em: $antecendete_verificados_em, isMotorista: $isMotorista, foto: $foto, RG: $RG, CNH: $CNH, conta_bancaria: $conta_bancaria, cnh: $cnh, rg: $rg, CPF: $CPF, telefone: $telefone, agencia: $agencia, numero_conta: $numero_conta, isBanido: $isBanido, documento_veiculo: $documento_veiculo}';
+    return 'User{id: $id, nome: $nome,zoom:$zoom, celular: $celular, cpf: $cpf, isMale: $isMale, email: $email, tipo: $tipo, senha: $senha, permissao: $permissao, created_at: $created_at, updated_at: $updated_at, deleted_at: $deleted_at, data_nascimento: $data_nascimento, antecedentes: $antecedentes, antecendete_verificados_em: $antecendete_verificados_em, isMotorista: $isMotorista, foto: $foto, RG: $RG, CNH: $CNH, conta_bancaria: $conta_bancaria, cnh: $cnh, rg: $rg, CPF: $CPF, telefone: $telefone, agencia: $agencia, numero_conta: $numero_conta, isBanido: $isBanido, documento_veiculo: $documento_veiculo}';
   }
 
   static getDocumentosCPF(decoded) {

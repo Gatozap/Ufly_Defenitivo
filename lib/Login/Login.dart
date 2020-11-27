@@ -1,3 +1,6 @@
+import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
+import 'package:ufly/CorridaBackground/corrida_page.dart';
 import 'package:ufly/Helpers/Helper.dart';
 
 import 'package:ufly/Helpers/References.dart';
@@ -6,6 +9,7 @@ import 'package:ufly/Helpers/References.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
 import 'package:ufly/HomePage.dart';
+
 import 'package:ufly/Login/CadastroPage/CadastroPage.dart';
 import 'package:ufly/Login/CadastroPage/cadastro_completo.dart';
 import 'package:ufly/Login/LoginController.dart';
@@ -66,13 +70,15 @@ class _LoginState extends State<Login> {
     return Scaffold(
 
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(    
+      body:
+      SingleChildScrollView(
         child: Container(
           height: getAltura(context),
             width: getLargura(context),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Center(
                     child: Padding(
@@ -84,7 +90,6 @@ class _LoginState extends State<Login> {
                 )
                 ),
                 Container(
-
                   width: getLargura(context)*.7,
                   height: getAltura(context)*.250,
                   child: Image.asset('assets/login_layout.png'),
@@ -179,9 +184,18 @@ class _LoginState extends State<Login> {
                                 sp.setString('UserSenha', controllerSenha.text);
 
                               });
+                              dToast('Efetuando Login, aguarde');
                               Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
-                                      builder: (context) => HomePage()));
+                                      builder: (context) => Helper.localUser.isMotorista == true? Consumer<Position>(
+                                          builder: (context, position, widget) {
+                                            return CorridaPage(position);
+                                          }
+                                      ): Consumer<Position>(
+                                          builder: (context, position, widget) {
+                                            return HomePage(position);
+                                          }
+                                      )));
                             }
                           });
                         }
@@ -245,7 +259,7 @@ class _LoginState extends State<Login> {
                 ),
                 sb,
 
-                Row(
+               /* Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
@@ -267,7 +281,7 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                   ],
-                )
+                )*/
               ],
             )),
       ),

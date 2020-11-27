@@ -1,39 +1,59 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:address_search_field/address_search_field.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
-
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:geolocator/geolocator.dart';
+import 'package:google_directions_api/google_directions_api.dart' as ggt;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 
 import 'package:google_maps_webservice/places.dart' as gg;
 
-
 import 'package:http/http.dart' as http;
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
-
-
-
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:ufly/Ajuda/AjudaPage.dart';
+import 'package:ufly/Ativos/AtivosController.dart';
+import 'package:ufly/Configuracao/ConfiguracaoPage.dart';
 
 import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-as bg;
-import 'package:ufly/GoogleServices/google_maps_services.dart';
+    as bg;
+import 'package:ufly/CorridaBackground/corrida_controller.dart';
+import 'package:ufly/CorridaBackground/corrida_page.dart';
+
+import 'package:ufly/GoogleServices/geolocator_service.dart';
+import 'package:ufly/Helpers/References.dart';
+import 'package:ufly/Login/Login.dart';
 
 import 'package:ufly/Motorista/motorista_controller.dart';
+import 'package:ufly/Objetos/CarroAtivo.dart';
+import 'package:ufly/Objetos/Endereco.dart';
+import 'package:ufly/Objetos/Localizacao.dart';
 
 import 'package:ufly/Objetos/Motorista.dart';
+import 'package:ufly/Objetos/OfertaCorrida.dart';
+import 'package:ufly/Objetos/Requisicao.dart';
+import 'package:ufly/Objetos/Rota.dart';
+import 'package:ufly/Perfil/PerfilController.dart';
 import 'package:ufly/Rota/rota_controller.dart';
+import 'package:ufly/Viagens/MotoristaProximoPage.dart';
+import 'package:ufly/Viagens/Requisicao/criar_requisicao_controller.dart';
+import 'package:ufly/Viagens/SuasViagensPage.dart';
 
 import 'package:ufly/home_page_list.dart';
 import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
@@ -42,12 +62,18 @@ import 'package:ufly/Helpers/Helper.dart';
 
 import 'package:ufly/Viagens/FiltroPage.dart';
 import 'Controllers/camera_controller.dart';
+import 'Helpers/SqliteDatabase.dart';
 import 'Objetos/FiltroMotorista.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+    as bg;
 
-
+import 'Viagens/Requisicao/requisicao_controller.dart';
 import 'home_page_list.dart';
 
 class HomePage extends StatefulWidget {
+  final Position initialPosition;
+   Requisicao requisicao;
+  HomePage(this.initialPosition, {this.requisicao});
   @override
   _HomePageState createState() {
     return _HomePageState();
@@ -55,40 +81,52 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
-
   RotaController rc;
-
-  GoogleMapsServices googleMapsServices = GoogleMapsServices();
+   CriarRequisicaoController criaRc;
+  PerfilController pf = PerfilController(Helper.localUser);
+  final directionsService = ggt.DirectionsService();
+  final GeolocatorService geo = GeolocatorService();
   TextEditingController locationController = TextEditingController();
-
-  final Set<Marker> marks = {};
+  TextEditingController inicialController = TextEditingController();
+  Completer<GoogleMapController> _controller = Completer();
+  CorridaController cc;
+  AtivosController alc;
+  Requisicao req;
   Set<Polyline> poly = {};
   ControllerFiltros cf;
   FiltroMotorista fm;
-
-
+  Placemark placemark;
+  RequisicaoController requisicaoController;
+  AtivosController ac;
   static LatLng _initialPosition;
-  LatLng _lastPosition = _initialPosition;
+  static LatLng destino;
+  LatLng get initialPosition => _initialPosition;
   String _currentAddress;
   String filtro;
-  LatLng get initialPosition => _initialPosition;
-  LatLng get lastPosition => _lastPosition;
-  TextEditingController destinationController = TextEditingController();
-  CameraController cc;
-
-
+  double startlat;
+  String destinoAddress;
+  double startlng;
+  double endlat;
+  double endlng;
   Position position;
   final homeScaffoldKey = GlobalKey<ScaffoldState>();
   final searchScaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
+    bg.BackgroundGeolocation.start();
+   if(ac == null){
+     ac = AtivosController();
+   }
 
+    localizacaoInicial();
+    Timer(Duration(seconds: 5), () {
+      geo.getCurrentLocation().listen((position) {
+           telaCentralizada(position);
+      });
+    });
     if (rc == null) {
       rc = RotaController();
     }
-    localizacaoInicial();
-    bg.BackgroundGeolocation.start();
 
     super.initState();
   }
@@ -98,17 +136,18 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  GoogleMapController _controller;
   @override
   Widget build(BuildContext context) {
-    print('aqui lalalala ${filtro}');
-        String text = '';
-    void onError(gg.PlacesAutocompleteResponse response) {
-      homeScaffoldKey.currentState.showSnackBar(
-        SnackBar(content: Text(response.errorMessage)),
-      );
+    if (alc == null) {
+      alc = AtivosController();
     }
-    const apiKey = "AIzaSyB_niut8QCQctZAwMCWUEO5V7wk93ScrrI";
+    if(criaRc == null){
+      criaRc = CriarRequisicaoController();
+    }
+    if(requisicaoController == null){
+      requisicaoController = RequisicaoController();
+
+    }
     if (cf == null) {
       cf = ControllerFiltros();
     }
@@ -116,51 +155,157 @@ class _HomePageState extends State<HomePage> {
       stream: rc.outPoly,
       builder: (context, snap) {
         List<Polyline> polylines = getPolys(snap.data);
+
         return StreamBuilder<LatLng>(
             stream: rc.outLocalizacao,
             builder: (context, localizacao) {
+              print('aqui localização ${localizacao.data}');
               if (localizacao.data == null) {
-                return
+                return StreamBuilder<Position>(
+                    stream: geo.getCurrentLocation(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        print('aqui position ${snapshot.data}');
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      return StreamBuilder(
+                          stream: pf.outUser,
+                          builder: (context, user) {
+                            return GoogleMap(
+                              myLocationEnabled: true,
+                              myLocationButtonEnabled: false,
+                              //polylines: polylines.toSet(),
+                              mapType: MapType.normal,
+                              zoomGesturesEnabled: true,
+                              zoomControlsEnabled: false,
 
-
-                  initialPosition == null? Container( alignment: Alignment.center, child: CircularProgressIndicator()): GoogleMap(
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: false,
-                    //polylines: polylines.toSet(),
-                    mapType: MapType.normal,
-                    zoomGesturesEnabled: true,
-                    zoomControlsEnabled: false,
-                    initialCameraPosition: CameraPosition(target:initialPosition, zoom: 16 ),
-                    onMapCreated: (GoogleMapController controller) {
-                      _controller = (controller);
-                    },
-                  );
+                              initialCameraPosition: CameraPosition(
+                                  target: localizacao.data,
+                                  zoom: Helper.localUser.zoom),
+                              onMapCreated: (GoogleMapController controller) {
+                                _controller.complete(controller);
+                                centerView();
+                              },
+                            );
+                          });
+                    });
               }
-              List<Marker> markers = getMarkers(localizacao.data,destinationController.text);
+
+              List<Marker> markers = getMarkers(localizacao.data, destino);
               print("AQUI MARKERS ${markers.length}");
               print("AQUI Poly ${polylines.length}");
-              return
-                initialPosition == null? Container( alignment: Alignment.center, child: CircularProgressIndicator()): GoogleMap(
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
-                  polylines: polylines.toSet(),
-                  markers: markers.toSet(),
-                  mapType: MapType.normal,
-                  zoomGesturesEnabled: true,
-                  zoomControlsEnabled: false,
-                  initialCameraPosition: CameraPosition(target:initialPosition, zoom: 16 ),
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller = (controller);
-                  },
-                );
+              return StreamBuilder(
+                  stream: pf.outUser,
+                  builder: (context, user) {
+                    return GoogleMap(
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: false,
+                      polylines: polylines.toSet(),
+                      markers: destino != null? markers.toSet(): null,
+                      mapType: MapType.normal,
+                      zoomGesturesEnabled: true,
+                      zoomControlsEnabled: false,
+                      initialCameraPosition: CameraPosition(
+                          target: localizacao.data,
+                          zoom: Helper.localUser.zoom),
+                      onMapCreated: (GoogleMapController controller) {
+                        _controller.complete(controller);
+                        centerView();
+                      },
+                    );
+                  });
             });
       },
     );
     return Scaffold(
       key: homeScaffoldKey,
+      appBar:
+          myAppBar('', context, color: Colors.transparent, actions: <Widget>[
+        StreamBuilder<FiltroMotorista>(
+            stream: cf.outFiltro,
+            builder: (context, snap) {
+              if (snap.data == null) {
+                return Container();
+              }
+              FiltroMotorista ff = snap.data;
+
+
+
+              return Padding(
+                padding: EdgeInsets.only(right: getLargura(context) * .050),
+                child:
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Center(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        height: getAltura(context) * .070,
+                        width: getLargura(context) * .7,
+                        child:
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            GestureDetector(
+                              onTap: () async {
+                                FiltroMotorista f = await cf.outFiltro.first;
+                                f.viagem = true;
+
+                                cf.inFiltro.add(f);
+                                print('aqui viagem ${f.viagem}');
+                              },
+                              child: hTextAbel('Viagens', context,
+                                  size: 60,
+                                  weight: FontWeight.bold,
+                                  color: ff.viagem == true
+                                      ? Color.fromRGBO(255, 184, 0, 30)
+                                      : Colors.black),
+                            ),
+                            sb,
+                            hText('|', context, size: 60),
+                            sb,
+                            GestureDetector(
+                              onTap: () async {
+
+                                FiltroMotorista f = await cf.outFiltro.first;
+                                f.viagem = false;
+
+                                cf.inFiltro.add(f);
+                                print('aqui viagem ${f.viagem}');
+                              },
+                              child: hTextAbel(
+                                'Entregas',
+                                context,
+                                size: 60,
+                                weight: FontWeight.bold,
+                                color: ff.viagem == false
+                                    ? Color.fromRGBO(255, 184, 0, 30)
+                                    : Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        rc.CalcularRota(_initialPosition, destino);
+                        centerView();
+                      },
+                      child: Container(
+                        child: hTextAbel('ID', context, size: 100),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+      ]),
       drawer: CustomDrawerWidget(),
-      appBar: myAppBar('UFLY', context,
-          size: 100, backgroundcolor: Colors.white, color: Colors.black),
       body: SlidingUpPanel(
         panel: _floatingPanel(),
         renderPanelSheet: false,
@@ -220,177 +365,137 @@ class _HomePageState extends State<HomePage> {
                 height: getAltura(context),
                 child: map,
               ),
-              Positioned(
-                  right: 15,
-                  top: 18,
-                  child: GestureDetector(
-                    onTap: () {
-                      Geolocator(). getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
-                        print("AQUI LOCALIZAÇÂO ${v}");
-                        rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
-                        
-                      });
-                    },
-                    child: CircleAvatar(
-                      radius: 25,
-                      backgroundColor: Colors.white,
-                      child: hTextAbel('ID', context, size: 100),
-                    ),
-                  )),
               Column(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  StreamBuilder<FiltroMotorista>(
-                      stream: cf.outFiltro,
-                      builder: (context, snap) {
-                        if(snap.data == null){
-                          return Container();
-                        }
-                        FiltroMotorista ff = snap.data;
-                        print('aqui a bosta da viagem ${ff.viagem}');
-                        if (ff.viagem == null) {
-                          ff.viagem = true;
-                        }
-
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  top: getAltura(context) * .020),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                height: getAltura(context) * .070,
-                                width: getLargura(context) * .5,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    GestureDetector(
-                                      onTap: () async {
-                                      
-                                        FiltroMotorista f =
-                                        await cf.outFiltro.first;
-                                        f.viagem = true;
-
-                                        cf.inFiltro.add(f);
-                                      },
-                                      child: hTextAbel('Viagens', context,
-                                          size: 60,
-                                          weight: FontWeight.bold,
-                                          color: ff.viagem == true
-                                              ? Color.fromRGBO(255, 184, 0, 30)
-                                              : Colors.black),
-                                    ),
-                                    sb,
-                                    hText('|', context, size: 60),
-                                    sb,
-                                    GestureDetector(
-                                      onTap: () async {
-                                        FiltroMotorista f =
-                                        await cf.outFiltro.first;
-                                        f.viagem = false;
-
-                                        cf.inFiltro.add(f);
-                                      },
-                                      child: hTextAbel(
-                                        'Entregas',
-                                        context,
-                                        size: 60,
-                                        weight: FontWeight.bold,
-                                        color: ff.viagem == false
-                                            ? Color.fromRGBO(255, 184, 0, 30)
-                                            : Colors.black,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }),
                   Padding(
                     padding: EdgeInsets.only(
-                        top: getAltura(context) * .020,
+                        top: getAltura(context) * .050,
                         bottom: getAltura(context) * .010),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-
-                        Container(
-                          color: Color.fromRGBO(248, 248, 248, 100),
-                          width: getLargura(context) * .85,
-                          child:      AddressSearchField(
-                            
-                            decoration: InputDecoration(
-                               fillColor: Colors.grey[200],
-                              filled: true,
-
-                              prefixIcon: Icon(Icons.map, color: Colors.black),
-                              labelText: 'Onde vamos?',
-                              contentPadding: EdgeInsets.fromLTRB(getAltura(context)*.025,getLargura(context)*.020, getAltura(context)*.025, getLargura(context)*.020),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(9.0),
-                                  borderSide: BorderSide(color: Colors.black)),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(9.0),
-                                  borderSide: BorderSide(color: Colors.black)),
-                            ),
-                            controller: locationController,
-                            country: "Brasil",
-                            city: '${filtro}',
-                            hintText: "Pontos",
-                            noResultsText: "Nenhum local encontrado...",
-
-                            onDone: (BuildContext dialogContext, AddressPoint point) async {
-                              requisicao(locationController.text);
-                              Navigator.of(context).pop();
-                            },
-                            onCleaned: () => print("clean"),
+                    child: Center(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 2,
                           ),
-
-
-                          /*TextField(
-                            onTap: ()async{
-
-                            },
-                            controller: locationController,
-                            textInputAction: TextInputAction.go,
-                            onSubmitted: (value){
-                               requisicao(value);
-                            },
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            expands: false,
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(
-                                FontAwesomeIcons.mapMarkedAlt,
-                                color: Colors.black,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              labelText: 'Onde vamos?',
-                              contentPadding: EdgeInsets.fromLTRB(
-                                  getLargura(context) * .040,
-                                  getAltura(context) * .020,
-                                  getLargura(context) * .040,
-                                  getAltura(context) * .020),
-                            ),
-                          ),*/
                         ),
-                      ],
+                        width: getLargura(context) * .80,
+                        child: AddressSearchField(
+                          decoration: InputDecoration(
+                            fillColor: Colors.white,
+                            filled: true,
+                            suffixIcon: IconButton(
+                                onPressed: () {
+                                  print('clicou');
+                                  localizacaoInicial();
+                                  inicialController.text = _currentAddress;
+                                },
+                                icon: Icon(Icons.my_location,
+                                    color: Colors.black)),
+                            prefixIcon:
+                                Icon(Icons.location_on, color: Colors.black),
+                            labelText: 'Onde estou?',
+                            contentPadding: EdgeInsets.fromLTRB(
+                                getAltura(context) * .025,
+                                getLargura(context) * .020,
+                                getAltura(context) * .025,
+                                getLargura(context) * .020),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                                borderSide: BorderSide(color: Colors.white)),
+                          ),
+                          controller: inicialController,
+                          country: "Brasil",
+                          city: '${filtro}',
+                          hintText: "Pontos",
+                          noResultsText: "Nenhum local encontrado...",
+                          onDone: (BuildContext dialogContext,
+                              AddressPoint point) async {
+                            Navigator.of(context).pop();
+                          },
+                          onCleaned: () => print("clean"),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: getAltura(context) * .010,
+                        bottom: getAltura(context) * .010),
+                    child: Center(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 2,
+                          ),
+                        ),
+                        width: getLargura(context) * .80,
+                        child: AddressSearchField(
+                          decoration: InputDecoration(
+                            fillColor: Colors.white,
+                            filled: true,
+                            prefixIcon: Icon(Icons.map, color: Colors.black),
+                            labelText: 'Onde vamos?',
+                            contentPadding: EdgeInsets.fromLTRB(
+                                getAltura(context) * .025,
+                                getLargura(context) * .020,
+                                getAltura(context) * .025,
+                                getLargura(context) * .020),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                                borderSide: BorderSide(color: Colors.white)),
+                          ),
+                          controller: locationController,
+                          country: "Brasil",
+                          city: '${filtro}',
+                          hintText: "Pontos",
+                          noResultsText: "Nenhum local encontrado...",
+                          onDone: (BuildContext dialogContext,
+                              AddressPoint point) async {
+                            requisicao(locationController.text,
+                                inicialController.text);
+
+                            Navigator.of(context).pop();
+                            Timer(Duration(seconds: 5), () {
+                              centerView();
+                            });
+                          },
+                          onCleaned: () => print("clean"),
+                        ),
+                      ),
                     ),
                   ),
                 ],
+              ),sb,
+              destino == null? Container(): Positioned(
+                right: getLargura(context)*.060,
+                bottom: getAltura(context)*.350,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    centerView();
+                  },
+                  child: Icon(Icons.zoom_out_map, color: Colors.black),
+                  backgroundColor: Colors.white,
+                ),
+              ),
+              Positioned(
+                right: getLargura(context)*.060,
+                bottom: getAltura(context)*.250,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    localizacaoInicial();
+                  },
+                  child: Icon(Icons.my_location, color: Colors.black),
+                  backgroundColor: Colors.white,
+                ),
               ),
             ],
           ),
@@ -399,18 +504,132 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  
-   requisicao(String intendedLocation)async {
+  Endereco endereco_origem;
+  localizacaoInicial() {
+    Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .then((v) async {
 
-     Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
-       List<Placemark> location = await Geolocator().placemarkFromAddress(intendedLocation);
-       double latitude = location[0].position.latitude;
-       double longitude = location[0].position.longitude;
-       LatLng destination = LatLng(latitude, longitude);
-       getMarkers(destination,  intendedLocation);
-       rc.CalcularRota(v, destination);
-     });
-   }
+      telaCentralizada(v);
+
+      rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
+
+      _initialPosition = LatLng(v.latitude, v.longitude);
+
+      Timer(Duration(seconds: 4), () async {
+        List<Placemark> mark = await Geolocator()
+            .placemarkFromCoordinates(v.latitude, v.longitude);
+
+        Placemark place = mark[0];
+        _currentAddress =
+        '${place.name.isNotEmpty ? place.name + ', ' : ''}${place.thoroughfare.isNotEmpty ? place.thoroughfare + ', ' : ''}${place.subLocality.isNotEmpty ? place.subLocality + ', ' : ''}${place.locality.isNotEmpty ? place.locality + ', ' : ''}${place.subAdministrativeArea.isNotEmpty ? place.subAdministrativeArea + ', ' : ''}${place.postalCode.isNotEmpty ? place.postalCode + ', ' : ''}${place.administrativeArea.isNotEmpty ? place.administrativeArea : ''}';
+
+
+        filtro =
+            '${place.subAdministrativeArea.isNotEmpty ? place.subAdministrativeArea : ''}';
+      });
+    });
+  }
+
+  Future<void> telaCentralizada(Position position) async {
+    final GoogleMapController controller = await _controller.future;
+    print('aqui o zoom ${Helper.localUser.zoom.toStringAsFixed(2)}');
+    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(position.latitude, position.longitude),
+        zoom: Helper.localUser.zoom)));
+  }
+
+  centerView() async {
+    final GoogleMapController controller = await _controller.future;
+
+    await controller.getVisibleRegion();
+
+    var left = min(_initialPosition.latitude, destino.latitude);
+    var right = max(_initialPosition.latitude, destino.latitude);
+    var top = max(_initialPosition.longitude, destino.longitude);
+    var bottom = min(_initialPosition.longitude, destino.longitude);
+
+    var bounds = LatLngBounds(
+      southwest: LatLng(left, bottom),
+      northeast: LatLng(right, top),
+    );
+
+    var cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 70);
+    controller.animateCamera(cameraUpdate);
+  }
+
+  Endereco endereco_destino;
+
+  requisicao(String destinoFinal, String inicial) async {
+    Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .then((v) async {
+      List<Placemark> location =
+          await Geolocator().placemarkFromAddress(destinoFinal);
+      double latitude = location[0].position.latitude;
+      double longitude = location[0].position.longitude;
+      List<Placemark> inicialPosicao =
+          await Geolocator().placemarkFromAddress(inicial);
+
+      double lat = inicialPosicao[0].position.latitude;
+      double lng = inicialPosicao[0].position.longitude;
+      LatLng inicial_posicao = LatLng(lat, lng);
+      _initialPosition = inicial_posicao;
+      LatLng destination = LatLng(latitude, longitude);
+      destino = destination;
+
+      getMarkers(inicial_posicao, destination);
+
+      endereco_origem = Endereco(
+          numero: inicialPosicao[0].name,
+          endereco: inicialPosicao[0].thoroughfare,
+          bairro: inicialPosicao[0].subLocality,
+          cidade: inicialPosicao[0].locality,
+          estado: inicialPosicao[0].administrativeArea,
+          lat: lat,
+          lng: lng,
+          cep: inicialPosicao[0].postalCode);
+
+      Timer(Duration(seconds: 2), () async {
+        destinoAddress =
+        '${location[0].name.isNotEmpty
+            ? location[0].name + ', '
+            : ''}${location[0].thoroughfare.isNotEmpty ? location[0]
+            .thoroughfare + ', ' : ''}${location[0].subLocality.isNotEmpty
+            ? location[0].subLocality + ', '
+            : ''}${location[0].locality.isNotEmpty
+            ? location[0].locality + ', '
+            : ''}${location[0].subAdministrativeArea.isNotEmpty ? location[0]
+            .subAdministrativeArea + ', ' : ''}${location[0].postalCode
+            .isNotEmpty ? location[0].postalCode + ', ' : ''}${location[0]
+            .administrativeArea.isNotEmpty
+            ? location[0].administrativeArea
+            : ''}';
+        endereco_destino = Endereco(
+            numero: location[0].name,
+            endereco: location[0].thoroughfare,
+            bairro: location[0].subLocality,
+            cidade: location[0].locality,
+            estado: location[0].administrativeArea,
+            lat: latitude,
+            lng: longitude,
+            cep: location[0].postalCode);
+
+      });
+      rc.CalcularRota(inicial_posicao, destination);
+      print('aqui destino ${endereco_destino}');
+      double distanciaPercorrida = 0.0;
+
+      double soma = distanciaPercorrida += calculateDistance(
+          _initialPosition.latitude,
+          _initialPosition.longitude,
+          destino.latitude,
+          destino.longitude);
+
+      print('aqui o calculo distancia ${soma.toStringAsFixed(2)}');
+    });
+  }
+
   Widget _floatingPanel() {
     MotoristaController mt;
     if (mt == null) {
@@ -423,6 +642,7 @@ class _HomePageState extends State<HomePage> {
           StreamBuilder<List<Motorista>>(
               stream: mt.outMotoristas,
               builder: (context, AsyncSnapshot<List<Motorista>> snapshot) {
+
                 if (snapshot.data == null) {
                   return Container();
                 }
@@ -445,10 +665,10 @@ class _HomePageState extends State<HomePage> {
                         return Padding(
                             padding: EdgeInsets.symmetric(horizontal: 10),
                             child: Helper.localUser.id !=
-                                snapshot.data[index - 1].id_usuario
+                                    snapshot.data[index - 1].id_usuario
                                 ? FrotaListItem(
-                              snapshot.data[index - 1],
-                            )
+                                    snapshot.data[index - 1],
+                                  )
                                 : Container());
                       }
                     },
@@ -459,23 +679,6 @@ class _HomePageState extends State<HomePage> {
         ]);
   }
 
-
-
-    Future<void> pesquisaEndereco() async{
-                                         try{
-                                              final center = await localizacaoInicial();
-                                           gg.Prediction p = await PlacesAutocomplete.show(context: context, mode: Mode.overlay,apiKey:'AIzaSyB_niut8QCQctZAwMCWUEO5V7wk93ScrrI', language: 'pt-BR', components: [
-                                             gg.Component(gg.Component.country, 'BR'),
-
-                                           ],
-                                               sessionToken: Uuid().generateV4(),
-
-                                               radius: center == null ? null : 10000
-                                           ) ;
-                                         } catch (e) {
-                                           return;
-                                         }
-    }
   Widget AdicionarAFrotaWidget() {
     return GestureDetector(
       onTap: () {},
@@ -509,68 +712,170 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
- localizacaoInicial() {
-    Geolocator(). getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
-      print('aqui localizacao ${v}');
-      rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
-
-      _initialPosition = LatLng(v.latitude, v.longitude);
-
-      List<Placemark> mark =
-      await Geolocator().placemarkFromCoordinates(v.latitude, v.longitude);
-      Placemark place = mark[0];
-      _currentAddress = '${place.name.isNotEmpty ? place.name + ', ' : ''}${place.thoroughfare.isNotEmpty ? place.thoroughfare + ', ' : ''}${place.subLocality.isNotEmpty ? place.subLocality+ ', ' : ''}${place.locality.isNotEmpty ? place.locality+ ', ' : ''}${place.subAdministrativeArea.isNotEmpty ? place.subAdministrativeArea + ', ' : ''}${place.postalCode.isNotEmpty ? place.postalCode + ', ' : ''}${place.administrativeArea.isNotEmpty ? place.administrativeArea : ''}';
-      filtro = '${place.subAdministrativeArea.isNotEmpty ? place.subAdministrativeArea: ''}';
-
-      destinationController.text = _currentAddress;
-
-
-    });
-  }
 
   Widget ProcurarWidget() {
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => FiltroPage()));
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.black,
-          border: Border.all(),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        margin: EdgeInsets.symmetric(
-            horizontal: getLargura(context) * .010,
-            vertical: getAltura(context) * .040),
-        height: getLargura(context) * .10,
-        width: getLargura(context) * .97,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              width: getLargura(context) * .150,
-              height: getLargura(context) * .2,
-              child: Icon(
-                Icons.search,
-                color: Colors.white,
-                size: getAltura(context) * .075,
-              ),
-            ),
-            hTextAbel('Procurar', context,
-                color: Colors.white, textaling: TextAlign.center, size: 75)
-          ],
-        ),
-      ),
+             if(requisicaoController == null){
+               requisicaoController = RequisicaoController();
+             }
+    return StreamBuilder<Requisicao>(
+      stream: requisicaoController.outRequisicao,
+        builder: (context,  requisicao) {
+
+                 print('aqui requisicao ${requisicao.data}');
+
+          return
+
+            StreamBuilder<FiltroMotorista>(
+                stream: cf.outFiltro,
+                builder: (context, snap) {
+                  if (snap.data == null) {
+                    return Container();
+                  }
+
+                  return GestureDetector(
+                          onTap: ()  {
+                            print('aqui viagem ${snap.data.viagem}');
+
+
+
+                              requisitarMotoristas(requisicao.data, snap.data.viagem);
+
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              border: Border.all(),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            margin: EdgeInsets.symmetric(
+                                horizontal: getLargura(context) * .010,
+                                vertical: getAltura(context) * .040),
+                            height: getLargura(context) * .10,
+                            width: getLargura(context) * .97,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                  width: getLargura(context) * .150,
+                                  height: getLargura(context) * .2,
+                                  child: Icon(
+                                    Icons.search,
+                                    color: Colors.white,
+                                    size: getAltura(context) * .075,
+                                  ),
+                                ),
+                                hTextAbel('Procurar', context,
+                                    color: Colors.white, textaling: TextAlign.center, size: 75)
+                              ],
+                            ),
+                          ),
+                        );
+                 }
+               );
+
+
+      }
     );
   }
 
 
+  void requisitarMotoristas(requiup, filtro) {
+
+    double soma = calculateDistance(_initialPosition.latitude,
+        _initialPosition.longitude, destino.latitude, destino.longitude);
+      
+    Endereco _destino = endereco_destino;
+    Endereco inicial = endereco_origem;
+    double tempo_estimado;
+
+    for (var i in rc.rota.routes[0].legs) {
+      double duracao =   (i.duration) / 3600;
+      tempo_estimado = duracao;
+    }
+
+
+    List motorista = new List();
+
+    for(CarroAtivo ca in ac.ativos){
+
+      if(isInAlcance(ca, _initialPosition)){
+        motorista.add(ca.user_id);
+      }
+
+  
+    }
+
+    if(requiup == null || requiup.user != Helper.localUser.id) {
+      print('entrou aqui cria');
+
+      List<Requisicao> requisicoes2 = new List();
+      Requisicao requisicao2 = Requisicao(
+        user: Helper.localUser.id,
+        isViagem: filtro,
+        created_at: DateTime.now(),
+        updated_at: DateTime.now(),
+        destino: _destino,
+        user_nome: Helper.localUser.nome,
+        origem: inicial,
+        distancia: soma,
+        tempo_estimado: tempo_estimado,
+        rota: rc.rota,
+        valid_until: DateTime.now().add(Duration(minutes: 5)),
+        motoristas_chamados: motorista,
+      );
+
+      requisicoes2.add(requisicao2);
+      print('requisicao2 ${requisicao2.toJson()}');
+      criaRc.CriarRequisicao(requisicao2);
+
+    } else {
+
+      print('entrou aqui update ${requiup}');
+      List<Requisicao> requisicoes = new List();
+      Requisicao requisicao = Requisicao(
+          id: requiup.id,
+        isViagem: filtro,
+        user: Helper.localUser.id,
+        created_at: DateTime.now(),
+        updated_at: DateTime.now(),
+        destino: _destino,
+        user_nome: Helper.localUser.nome,
+        origem: inicial,
+        distancia: soma,
+        tempo_estimado: tempo_estimado,
+        rota: rc.rota,
+        valid_until: DateTime.now().add(Duration(minutes: 5)),
+        motoristas_chamados: motorista,
+      );
+
+      requisicoes.add(requisicao);
+
+      criaRc.UpdateRequisicao(requisicao);
+    }
+
+
+
+
+
+
+   /* Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => MotoristaProximoPage()));*/
+  }
+
+  bool isInAlcance(CarroAtivo ca, LatLng origem) {
+
+    double distancia = calculateDistance(ca.localizacao.latitude, ca.localizacao.longitude, origem.latitude, origem.longitude);
+
+    return 25> distancia;
+          
+
+  }
 }
 
 List<Polyline> getPolys(data) {
   List<Polyline> poly = new List();
+
   if (data == null) {
     return poly;
   }
@@ -578,8 +883,9 @@ List<Polyline> getPolys(data) {
   try {
     poly.add(Polyline(
       polylineId: id,
-      color: Colors.red,
+      color: Colors.lightBlue[300],
       points: data,
+      consumeTapEvents: true,
     ));
   } catch (err) {
     print(err.toString());
@@ -609,16 +915,23 @@ class Uuid {
   String _printDigits(int value, int count) =>
       value.toRadixString(16).padLeft(count, '0');
 }
-List<Marker> getMarkers(LatLng data, String addres) {
 
+doLogout(context) async {
+  Helper.fbmsg.unsubscribeFromTopic(Helper.localUser.id);
+  await FirebaseAuth.instance.signOut();
+  Helper.localUser = null;
+  Navigator.of(context)
+      .pushReplacement(MaterialPageRoute(builder: (context) => Login()));
+}
+
+List<Marker> getMarkers(LatLng data, LatLng d) {
   List<Marker> markers = new List();
   MarkerId markerId = MarkerId('id');
   MarkerId markerId2 = MarkerId('id2');
   try {
     markers.add(Marker(
         markerId: markerId,
-        icon:
-        BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
         position: data));
   } catch (err) {
     print(err.toString());
@@ -626,9 +939,8 @@ List<Marker> getMarkers(LatLng data, String addres) {
   try {
     markers.add(Marker(
         markerId: markerId2,
-        icon:
-        BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-        position: LatLng(data.latitude, data.longitude)));
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
+        position: LatLng(d.latitude, d.longitude)));
   } catch (err) {
     print(err.toString());
   }

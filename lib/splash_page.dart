@@ -1,6 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ufly/CorridaBackground/corrida_page.dart';
 import 'package:ufly/Helpers/Styles.dart';
 import 'package:ufly/HomePage.dart';
 import 'package:ufly/Login/CadastroPage/CadastroPage.dart';
@@ -12,6 +15,7 @@ import 'Helpers/Helper.dart';
 import 'Helpers/References.dart';
 
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+
 
 import 'Objetos/User.dart';
 
@@ -27,6 +31,7 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
+
     super.initState();
     Future.delayed(Duration(seconds: 3)).then((value) {
     VerifyUser();
@@ -85,12 +90,20 @@ class _SplashPageState extends State<SplashPage> {
         if (value.data != null) {
           User u = new User.fromJson(value.data());
           Helper.localUser = u;
-          if (u.cpf == null) {
+          if (u.celular == null) {
             Navigator.of(context).pushReplacement(
                 (MaterialPageRoute(builder: (context) => CadastroCompleto())));
           } else {
             Navigator.of(context)
-                .pushReplacement((MaterialPageRoute(builder: (context) => HomePage())));
+                .pushReplacement((MaterialPageRoute(builder: (context) => u.isMotorista == true? Consumer<Position>(
+                builder: (context, position, widget) {
+                  return CorridaPage(position);
+                  }
+                ): Consumer<Position>(
+                builder: (context, position, widget) {
+                  return HomePage(position);
+                  }
+                ))));
           }
         } else {
           Navigator.of(context).pushReplacement(

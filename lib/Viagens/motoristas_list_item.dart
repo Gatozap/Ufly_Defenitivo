@@ -76,7 +76,7 @@ class MotoristasListItem extends StatelessWidget {
 
                                     Padding(
                                       padding: EdgeInsets.only(
-                                          top: getAltura(context) * .010,
+                                          top: getAltura(context) * .020,
                                           right: getLargura(context) * .010, bottom: getAltura(context)*.010),
                                       child: Container(
                                         height: getAltura(context) * .15,
@@ -181,7 +181,7 @@ class MotoristasListItem extends StatelessWidget {
                                       right: getLargura(context) * .010),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: <Widget>[
                                       Padding(
                                           padding: EdgeInsets.only(
@@ -203,8 +203,8 @@ class MotoristasListItem extends StatelessWidget {
                                                   minRadius: 20,
                                                   maxRadius: 30,
                                                 )),
-                                      // hTextAbel(motorista.nome, context,
-                                      //    size: 80, color: Colors.black),
+                                      hTextAbel(motorista.nome, context,
+                                        size: 60, color: Colors.black),
 
                                       Container(
                                         child: Row(
@@ -212,7 +212,7 @@ class MotoristasListItem extends StatelessWidget {
                                             hTextAbel(
                                                 '${motorista.rating == null ? 0 : motorista.rating}',
                                                 context,
-                                                size: 70),
+                                                size: 60),
                                             Container(
                                               child: Image.asset('assets/estrela.png'),
                                             ),
@@ -225,8 +225,11 @@ class MotoristasListItem extends StatelessWidget {
                                               'R\$ ${motorista.preco.toStringAsFixed(2)}',
                                               context,
                                               size: 70)
-                                          : Container(),
-
+                                          : hTextAbel(
+                                          'R\$ 100,00',
+                                          context,
+                                          size: 70),
+                                             sb,sb,
                                       GestureDetector(
                                         onTap: () {
                                           Navigator.of(context).push(MaterialPageRoute(
@@ -235,7 +238,7 @@ class MotoristasListItem extends StatelessWidget {
                                         },
                                         child: Padding(
                                           padding: EdgeInsets.only(
-                                              bottom: getAltura(context) * .020),
+                                              top: getAltura(context) * .010),
                                           child: Container(
                                             decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(10),

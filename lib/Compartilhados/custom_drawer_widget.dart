@@ -9,15 +9,21 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:provider/provider.dart';
 import 'package:ufly/Ajuda/AjudaPage.dart';
 import 'package:ufly/Carro/CarroController.dart';
 import 'package:ufly/Carro/cadastro_carro_controller.dart';
 import 'package:ufly/Configuracao/ConfiguracaoPage.dart';
+import 'package:ufly/Controllers/ControllerFiltros.dart';
+import 'package:ufly/CorridaBackground/corrida_page.dart';
 
 import 'package:ufly/Helpers/Helper.dart';
+import 'package:ufly/Helpers/References.dart';
 import 'package:ufly/HomePage.dart';
+import 'package:ufly/Login/CadastroPage/CadastroController.dart';
 import 'package:ufly/Login/Login.dart';
 import 'package:ufly/Objetos/Carro.dart';
+import 'package:ufly/Perfil/PerfilController.dart';
 import 'package:ufly/Rota/rota_controller.dart';
 import 'package:ufly/Viagens/SuasViagensPage.dart';
 
@@ -30,6 +36,8 @@ class CustomDrawerWidget extends StatefulWidget {
 
 class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
   CadastroCarroController cr;
+  PerfilController pf = new PerfilController(Helper.localUser);
+  double value = 0;
   RotaController rc;
   @override
   Widget build(BuildContext context) {
@@ -58,7 +66,7 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
           height: getAltura(context),
           child: SingleChildScrollView(
             padding: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height * .1, left: 10),
+                top: MediaQuery.of(context).size.height * .050, left: 10),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -116,7 +124,11 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                       ),
                       menuButton(context, 'Início', true, () {
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => HomePage()));
+                            builder: (context) => Consumer<Position>(
+                                builder: (context, position, widget) {
+                                  return Helper.localUser.isMotorista == true? CorridaPage(position) :HomePage(position);
+                                }
+                            )));
                       }),
                     ],
                   ),
@@ -136,25 +148,7 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        width: 40,
-                        child: Image.asset('assets/map.png'),
-                      ),
-                      menuButton(context, 'testes', true, () {
 
-                        Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
-                          print("AQUI LOCALIZAÇÂO ${v}");
-                          rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
-                          //CalcularRota(e, v);
-                        });
-                      }),
-                    ],
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Row(
@@ -211,10 +205,136 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                       }),
                     ],
                   ),
+                ),sb,
+               /* Padding(
+                  padding: const EdgeInsets.only(left: 8.0, right: 15,top: 5),
+                  child: StreamBuilder(
+                      stream: pf.outUser,
+                      builder: (context, snapshot) {
+                                print('aqui o zoom ${snapshot.data.zoom}');
+                        return Column(
+                        children: <Widget>[
+                             hTextAbel('Zoom automático: x${snapshot.data.zoom.toStringAsFixed(1)}', context, size: 60),
+                          SafeArea(
+                            child:  Container(
+                                width: getLargura(context),
+                                  child: CupertinoSlider(divisions: 25,min: 0,max: 50, value: snapshot.data.zoom,onChanged:(double novoValor){
+
+
+
+                                    snapshot.data.zoom = novoValor;
+                                                              
+                                         userRef.doc( snapshot.data.id).update( snapshot.data.toJson());
+
+                                  }
+
+                                    , )
+
+                            ),
+                          ),
+
+                        ],
+                      );
+                    }
+                  ),
+                ),*/
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        width: 40,
+                        child: Icon(Icons.zoom_out_map, color: Colors.black, size: 35),
+                      ),
+                      menuButton(context, 'Zoom Automático', true, () {
+
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return
+                                StreamBuilder(
+                                  stream: pf.outUser,
+                                  builder: (context, snapshot) {
+                                    print('snap ${snapshot.data}');
+                                    return AlertDialog(
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: <Widget>[
+                                            hTextAbel('Zoom automático ${snapshot.data.zoom.toStringAsFixed(0)}', context, size: 60),sb,
+                                          Container(
+                                              width: getLargura(context),
+                                              child: CupertinoSlider(divisions: 25,min: 0,max: 50, value:  snapshot.data.zoom,onChanged:(double novoValor){
+
+                                              snapshot.data.zoom = novoValor;
+                                              pf.inUser.add(snapshot.data);
+                                              }
+                                               
+                                                , )
+
+                                          ),sb
+                                          ,
+                                          GestureDetector(
+                                            onTap: (){
+                                                userRef.doc(snapshot.data.id).update(snapshot.data.toJson()).then((v){
+                                                   dToast('Zoom atualizado com sucesso');
+                                                   Navigator.of(context).pop();
+                                                });
+                                    }         ,
+                                            child: Container(
+                                              height:
+                                              getAltura(context) *
+                                                  .070,
+                                              width:
+                                              getLargura(context) *
+                                                  .5,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius
+                                                    .circular(10),
+                                                color:
+                                                Color(0xFFf6aa3c),
+                                              ),
+                                              child: Container(
+                                                  height: getAltura(
+                                                      context) *
+                                                      .125,
+                                                  width: getLargura(
+                                                      context) *
+                                                      .85,
+                                                  decoration:
+                                                  BoxDecoration(
+                                                    borderRadius:
+                                                    BorderRadius
+                                                        .circular(
+                                                        10),
+                                                    color:
+                                                    Color.fromRGBO(
+                                                        255,
+                                                        184,
+                                                        0,
+                                                        30),
+                                                  ),
+                                                  child: Center(
+                                                      child: hTextAbel(
+                                                          'SALVAR',
+                                                          context,
+                                                          size: 100))),
+                                            ),
+                                          ),
+
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                );
+                            });
+                      }),
+                    ],
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(
-                      top: getLargura(context) * .45, left: 10, ),
+                      top: getLargura(context) * .25, left: 10, ),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
@@ -247,7 +367,7 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
   Widget menuButton(context, text, isLogout, onPress,
       {color, size, estiloTexto}) {
     return Container(
-        width: MediaQuery.of(context).size.width * .4,
+        width: MediaQuery.of(context).size.width * .5,
         child: MaterialButton(
           onPressed: onPress,
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),

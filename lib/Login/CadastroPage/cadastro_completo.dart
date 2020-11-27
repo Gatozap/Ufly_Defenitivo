@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:cpf_cnpj_validator/cnpj_validator.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
@@ -12,8 +13,10 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:provider/provider.dart';
 import 'package:ufly/Carro/CarroController.dart';
 import 'package:ufly/Carro/cadastro_carro_controller.dart';
+import 'package:ufly/CorridaBackground/corrida_page.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/Helpers/References.dart';
 import 'package:ufly/Helpers/Rekonizer.dart';
@@ -824,85 +827,7 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                   ],
                                 ),
                                 sb,
-                                //hTextMal('Foto do seu Perfil', context, size: 60, weight: FontWeight.bold),sb,
-                                //TODO FOTO
-                                /* Container(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        GestureDetector(
-                                          onTap: () => showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return Padding(
-                                                  padding:
-                                                  const EdgeInsets
-                                                      .all(15.0),
-                                                  child: AlertDialog(
-                                                    title: hText(
-                                                        "Selecione uma opção",
-                                                        context),
-                                                    content:
-                                                    SingleChildScrollView(
-                                                      child: ListBody(
-                                                        children: <
-                                                            Widget>[
-                                                          defaultActionButton(
-                                                              'Galeria',
-                                                              context,
-                                                                  () {
-                                                                getImage();
-                                                                Navigator.of(
-                                                                    context)
-                                                                    .pop();
-                                                              },
-                                                              icon: MdiIcons
-                                                                  .face),
-                                                          sb,
-                                                          defaultActionButton(
-                                                              'Camera',
-                                                              context,
-                                                                  () {
-                                                                getImageCamera();
-                                                                Navigator.of(
-                                                                    context)
-                                                                    .pop();
-                                                              },
-                                                              icon: MdiIcons
-                                                                  .camera)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              }),
-                                          child: CircleAvatar(
-                                              radius: (((getAltura(
-                                                  context) +
-                                                  getLargura(
-                                                      context)) /
-                                                  2) *
-                                                  .2),
-                                              backgroundColor:
-                                              Colors.transparent,
-                                              child:
-                                              Helper.localUser.foto !=
-                                                  null
-                                                  ? Image(
-                                                image: CachedNetworkImageProvider(
-                                                    Helper
-                                                        .localUser
-                                                        .foto),
-                                              )
-                                                  : Image(
-                                                image: CachedNetworkImageProvider(
-                                                    'https://www.fkbga.com/wp-content/uploads/2018/07/person-icon-6.png'),
-                                              )),
-                                        ),
-                                      ],
-                                    ),
-                                  ),sb,*/
+
 
                                 StreamBuilder<bool>(
                                     stream: cc.outIsMale,
@@ -969,6 +894,76 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                       );
                                     }),
                                 sb,
+                                    
+                                    Container(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          GestureDetector(
+                                            onTap: () => showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return AlertDialog(
+                                                    title: hText(
+                                                        "Selecione uma opção",
+                                                        context),
+                                                    content:
+                                                    SingleChildScrollView(
+                                                      child: ListBody(
+                                                        children: <Widget>[
+                                                          defaultActionButton(
+                                                              'Galeria',
+                                                              context, () {
+                                                            getImage();
+                                                            Navigator.of(
+                                                                context)
+                                                                .pop();
+                                                          },
+                                                              icon: MdiIcons
+                                                                  .face),
+                                                          sb,
+                                                          defaultActionButton(
+                                                              'Camera', context,
+                                                                  () {
+                                                                getImageCamera();
+                                                                Navigator.of(
+                                                                    context)
+                                                                    .pop();
+                                                              },
+                                                              icon: MdiIcons
+                                                                  .camera)
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                }),
+                                            child: Stack(
+                                              children: [
+                                                CircleAvatar(
+                                                    radius: 75,
+                                                    backgroundColor:
+                                                    Colors.transparent,
+                                                    child:
+                                                    Helper.localUser.foto != null
+                                                        ? Image(
+                                                      image:
+                                                      CachedNetworkImageProvider(
+                                                          Helper
+                                                              .localUser
+                                                              .foto),
+                                                    )
+                                                        : Image(
+                                                      image: CachedNetworkImageProvider(
+                                                          'https://www.fkbga.com/wp-content/uploads/2018/07/person-icon-6.png'),
+                                                    )),
+                                                Helper.localUser.foto == null ?Positioned(bottom: 10, right: 10, child: Icon(MdiIcons.cameraEnhanceOutline, color: Colors.blue, size: 50)): Container()
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                 StreamBuilder<String>(
                                     stream: cc.outTelefone,
                                     builder: (context, snapshot) {
@@ -1206,9 +1201,17 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                                                               (v) {
                                                                         dToast(
                                                                             'Usuário criado com sucesso!');
-                                                                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                                                                            builder: (context) =>
-                                                                                HomePage()));
+                                                                        Navigator.of(context).pushReplacement(
+                                                                            MaterialPageRoute(
+                                                                                builder: (context) => Helper.localUser.isMotorista == true? Consumer<Position>(
+                                                                                    builder: (context, position, widget) {
+                                                                                      return CorridaPage(position);
+                                                                                    }
+                                                                                ): Consumer<Position>(
+                                                                                    builder: (context, position, widget) {
+                                                                                      return HomePage(position);
+                                                                                    }
+                                                                                )));
                                                                       });
                                                                     },
                                                                     child:
@@ -1597,6 +1600,7 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                         ]);
 
                       case 1:
+                        var controllerCNH = TextEditingController(text: cc.CNH);
                         return Stack(
                           children: <Widget>[
                             Positioned(
@@ -1663,79 +1667,353 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                       ],
                                     ),
                                   ),
-                                  sb,
-                                  hTextMal('Foto de perfil', context, size: 60),
-                                  Container(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        GestureDetector(
-                                          onTap: () => showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5.0),
-                                                  child: AlertDialog(
-                                                    title: hText(
-                                                        "Selecione uma opção",
-                                                        context),
-                                                    content:
-                                                        SingleChildScrollView(
-                                                      child: ListBody(
-                                                        children: <Widget>[
-                                                          defaultActionButton(
-                                                              'Galeria',
-                                                              context, () {
-                                                            getImage();
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                              icon: MdiIcons
-                                                                  .face),
-                                                          sb,
-                                                          defaultActionButton(
-                                                              'Camera', context,
-                                                              () {
-                                                            getImageCamera();
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                              icon: MdiIcons
-                                                                  .camera)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              }),
-                                          child: CircleAvatar(
-                                              radius: 100,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              child:
-                                                  Helper.localUser.foto != null
-                                                      ? Image(
-                                                          image:
-                                                              CachedNetworkImageProvider(
-                                                                  Helper
-                                                                      .localUser
-                                                                      .foto),
-                                                        )
-                                                      : Image(
-                                                          image: CachedNetworkImageProvider(
-                                                              'https://www.fkbga.com/wp-content/uploads/2018/07/person-icon-6.png'),
-                                                        )),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+
+
                                   sb,
                                   Column(
                                     children: <Widget>[
+                                      Divider(color: Colors.black),
+                                      StreamBuilder<DocumentoCNH>(
+                                          stream: cc.outDocumentoCNH,
+                                          builder: (context, snapshot) {
+                                            if (snapshot.data == null) {
+                                              return Container();
+                                            }
+                                            if (snapshot.data.isValid == null) {
+                                              snapshot.data.isValid = true;
+                                              return Column(
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .center,
+                                                      children: <Widget>[
+                                                        Container(
+                                                          child: Column(
+                                                            children: <Widget>[
+                                                              snapshot.data
+                                                                  .verso !=
+                                                                  null
+                                                                  ? hText(
+                                                                  'Frente',
+                                                                  context)
+                                                                  : Container(),
+                                                              snapshot.data
+                                                                  .frente ==
+                                                                  null
+                                                                  ? Container(
+                                                                  width: snapshot.data.verso != null
+                                                                      ? getLargura(context) *
+                                                                      .3
+                                                                      : getLargura(context) *
+                                                                      .6,
+                                                                  height:
+                                                                  getAltura(context) *
+                                                                      .2,
+                                                                  color: Colors
+                                                                      .grey[
+                                                                  300])
+                                                                  : fotoDocumento(
+                                                                snapshot
+                                                                    .data
+                                                                    .frente,
+                                                                isValid: snapshot
+                                                                    .data
+                                                                    .isValid,
+                                                                largura: snapshot
+                                                                    .data.verso !=
+                                                                    null
+                                                                    ? getLargura(context) *
+                                                                    .3
+                                                                    : getLargura(context) *
+                                                                    .6,
+                                                              ),
+                                                              defaultActionButton(
+                                                                  'Refazer',
+                                                                  context, () {
+                                                                cc.documentoCNH
+                                                                    .frente =
+                                                                null;
+                                                                cc.inDocumentoCNH
+                                                                    .add(cc
+                                                                    .documentoCNH);
+                                                              }, icon: null),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        sb,
+                                                        snapshot.data.verso !=
+                                                            null
+                                                            ? Container(
+                                                          child: Column(
+                                                            children: <
+                                                                Widget>[
+                                                              hText(
+                                                                  'Verso',
+                                                                  context),
+                                                              snapshot.data.verso ==
+                                                                  null
+                                                                  ? Container(
+                                                                  width: getLargura(context) *
+                                                                      .3,
+                                                                  height: getAltura(context) *
+                                                                      .2,
+                                                                  color: Colors.grey[
+                                                                  300])
+                                                                  : fotoDocumento(
+                                                                  snapshot
+                                                                      .data.verso,
+                                                                  isValid:
+                                                                  snapshot.data.isValid),
+                                                              defaultActionButton(
+                                                                  'Refazer',
+                                                                  context,
+                                                                      () {
+                                                                    cc.documentoCNH
+                                                                        .verso =
+                                                                    null;
+                                                                    cc.inDocumentoCNH
+                                                                        .add(cc
+                                                                        .documentoCNH);
+                                                                  },
+                                                                  icon:
+                                                                  null),
+                                                            ],
+                                                          ),
+                                                        )
+                                                            : Container(),
+                                                      ],
+                                                    )
+                                                  ]);
+                                            }
+                                            return Column(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                              children: <Widget>[
+                                                Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    Container(
+                                                      child: Column(
+                                                        children: <Widget>[
+                                                          hText('Frente',
+                                                              context),
+                                                          snapshot.data
+                                                              .frente ==
+                                                              null
+                                                              ? Container(
+                                                              width: getLargura(
+                                                                  context) *
+                                                                  .3,
+                                                              height: getAltura(
+                                                                  context) *
+                                                                  .2,
+                                                              color: Colors
+                                                                  .grey[
+                                                              300])
+                                                              : fotoDocumento(
+                                                              snapshot.data
+                                                                  .frente),
+                                                          defaultActionButton(
+                                                              'Refazer',
+                                                              context, () {
+                                                            cc.documentoCNH
+                                                                .frente = null;
+                                                            cc.inDocumentoCNH.add(
+                                                                cc.documentoCNH);
+                                                          }, icon: null),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    sb,
+                                                    Container(
+                                                      child: Column(
+                                                        children: <Widget>[
+                                                          hText(
+                                                              'Verso', context),
+                                                          snapshot.data.verso ==
+                                                              null
+                                                              ? Container(
+                                                              width: getLargura(
+                                                                  context) *
+                                                                  .3,
+                                                              height: getAltura(
+                                                                  context) *
+                                                                  .2,
+                                                              color: Colors
+                                                                  .grey[
+                                                              300])
+                                                              : fotoDocumento(
+                                                              snapshot.data
+                                                                  .verso),
+                                                          defaultActionButton(
+                                                              'Refazer',
+                                                              context, () {
+                                                            cc.documentoCNH
+                                                                .verso = null;
+                                                            cc.inDocumentoCNH.add(
+                                                                cc.documentoCNH);
+                                                          }, icon: null),
+                                                        ],
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            );
+                                          }),
+                                      StreamBuilder<String>(
+                                          stream: cc.outCNH,
+                                          builder: (context, snapshot) {
+                                            if (snapshot.data != null &&
+                                                controllerCNH.text.isEmpty) {
+                                              controllerCNH.text =
+                                                  snapshot.data;
+                                            }
+                                            return StreamBuilder<bool>(
+                                                stream:
+                                                cc.outIsMotoristaSelected,
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.data == null) {
+                                                    return Container();
+                                                  }
+
+                                                  if (snapshot.data) {
+                                                    return Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: getAltura(
+                                                              context) *
+                                                              .010,
+                                                          right: getLargura(
+                                                              context) *
+                                                              .075,
+                                                          left: getLargura(
+                                                              context) *
+                                                              .075),
+                                                      child: TextField(
+                                                          onChanged: (value) {
+                                                            cc.updateCNH(value);
+                                                          },
+                                                          decoration:
+                                                          InputDecoration(
+                                                            labelText:
+                                                            'Nº Registro CNH',
+                                                            hintText:
+                                                            '021545212365',
+                                                            contentPadding: EdgeInsets.fromLTRB(
+                                                                getAltura(
+                                                                    context) *
+                                                                    .025,
+                                                                getLargura(
+                                                                    context) *
+                                                                    .020,
+                                                                getAltura(
+                                                                    context) *
+                                                                    .025,
+                                                                getLargura(
+                                                                    context) *
+                                                                    .020),
+                                                            enabledBorder: OutlineInputBorder(
+                                                                borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                    9.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .black)),
+                                                            border: OutlineInputBorder(
+                                                                borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                    9.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .black)),
+                                                          ),
+                                                          keyboardType:
+                                                          TextInputType
+                                                              .number,
+                                                          onSubmitted: (tel) {
+                                                            cc.updateCNH(tel);
+                                                          },
+                                                          controller:
+                                                          controllerCNH),
+                                                    );
+                                                  } else {
+                                                    return Container();
+                                                  }
+                                                });
+                                          }),
+                                      Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          StreamBuilder<bool>(
+                                              stream: cc.outIsMotoristaSelected,
+                                              builder: (context, snapshot) {
+                                                if (snapshot.data == null) {
+                                                  return Container();
+                                                }
+
+                                                if (snapshot.data) {
+                                                  return defaultActionButton(
+                                                      'Anexar foto CNH',
+                                                      context, () async {
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return Padding(
+                                                            padding:
+                                                            const EdgeInsets
+                                                                .all(15.0),
+                                                            child: AlertDialog(
+                                                              title: hText(
+                                                                  "Selecione uma opção",
+                                                                  context),
+                                                              content:
+                                                              SingleChildScrollView(
+                                                                child: ListBody(
+                                                                  children: <
+                                                                      Widget>[
+                                                                    defaultActionButton(
+                                                                        'Galeria',
+                                                                        context,
+                                                                            () {
+                                                                          getDocumentoCNH();
+                                                                          Navigator.of(
+                                                                              context)
+                                                                              .pop();
+                                                                        },
+                                                                        icon: MdiIcons
+                                                                            .face),
+                                                                    sb,
+                                                                    defaultActionButton(
+                                                                        'Camera',
+                                                                        context,
+                                                                            () {
+                                                                          getDocumentoCNHCamera();
+                                                                          Navigator.of(
+                                                                              context)
+                                                                              .pop();
+                                                                        },
+                                                                        icon: MdiIcons
+                                                                            .camera)
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        });
+                                                  }, icon: null);
+                                                } else {
+                                                  return Container();
+                                                }
+                                              }),
+                                        ],
+                                      ),
                                       StreamBuilder<DocumentoRg>(
                                           stream: cc.outDocumentoRg,
                                           builder: (context, snapshot) {
@@ -2085,7 +2363,7 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                           ],
                         );
                       case 2:
-                        var controllerCNH = TextEditingController(text: cc.CNH);
+
                         var controllerPlaca = MaskedTextController(
                             text: cc.placa, mask: 'AAA-0000');
                         var controllerCor = TextEditingController(text: cc.Cor);
@@ -2142,351 +2420,8 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                   ),
                                   Column(
                                     children: <Widget>[
-                                      Divider(color: Colors.black),
-                                      StreamBuilder<DocumentoCNH>(
-                                          stream: cc.outDocumentoCNH,
-                                          builder: (context, snapshot) {
-                                            if (snapshot.data == null) {
-                                              return Container();
-                                            }
-                                            if (snapshot.data.isValid == null) {
-                                              snapshot.data.isValid = true;
-                                              return Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: <Widget>[
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: <Widget>[
-                                                        Container(
-                                                          child: Column(
-                                                            children: <Widget>[
-                                                              snapshot.data
-                                                                          .verso !=
-                                                                      null
-                                                                  ? hText(
-                                                                      'Frente',
-                                                                      context)
-                                                                  : Container(),
-                                                              snapshot.data
-                                                                          .frente ==
-                                                                      null
-                                                                  ? Container(
-                                                                      width: snapshot.data.verso != null
-                                                                          ? getLargura(context) *
-                                                                              .3
-                                                                          : getLargura(context) *
-                                                                              .6,
-                                                                      height:
-                                                                          getAltura(context) *
-                                                                              .2,
-                                                                      color: Colors
-                                                                              .grey[
-                                                                          300])
-                                                                  : fotoDocumento(
-                                                                      snapshot
-                                                                          .data
-                                                                          .frente,
-                                                                      isValid: snapshot
-                                                                          .data
-                                                                          .isValid,
-                                                                      largura: snapshot
-                                                                                  .data.verso !=
-                                                                              null
-                                                                          ? getLargura(context) *
-                                                                              .3
-                                                                          : getLargura(context) *
-                                                                              .6,
-                                                                    ),
-                                                              defaultActionButton(
-                                                                  'Refazer',
-                                                                  context, () {
-                                                                cc.documentoCNH
-                                                                        .frente =
-                                                                    null;
-                                                                cc.inDocumentoCNH
-                                                                    .add(cc
-                                                                        .documentoCNH);
-                                                              }, icon: null),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        sb,
-                                                        snapshot.data.verso !=
-                                                                null
-                                                            ? Container(
-                                                                child: Column(
-                                                                  children: <
-                                                                      Widget>[
-                                                                    hText(
-                                                                        'Verso',
-                                                                        context),
-                                                                    snapshot.data.verso ==
-                                                                            null
-                                                                        ? Container(
-                                                                            width: getLargura(context) *
-                                                                                .3,
-                                                                            height: getAltura(context) *
-                                                                                .2,
-                                                                            color: Colors.grey[
-                                                                                300])
-                                                                        : fotoDocumento(
-                                                                            snapshot
-                                                                                .data.verso,
-                                                                            isValid:
-                                                                                snapshot.data.isValid),
-                                                                    defaultActionButton(
-                                                                        'Refazer',
-                                                                        context,
-                                                                        () {
-                                                                      cc.documentoCNH
-                                                                              .verso =
-                                                                          null;
-                                                                      cc.inDocumentoCNH
-                                                                          .add(cc
-                                                                              .documentoCNH);
-                                                                    },
-                                                                        icon:
-                                                                            null),
-                                                                  ],
-                                                                ),
-                                                              )
-                                                            : Container(),
-                                                      ],
-                                                    )
-                                                  ]);
-                                            }
-                                            return Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: <Widget>[
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: <Widget>[
-                                                    Container(
-                                                      child: Column(
-                                                        children: <Widget>[
-                                                          hText('Frente',
-                                                              context),
-                                                          snapshot.data
-                                                                      .frente ==
-                                                                  null
-                                                              ? Container(
-                                                                  width: getLargura(
-                                                                          context) *
-                                                                      .3,
-                                                                  height: getAltura(
-                                                                          context) *
-                                                                      .2,
-                                                                  color: Colors
-                                                                          .grey[
-                                                                      300])
-                                                              : fotoDocumento(
-                                                                  snapshot.data
-                                                                      .frente),
-                                                          defaultActionButton(
-                                                              'Refazer',
-                                                              context, () {
-                                                            cc.documentoCNH
-                                                                .frente = null;
-                                                            cc.inDocumentoCNH.add(
-                                                                cc.documentoCNH);
-                                                          }, icon: null),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    sb,
-                                                    Container(
-                                                      child: Column(
-                                                        children: <Widget>[
-                                                          hText(
-                                                              'Verso', context),
-                                                          snapshot.data.verso ==
-                                                                  null
-                                                              ? Container(
-                                                                  width: getLargura(
-                                                                          context) *
-                                                                      .3,
-                                                                  height: getAltura(
-                                                                          context) *
-                                                                      .2,
-                                                                  color: Colors
-                                                                          .grey[
-                                                                      300])
-                                                              : fotoDocumento(
-                                                                  snapshot.data
-                                                                      .verso),
-                                                          defaultActionButton(
-                                                              'Refazer',
-                                                              context, () {
-                                                            cc.documentoCNH
-                                                                .verso = null;
-                                                            cc.inDocumentoCNH.add(
-                                                                cc.documentoCNH);
-                                                          }, icon: null),
-                                                        ],
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                              ],
-                                            );
-                                          }),
-                                      StreamBuilder<String>(
-                                          stream: cc.outCNH,
-                                          builder: (context, snapshot) {
-                                            if (snapshot.data != null &&
-                                                controllerCNH.text.isEmpty) {
-                                              controllerCNH.text =
-                                                  snapshot.data;
-                                            }
-                                            return StreamBuilder<bool>(
-                                                stream:
-                                                    cc.outIsMotoristaSelected,
-                                                builder: (context, snapshot) {
-                                                  if (snapshot.data == null) {
-                                                    return Container();
-                                                  }
 
-                                                  if (snapshot.data) {
-                                                    return Padding(
-                                                      padding: EdgeInsets.only(
-                                                          top: getAltura(
-                                                                  context) *
-                                                              .010,
-                                                          right: getLargura(
-                                                                  context) *
-                                                              .075,
-                                                          left: getLargura(
-                                                                  context) *
-                                                              .075),
-                                                      child: TextField(
-                                                          onChanged: (value) {
-                                                            cc.updateCNH(value);
-                                                          },
-                                                          decoration:
-                                                              InputDecoration(
-                                                            labelText:
-                                                                'Nº Registro CNH',
-                                                            hintText:
-                                                                '021545212365',
-                                                            contentPadding: EdgeInsets.fromLTRB(
-                                                                getAltura(
-                                                                        context) *
-                                                                    .025,
-                                                                getLargura(
-                                                                        context) *
-                                                                    .020,
-                                                                getAltura(
-                                                                        context) *
-                                                                    .025,
-                                                                getLargura(
-                                                                        context) *
-                                                                    .020),
-                                                            enabledBorder: OutlineInputBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            9.0),
-                                                                borderSide: BorderSide(
-                                                                    color: Colors
-                                                                        .black)),
-                                                            border: OutlineInputBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            9.0),
-                                                                borderSide: BorderSide(
-                                                                    color: Colors
-                                                                        .black)),
-                                                          ),
-                                                          keyboardType:
-                                                              TextInputType
-                                                                  .number,
-                                                          onSubmitted: (tel) {
-                                                            cc.updateCNH(tel);
-                                                          },
-                                                          controller:
-                                                              controllerCNH),
-                                                    );
-                                                  } else {
-                                                    return Container();
-                                                  }
-                                                });
-                                          }),
-                                      sb,
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          StreamBuilder<bool>(
-                                              stream: cc.outIsMotoristaSelected,
-                                              builder: (context, snapshot) {
-                                                if (snapshot.data == null) {
-                                                  return Container();
-                                                }
 
-                                                if (snapshot.data) {
-                                                  return defaultActionButton(
-                                                      'Anexar foto CNH',
-                                                      context, () async {
-                                                    showDialog(
-                                                        context: context,
-                                                        builder: (context) {
-                                                          return Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(15.0),
-                                                            child: AlertDialog(
-                                                              title: hText(
-                                                                  "Selecione uma opção",
-                                                                  context),
-                                                              content:
-                                                                  SingleChildScrollView(
-                                                                child: ListBody(
-                                                                  children: <
-                                                                      Widget>[
-                                                                    defaultActionButton(
-                                                                        'Galeria',
-                                                                        context,
-                                                                        () {
-                                                                      getDocumentoCNH();
-                                                                      Navigator.of(
-                                                                              context)
-                                                                          .pop();
-                                                                    },
-                                                                        icon: MdiIcons
-                                                                            .face),
-                                                                    sb,
-                                                                    defaultActionButton(
-                                                                        'Camera',
-                                                                        context,
-                                                                        () {
-                                                                      getDocumentoCNHCamera();
-                                                                      Navigator.of(
-                                                                              context)
-                                                                          .pop();
-                                                                    },
-                                                                        icon: MdiIcons
-                                                                            .camera)
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          );
-                                                        });
-                                                  }, icon: null);
-                                                } else {
-                                                  return Container();
-                                                }
-                                              }),
-                                        ],
-                                      ),
-                                      sb,
-                                      sb,
                                       hTextBank('Foto do veículo', context, size: 60),sb,
                                       Container(
                                               child: Row(
@@ -2811,6 +2746,7 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                                           new List();
                                                       Motorista motorista =
                                                           Motorista(
+                                                            isOnline: false,
                                                         id_usuario:
                                                             Helper.localUser.id,
                                                         nome_usuario: Helper
@@ -2850,7 +2786,8 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                                             sc, context);
                                                       }
                                                     },
-                                                    child: Container(
+                                                    child:
+                                                    Container(
                                                       height:
                                                           getAltura(context) *
                                                               .1,
@@ -2995,7 +2932,8 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
+          return
+            AlertDialog(
             content: Row(
               children: <Widget>[
                 FlatButton.icon(

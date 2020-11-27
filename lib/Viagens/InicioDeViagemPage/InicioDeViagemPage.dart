@@ -48,56 +48,56 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
           return Scaffold(
 
             body: SlidingUpPanel(
-                renderPanelSheet: false,
-                minHeight: 60,
-                 panel: viagemWidget(),
-                maxHeight: getAltura(context) * .25,
-                borderRadius: BorderRadius.circular(20),
-                collapsed:
-                Container(
-                  margin: const EdgeInsets.only(left: 24.0, right: 24),
-                  child: Row(
-                    children: <Widget>[
-                      Stack(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(top: 30.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(24.0),
-                                      topRight: Radius.circular(24.0)),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      blurRadius: 20.0,
+              renderPanelSheet: false,
+              minHeight: 60,
+              panel: viagemWidget(),
+              maxHeight: getAltura(context) * .25,
+              borderRadius: BorderRadius.circular(20),
+              collapsed:
+              Container(
+                margin: const EdgeInsets.only(left: 24.0, right: 24),
+                child: Row(
+                  children: <Widget>[
+                    Stack(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(top: 30.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(24.0),
+                                    topRight: Radius.circular(24.0)),
+                                boxShadow: [
+                                  BoxShadow(
+                                    blurRadius: 20.0,
+                                    color: Colors.grey,
+                                  ),
+                                ]),
+                            width: getLargura(context) - 48,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.center,
+                              children: <Widget>[
+                                sb,
+                                sb,
+                                Container(
+                                  child: Container(
+                                      width: getLargura(context) * .4,
                                       color: Colors.grey,
-                                    ),
-                                  ]),
-                              width: getLargura(context) - 48,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  sb,
-                                  sb,
-                                  Container(
-                                    child: Container(
-                                        width: getLargura(context) * .4,
-                                        color: Colors.grey,
-                                        height: 3),
-                                  )
-                                ],
-                              ),
+                                      height: 3),
+                                )
+                              ],
                             ),
                           ),
+                        ),
 
-                        ],
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
+              ),
 
               body: Container(
                 height: getAltura(context),
@@ -124,10 +124,10 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   Padding(
-                                    padding: EdgeInsets.only(
-                                        top: getAltura(context) * .020,
-                                        left: getLargura(context) * .110),
-                                    child: Container(child: Image.asset('assets/seta_frente.png'),)
+                                      padding: EdgeInsets.only(
+                                          top: getAltura(context) * .020,
+                                          left: getLargura(context) * .110),
+                                      child: Container(child: Image.asset('assets/seta_frente.png'),)
                                   ),
 
                                   Padding(

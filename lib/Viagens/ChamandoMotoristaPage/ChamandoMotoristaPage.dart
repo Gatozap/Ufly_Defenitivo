@@ -24,12 +24,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
     pc.inPageController.add(index);
   }
 
-  var page0;
-  var page1;
-  var page2;
-  var page3;
-  var page4;
-  int page = 0;
+
   @override
   void initState() {
     super.initState();

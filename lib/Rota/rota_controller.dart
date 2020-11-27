@@ -8,17 +8,23 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/Helpers/Helpers.dart';
-import 'package:ufly/Objetos/Endereco.dart';
+
 import 'package:ufly/Objetos/Rota.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:share/share.dart';
 
 class RotaController extends BlocBase {
+  Rota rota;
   LatLng localizacao;
   BehaviorSubject<LatLng> controllerLocalizacao = new BehaviorSubject<LatLng>();
   Stream<LatLng> get outLocalizacao => controllerLocalizacao.stream;
   Sink<LatLng> get inLocalizacao => controllerLocalizacao.sink;
+
+  Position posicao;
+  BehaviorSubject<Position> controllerPosition = new BehaviorSubject<Position>();
+  Stream<Position> get outPosition => controllerPosition.stream;
+  Sink<Position> get inPosition => controllerPosition.sink;
 
   BehaviorSubject<List<LatLng>> controllerPolyline =
       new BehaviorSubject<List<LatLng>>();
@@ -28,19 +34,16 @@ class RotaController extends BlocBase {
     PolylinePoints polylinePoints = PolylinePoints();
 
     Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
-      print("AQUI LOCALIZAÇÂO ${v}");
+
       inLocalizacao.add(LatLng(v.latitude, v.longitude));
 
 
     });
   }
 
-  CalcularRota(Position v, LatLng c) async {
+  CalcularRota(LatLng v, LatLng c) async {
     List<LatLng> polylineCoordinates = [];
-    print(v.latitude);
-    print(v.longitude);
-    /*print(e.latitude);
-    print(e.longitude);  */
+
     http
         .get(
       ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude),
@@ -50,16 +53,25 @@ class RotaController extends BlocBase {
       print("RESULTADO ${result.body}");
 
       Rota r = Rota.fromJson(json.decode(result.body));
-      for (var i in r.routes[0].legs) {
-        for (var j in i.steps) {
-          for (var k in j.intersections) {
-            print(k.location);
-            polylineCoordinates.add(LatLng(k.location[1], k.location[0]));
+      rota = r;
+        for (var i in r.routes[0].legs) {
+          double ii = (i.duration)/3600;
+
+          print('aqui tempo ${ii.toStringAsFixed(2)} aqui routes ${r.routes} ');
+          for (var j in i.steps) {
+            print('aqui routes ${ j.intersections[0]} ');
+            for (var k in j.intersections) {
+
+
+              polylineCoordinates.add(LatLng(k.location[1], k.location[0]));
+
+            }
           }
         }
-      }
+
       polylineCoordinates.add(LatLng(c.latitude, c.longitude));
       print("RETORNOU ROTA CALCULADA ${polylineCoordinates.length}");
+      Geolocator().placemarkFromCoordinates(c.latitude, c.longitude);
       inPoly.add(polylineCoordinates);
     });
   }
