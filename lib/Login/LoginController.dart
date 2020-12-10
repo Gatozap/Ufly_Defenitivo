@@ -411,21 +411,24 @@ class LoginController implements BlocBase {
         .then((result) {
       auth.User user = result.user;
       if (user != null) {
-        return userRef.doc(user.uid).get().then((d) {
+        return userRef.doc(result.user.uid).get().then((d) {
           Helper.localUser = User.fromJson(d.data());
           Helper.user = user;
           Helper().LogUserData(Helper.localUser);
           Helper().setUserType('Email');
           return true;
         }).catchError((err) {
-          print('Login Error: ${err.toString()}');
+          dToastTop('E-mail ou senha inválidas');
+          print('Login Error 1: ${err.toString()}');
           return false;
         });
       } else {
         return false;
       }
     }).catchError((err) {
-      print('Login Error: ${err.toString()}');
+      dToastTop('E-mail ou senha inválidas');
+      print('Login Error 2: ${err.toString()}');
+      
       return false;
     });
   }

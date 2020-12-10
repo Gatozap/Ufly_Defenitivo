@@ -7,15 +7,15 @@ class OfertaCorrida {
   String id_usuario;
   DateTime data;
   String forma_pagamento;
-  var localizacao;
+
   double preco ;
 
   OfertaCorrida({this.motorista, this.requisicao, this.id, this.data,this.forma_pagamento, this.id_usuario,
-      this.localizacao, this.preco});
+      this.preco});
 
   @override
   String toString() {
-    return 'OfertaCorrida{motorista: $motorista, requisicao: $requisicao,id_usuario:$id_usuario ,forma_pagamento: $forma_pagamento,id: $id, data: $data, localizacao: $localizacao, preco: $preco}';
+    return 'OfertaCorrida{motorista: $motorista, requisicao: $requisicao,id_usuario:$id_usuario ,forma_pagamento: $forma_pagamento,id: $id, data: $data, preco: $preco}';
   }
 
   OfertaCorrida.fromJson( json)
@@ -25,7 +25,7 @@ class OfertaCorrida {
         id_usuario = json['id_usuario'],
         forma_pagamento = json['forma_pagamento'],
         data = json['data']== null? null: DateTime.fromMicrosecondsSinceEpoch(json["data"]),
-        localizacao = json['localizacao'] == null? null: LatLng.fromJson(json['localizacao']),
+
         preco = json['preco'];
 
   Map<String, dynamic> toJson() => {
@@ -35,7 +35,7 @@ class OfertaCorrida {
         'id': id,
     'id_usuario': id_usuario,
         'data': this.data == null? null: this.data.millisecondsSinceEpoch,
-        'localizacao': localizacao == null? null: this.localizacao.toJson(),
+
         'preco': preco,
       };
 

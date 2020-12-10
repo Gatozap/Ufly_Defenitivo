@@ -10,6 +10,7 @@ import 'package:ufly/Ativos/AtivosListController.dart';
 import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
 
 import 'package:ufly/Controllers/PagesController.dart';
+import 'package:ufly/CorridaBackground/requisicao_corrida_controller.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ufly/Motorista/motorista_controller.dart';
@@ -17,6 +18,9 @@ import 'package:ufly/Objetos/Carro.dart';
 import 'package:ufly/Objetos/CarroAtivo.dart';
 import 'package:ufly/Objetos/Localizacao.dart';
 import 'package:ufly/Objetos/Motorista.dart';
+import 'package:ufly/Objetos/OfertaCorrida.dart';
+import 'package:ufly/Objetos/Requisicao.dart';
+import 'package:ufly/Viagens/OfertaCorrida/oferta_corrida_controller.dart';
 
 import 'package:ufly/Viagens/motoristas_list_item.dart';
 
@@ -33,16 +37,14 @@ class MotoristaProximoPage extends StatefulWidget {
 }
 
 class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
-  final PagesController pc = new PagesController(0);
+
   Localizacao l;
   PageController pageController;
   PagesController pg;
   AtivosController alc;
-
+  OfertaCorridaController ofertacorridaController;
   MotoristaController mt;
-  void onTap(int index) {
-    pc.inPageController.add(index);
-  }
+ RequisicaoCorridaController requisicaoController;
 
   @override
   void initState() {
@@ -58,6 +60,12 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
   Widget build(BuildContext context) {
     if (mt == null) {
       mt = MotoristaController();
+    }
+    if(ofertacorridaController == null){
+      ofertacorridaController = OfertaCorridaController();
+    }
+    if(requisicaoController == null){
+      requisicaoController = RequisicaoCorridaController();
     }
     if (alc == null) {
       alc = AtivosController();
@@ -83,33 +91,78 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
               backgroundcolor: Color.fromRGBO(255, 184, 0, 30),
             ),
             drawer: CustomDrawerWidget(),
-            body: Container(
-              width: getLargura(context),
-              height: getAltura(context),
-              child: StreamBuilder<List<CarroAtivo>>(
-                  stream: alc.outAtivos,
-                  builder: (context, AsyncSnapshot<List<CarroAtivo>> snap) {
+            body: StreamBuilder<List<OfertaCorrida>>(
+                stream: ofertacorridaController.outOfertaCorrida,
+                builder: (context,
+                    AsyncSnapshot<List<OfertaCorrida>> ofertaCorrida) {
+                
+                  if (ofertaCorrida.data == null) {
+                    return Container(child: hTextAbel('Nenhum motorista disponível',context,size: 80));
 
-                    if (snap.data == null) {
-                      return Container();
+                  }
+                  if (ofertaCorrida.data.length == 0) {
+                    return Container(child: hTextAbel('Nenhum motorista disponível',context,size: 80));
+                  }
+                  return StreamBuilder<List<Requisicao>>(
+                      stream: requisicaoController.outRequisicoes,
+                      builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+
+
+                        if (requisicao.data == null) {
+                          return Container();
+                        }
+                        if (requisicao.data.length == 0) {
+                          return Container();
+                        }
+                        print('aqui req ${requisicao.data}');
+                        return Container(
+                      width: getLargura(context),
+                      height: getAltura(context),
+                      child: StreamBuilder<List<CarroAtivo>>(
+                          stream: alc.outAtivos,
+                          builder: (context, AsyncSnapshot<List<CarroAtivo>> snap) {
+
+                            if (snap.data == null) {
+                              return Container();
+                            }
+                            if (snap.data.length == 0) {
+                              return Container();
+                            }
+                            return  ListView.builder(
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                Motorista motorista = snapshot.data[index];
+
+                                         for(OfertaCorrida oferta in ofertaCorrida.data) {
+                                           for (Requisicao requisicao in requisicao
+                                               .data) {
+                                             if (oferta.requisicao == requisicao.id) {
+                                               if(requisicao.user.contains(Helper.localUser.id)) {
+                                                 for (CarroAtivo a in snap
+                                                     .data) {
+                                                   return a.isAtivo ==
+                                                       motorista.isOnline
+                                                       ?
+
+                                                   MotoristasListItem(motorista)
+                                                       : Container();
+                                                 }
+                                               }else{
+                                                 return Container();
+                                               }
+                                             }else{
+                                               return Container();
+                                             }
+                                           }
+                                         }
+                              },
+                              itemCount: snapshot.data.length,
+                            );
+                          }),
+                );
                     }
-                    if (snap.data.length == 0) {
-                      return Container(
-                          child: hTextMal('0', context));
-                    }
-                    return  ListView.builder(
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        Motorista motorista = snapshot.data[index];
-
-                                     for(CarroAtivo a in snap.data) {
-
-                                       return a.isAtivo == motorista.isOnline? MotoristasListItem(motorista): Container();
-                                     }
-                      },
-                      itemCount: snapshot.data.length,
-                    );
-                  }),
+                  );
+              }
             ),
             backgroundColor: Color.fromRGBO(255, 190, 0, 10),
           );

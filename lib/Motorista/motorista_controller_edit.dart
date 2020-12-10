@@ -14,10 +14,11 @@ class MotoristaControllerEdit extends BlocBase {
   Motorista motorista;
 
 
+
   MotoristaControllerEdit() {
 
     // Fired whenever a location is recorded
-    print('aqui usuario ${Helper.localUser.id}');
+
     motoristaRef.where('id_usuario', isEqualTo: Helper.localUser.id)
         .get()
         .then((v) {

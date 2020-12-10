@@ -90,10 +90,7 @@ class _SplashPageState extends State<SplashPage> {
         if (value.data != null) {
           User u = new User.fromJson(value.data());
           Helper.localUser = u;
-          if (u.celular == null) {
-            Navigator.of(context).pushReplacement(
-                (MaterialPageRoute(builder: (context) => CadastroCompleto())));
-          } else {
+
             Navigator.of(context)
                 .pushReplacement((MaterialPageRoute(builder: (context) => u.isMotorista == true? Consumer<Position>(
                 builder: (context, position, widget) {
@@ -104,7 +101,7 @@ class _SplashPageState extends State<SplashPage> {
                   return HomePage(position);
                   }
                 ))));
-          }
+
         } else {
           Navigator.of(context).pushReplacement(
               (MaterialPageRoute(builder: (context) => Login())));

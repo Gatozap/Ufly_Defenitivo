@@ -20,11 +20,18 @@ class ControllerFiltros extends BlocBase{
   Sink<bool> get inHide => controllerHide.sink;
   bool hide;
 
+  BehaviorSubject<bool> controllerPreenchimento = new BehaviorSubject<bool>();
+  Stream<bool> get outPreenchimento => controllerPreenchimento.stream;
+  Sink<bool> get inPreenchimento => controllerPreenchimento.sink;
+  bool Preenchimento;
+
   ControllerFiltros(){
     inHide.add(false);
     inZoom.add(0);
+    inPreenchimento.add(false);
     FiltroMotorista filtro = FiltroMotorista(
       documento_veiculo: false,
+
         viagem: true,
         favorito: Helper.localUser.id,
         entregas: false,
@@ -56,6 +63,7 @@ class ControllerFiltros extends BlocBase{
     controllerZoom.close();
     controllerFiltro.close();
     controllerHide.close();
+    controllerPreenchimento.close();
   }
 
 }

@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:ufly/CorridaBackground/background/advanced/util/dialog.dart' as util;
 import 'package:ufly/main.dart';
 
-import '../config/ENV.dart';
+
 import 'map_view.dart';
 import 'event_list.dart';
 import './util/dialog.dart' as util;

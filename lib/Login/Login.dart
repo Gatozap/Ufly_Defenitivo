@@ -1,5 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_pixel/responsive_pixel.dart';
 import 'package:ufly/CorridaBackground/corrida_page.dart';
 import 'package:ufly/Helpers/Helper.dart';
 
@@ -63,6 +64,10 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    ResponsivePixelHandler.init(
+      baseWidth: 360,
+      //The width used by the designer in the model designed
+    );
     LoginController lc;
     if (lc == null) {
       lc = LoginController();
@@ -80,14 +85,22 @@ class _LoginState extends State<Login> {
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Center(
-                    child: Padding(
-                  padding:  EdgeInsets.only(top: getAltura(context)*.060, bottom: getAltura(context)*.010),
-                  child: Text(
-                    'uFly',
-                    style: TextStyle(fontFamily: 'BankGothic', fontSize: getAltura(context)*.070),
+              
+                
+                Container(
+                  
+                  child: Center(
+                      child: Padding(
+                    padding:
+
+                    EdgeInsets.only(top: ResponsivePixelHandler.toPixel(22, context),),
+                    child: Text(
+                      'uFly',
+                      style: TextStyle(fontFamily: 'BankGothic', fontSize: ResponsivePixelHandler.toPixel(50, context),),
+                    ),
+
+                  )
                   ),
-                )
                 ),
                 Container(
                   width: getLargura(context)*.7,
@@ -95,13 +108,13 @@ class _LoginState extends State<Login> {
                   child: Image.asset('assets/login_layout.png'),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(top: getAltura(context)*.010, right: getLargura(context)*.075, left: getLargura(context)*.075),
+                  padding:  EdgeInsets.only(top: ResponsivePixelHandler.toPixel(8, context), right: ResponsivePixelHandler.toPixel(28, context), left:  ResponsivePixelHandler.toPixel(28, context)),
                   child: TextFormField(
                     controller: controllerEmail,
                     style: TextStyle(color: Colors.black),
                     decoration: InputDecoration(
                       labelText: 'E-mail',
-                      contentPadding: EdgeInsets.fromLTRB(getAltura(context)*.025,getLargura(context)*.020, getAltura(context)*.025, getLargura(context)*.020),
+                      contentPadding: EdgeInsets.fromLTRB( ResponsivePixelHandler.toPixel(20, context), ResponsivePixelHandler.toPixel(15, context),  ResponsivePixelHandler.toPixel(20, context), ResponsivePixelHandler.toPixel(10, context)),
                       enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(9.0),
                           borderSide: BorderSide(color: Colors.blue)),
@@ -112,7 +125,7 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(top: getAltura(context)*.010, right: getLargura(context)*.075, left: getLargura(context)*.075),
+                  padding:  EdgeInsets.only(top:  ResponsivePixelHandler.toPixel(10, context), right: ResponsivePixelHandler.toPixel(28, context), left:  ResponsivePixelHandler.toPixel(28, context)),
                   child: StreamBuilder<bool>(
                     stream: lc.outHide,
                     builder: (context, snapshot) {
@@ -137,7 +150,7 @@ class _LoginState extends State<Login> {
 
                                   },
                                 ),
-                          contentPadding: EdgeInsets.fromLTRB(getAltura(context)*.025,getLargura(context)*.020, getAltura(context)*.025, getLargura(context)*.020),
+                          contentPadding: EdgeInsets.fromLTRB( ResponsivePixelHandler.toPixel(20, context), ResponsivePixelHandler.toPixel(15, context),  ResponsivePixelHandler.toPixel(20, context), ResponsivePixelHandler.toPixel(10, context)),
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(9.0),
                               borderSide: BorderSide(color: Colors.blue)),
@@ -150,22 +163,22 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(top:getAltura(context)*.025, right: getLargura(context)*.075, left: getLargura(context)*.075),
+                  padding:  EdgeInsets.only(top: ResponsivePixelHandler.toPixel(20, context), right:  ResponsivePixelHandler.toPixel(28, context), left:  ResponsivePixelHandler.toPixel(28, context)),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      hTextAbel('Esqueci a senha', context, size: 60),
+                      hTextAbel('Esqueci a senha', context, size: 20),
                       sb,
                       GestureDetector(onTap: (){
                         Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
                                 builder: (context) => CadastroPage()));
-                      },child: hTextAbel('Cadastrar-se', context, size: 60))
+                      },child: hTextAbel('Cadastrar-se', context, size: 20))
                     ],
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(top:getAltura(context)*.025, right: getLargura(context)*.075, left: getLargura(context)*.075),
+                  padding:  EdgeInsets.only(top:ResponsivePixelHandler.toPixel(20, context), right: ResponsivePixelHandler.toPixel(28, context), left: ResponsivePixelHandler.toPixel(28, context)),
                   child: GestureDetector(
                     onTap: () {
                       _auth
@@ -173,6 +186,7 @@ class _LoginState extends State<Login> {
                           email: controllerEmail.text,
                           password: controllerSenha.text)
                           .then((user) {
+                        dToast('Efetuando login... Aguarde');
                         if (user != null) {
                           userRef.doc(user.user.uid).get().then((value) {
                             print('aqui o value ${value.toString()}');
@@ -184,7 +198,8 @@ class _LoginState extends State<Login> {
                                 sp.setString('UserSenha', controllerSenha.text);
 
                               });
-                              dToast('Efetuando Login, aguarde');
+
+
                               Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
                                       builder: (context) => Helper.localUser.isMotorista == true? Consumer<Position>(
@@ -197,9 +212,18 @@ class _LoginState extends State<Login> {
                                           }
                                       )));
                             }
+                          }).catchError((err) {
+                            dToastTop('E-mail ou senha inválidas');
+                            print('Login Error 1: ${err.toString()}');
+                            return false;
                           });
                         }
-                      });
+                      }).catchError((err) {
+                        dToastTop('E-mail ou senha inválidas');
+                        print('Login Error 2: ${err.toString()}');
+
+                        return false;
+                      });;
                     },
                     child: Container(
                         height: getAltura(context)*.090,
@@ -209,12 +233,12 @@ class _LoginState extends State<Login> {
                           color: Color.fromRGBO(255, 184, 0, 30),
                         ),
                         child:
-                            Center(child: hTextAbel('Entrar', context, size: 100))),
+                            Center(child: hTextAbel('Entrar', context, size: 31))),
                   ),
                 ),
                 sb,
 
-                hTextAbel('Ou conecte com', context, size: 60),
+                hTextAbel('Ou conecte com', context, size: 25),
                 sb,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -222,8 +246,8 @@ class _LoginState extends State<Login> {
                   children: <Widget>[
                     Padding(
                       padding:  EdgeInsets.only(
-                        top:getAltura(context)*.010,
-                        left: getLargura(context)*.040,
+                        top:ResponsivePixelHandler.toPixel(5, context),
+                        left: ResponsivePixelHandler.toPixel(15, context),
                       ),
                       child: Container(
                           height: getAltura(context)*.080,
@@ -239,8 +263,8 @@ class _LoginState extends State<Login> {
                     sb,
                     Padding(
                       padding:  EdgeInsets.only(
-                        top:getAltura(context)*.010,
-                        left: getLargura(context)*.040,
+                        top:ResponsivePixelHandler.toPixel(5, context),
+                        left: ResponsivePixelHandler.toPixel(15, context),
                       ),
                       child: Container(
                           height: getAltura(context)*.080,

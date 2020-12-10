@@ -1,3 +1,5 @@
+
+
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
@@ -19,7 +21,7 @@ class RequisicaoController extends BlocBase {
   RequisicaoController() {
 
     // Fired whenever a location is recorded
-    print('aqui usuario ${Helper.localUser.id}');
+
     requisicaoRef.where('user', isEqualTo: Helper.localUser.id)
         .get()
         .then((v) {

@@ -575,7 +575,7 @@ packages:
       name: image_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.7+4"
+    version: "0.6.7+14"
   image_picker_platform_interface:
     dependency: transitive
     description:
@@ -786,6 +786,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  responsive_pixel:
+    dependency: "direct main"
+    description:
+      name: responsive_pixel
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.2"
   rxdart:
     dependency: "direct main"
     description:
@@ -793,6 +800,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.22.6"
+  search_map_place:
+    dependency: "direct main"
+    description:
+      name: search_map_place
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0"
   sembast:
     dependency: "direct main"
     description:

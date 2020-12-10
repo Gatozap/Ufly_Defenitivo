@@ -5,7 +5,7 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 import 'package:ufly/CorridaBackground/background/config/env.dart';
 import 'package:ufly/main.dart';
 
-import 'ENV.dart';
+
 
 void _onHttp(bg.HttpEvent event) async {
 
@@ -14,6 +14,7 @@ void _onHttp(bg.HttpEvent event) async {
     case 406:
       print("TransistorAuth] onHttp status ${event.status}");
       await bg.TransistorAuthorizationToken.destroy(ENV.TRACKER_HOST);
+
       bool success = await TransistorAuth.register();
       if (success) {
         bg.BackgroundGeolocation.sync().catchError((error) {

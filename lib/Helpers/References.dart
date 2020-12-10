@@ -8,6 +8,7 @@ CollectionReference gruposRef = FirebaseFirestore.instance.collection('Grupo');
 CollectionReference motoristaRef = FirebaseFirestore.instance.collection('Motorista');
 CollectionReference corridasRef = FirebaseFirestore.instance.collection('CorridasNovo');
 CollectionReference requisicaoRef = FirebaseFirestore.instance.collection('Requisicao');
+CollectionReference ofertacorridaRef = FirebaseFirestore.instance.collection('OfertaCorrida');
 CollectionReference personagensRef =
 FirebaseFirestore.instance.collection('Personagens');
 DatabaseReference carrosAtivosRef =FirebaseDatabase.instance

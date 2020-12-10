@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_pixel/responsive_pixel.dart';
 import 'package:ufly/Ajuda/AjudaPage.dart';
 import 'package:ufly/Carro/CarroController.dart';
 import 'package:ufly/Carro/cadastro_carro_controller.dart';
@@ -38,9 +39,14 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
   CadastroCarroController cr;
   PerfilController pf = new PerfilController(Helper.localUser);
   double value = 0;
+  ProgressDialog pr;
   RotaController rc;
+  PerfilController perfilController;
   @override
   Widget build(BuildContext context) {
+    if (perfilController == null) {
+      perfilController = PerfilController(Helper.localUser);
+    }
     if(cr == null){
       cr = CadastroCarroController();
     }
@@ -66,40 +72,77 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
           height: getAltura(context),
           child: SingleChildScrollView(
             padding: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height * .050, left: 10),
+                top: ResponsivePixelHandler.toPixel(40, context), left: ResponsivePixelHandler.toPixel(10, context)),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Helper.localUser.foto == null?
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: AssetImage('assets/logo_drawer.png'),
-                    ):
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: CachedNetworkImageProvider(Helper.localUser.foto),
-                    )
-                  ],
+                GestureDetector(
+                  onTap: (){
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return
+                            AlertDialog(
+                              title: hText(
+                                  "Selecione uma opção",
+                                  context),
+                              content:
+                              SingleChildScrollView(
+                                child: ListBody(
+                                  children: <Widget>[
+                                    defaultActionButton(
+                                        'Galeria',
+                                        context, () {
+                                      getImage();
+                                      Navigator.of(
+                                          context)
+                                          .pop();
+                                    },
+                                        icon: MdiIcons
+                                            .face),
+                                    sb,
+                                    defaultActionButton(
+                                        'Camera', context,
+                                            () {
+                                          getImageCamera();
+                                          Navigator.of(
+                                              context)
+                                              .pop();
+                                        },
+                                        icon: MdiIcons
+                                            .camera)
+                                  ],
+                                ),
+                              ),
+                            );
+                        });       
+          },
+                  child: Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Helper.localUser.foto == null?
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: AssetImage('assets/logo_drawer.png'),
+                        ):
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: CachedNetworkImageProvider(Helper.localUser.foto),
+                        )
+                      ],
+                    ),
+                  ),
                 ),
                 sb,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
 
-                    Text(
-                      '${Helper.localUser.nome}',
-                      style: TextStyle(
-                          fontFamily: 'malgun',
-                          fontSize: 17,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold),
-                    ),
+                    hTextMal('${Helper.localUser.nome}', context, size: 17, weight: FontWeight.bold)
                   ],
                 ),
                 Row(
@@ -256,7 +299,8 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                                   stream: pf.outUser,
                                   builder: (context, snapshot) {
                                     print('snap ${snapshot.data}');
-                                    return AlertDialog(
+                                    return
+                                      AlertDialog(
                                       content: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: <Widget>[
@@ -384,14 +428,73 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                       child: hTextAbel(
                 text,
                 context,
-                size: size == null ? 60 : size,
+                size: size == null ? 20 : size,
               )))
               //Icon(Icons.arrow_forward_ios)
             ],
           ),
         ));
   }
+  Future getImageCamera() async {
+    File image = await ImagePicker.pickImage(source: ImageSource.camera);
+    pr = new ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
+    pr.style(
+        message: 'Salvando',
+        borderRadius: 10.0,
+        backgroundColor: Colors.white,
+        progressWidget: Container(
+          padding: EdgeInsets.all(1),
+          alignment: Alignment.center,
+          width: MediaQuery.of(context).size.width * .3,
+          height: MediaQuery.of(context).size.height * .15,
+          color: Colors.transparent,
+        ));
+    pr.show();
+    if (image.path == null) {
+      pr.hide();
+      return dToast('Erro ao salvar imagem');
+    } else {
+      Helper.localUser.foto = await uploadPicture(
+        image.path,
+      );
+      perfilController.updateUser(Helper.localUser);
+      pr.hide();
+      dToast('Foto salva com sucesso!');
+    }
+  }
 
+  Future getImage() async {
+    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    pr = new ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
+    pr.style(
+        message: 'Salvando',
+        borderRadius: 10.0,
+        backgroundColor: Colors.white,
+        progressWidget: Container(
+          padding: EdgeInsets.all(1),
+          alignment: Alignment.center,
+          width: MediaQuery.of(context).size.width * .3,
+          height: MediaQuery.of(context).size.height * .15,
+          color: Colors.transparent,
+        ));
+    pr.show();
+    print('aqui');
+    if (image.path == null) {
+      print('aqui image 2 ${image.path}');
+      return dToast('Erro ao salvar imagem');
+
+    } else {
+      Helper.localUser.foto = await uploadPicture(
+        image.path,
+      );
+      perfilController.updateUser(Helper.localUser);
+      print('aqui image ${image.path} e ${Helper.localUser.foto}');
+      pr.hide();
+      dToast('Foto salva com sucesso');
+    }
+  }
   doLogout(context) async {
     Helper.fbmsg.unsubscribeFromTopic(Helper.localUser.id);
     await FirebaseAuth.instance.signOut();

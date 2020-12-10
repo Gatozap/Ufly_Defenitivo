@@ -21,6 +21,7 @@ import 'package:geocoder/geocoder.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:responsive_pixel/responsive_pixel.dart';
 
 import 'package:ufly/Objetos/User.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -94,12 +95,12 @@ int getModificador(int status) {
 
 
 hTextMal(text, context,
-    {int size = 20,
+    {double size = 20,
       Color color = Colors.black,
       FontStyle style = FontStyle.normal,
       TextAlign textaling = TextAlign.start,
       FontWeight weight = FontWeight.normal, }) {
-  ScreenUtil.instance = ScreenUtil(allowFontScaling: true)..init(context);
+
 
 
   return Text(
@@ -107,7 +108,7 @@ hTextMal(text, context,
     textAlign: textaling,
     style: TextStyle(
           fontFamily: 'malgun',
-      fontSize: ScreenUtil.getInstance().setSp(size),
+      fontSize: ResponsivePixelHandler.toPixel(size, context),
       color: color,
       fontWeight: weight,
       fontStyle: style,
@@ -120,12 +121,12 @@ hTextMal(text, context,
 
 
 hTextAbel(text, context,
-    {int size = 55,
+    { double size = 20,
       Color color = Colors.black,
       FontStyle style = FontStyle.normal,
       TextAlign textaling = TextAlign.start,
       FontWeight weight = FontWeight.normal}) {
-  ScreenUtil.instance = ScreenUtil(allowFontScaling: true)..init(context);
+
 
   return Text(
 
@@ -133,7 +134,7 @@ hTextAbel(text, context,
     overflow: TextOverflow.ellipsis,
     textAlign: textaling,
     style: GoogleFonts.abel(
-      fontSize: ScreenUtil.getInstance().setSp(size),
+      fontSize: ResponsivePixelHandler.toPixel(size, context),
       color: color,
       fontWeight: weight,
       fontStyle: style,
@@ -141,19 +142,19 @@ hTextAbel(text, context,
   );
 }
 hTextBank(text, context,
-    {int size = 20,
+    {double size = 20,
       Color color = Colors.black,
       FontStyle style = FontStyle.normal,
       TextAlign textaling = TextAlign.start,
       FontWeight weight = FontWeight.normal, }) {
-  ScreenUtil.instance = ScreenUtil(allowFontScaling: true)..init(context);
+
 
   return Text(
     text,
     textAlign: textaling,
     style: TextStyle(
       fontFamily: 'BankGothic',
-      fontSize: ScreenUtil.getInstance().setSp(size),
+      fontSize: ResponsivePixelHandler.toPixel(size, context),
       color: color,
       fontWeight: weight,
       fontStyle: style,
@@ -163,18 +164,18 @@ hTextBank(text, context,
 
 
 hText(text, context,
-    {int size = 55,
+    {double size = 20,
     Color color = Colors.black,
     FontStyle style = FontStyle.normal,
     TextAlign textaling = TextAlign.start,
     FontWeight weight = FontWeight.normal}) {
-  ScreenUtil.instance = ScreenUtil(allowFontScaling: true)..init(context);
+
 
   return Text(
     text,
     textAlign: textaling,
     style: TextStyle(
-      fontSize: ScreenUtil.getInstance().setSp(size),
+      fontSize: ResponsivePixelHandler.toPixel(size, context),
       color: color,
       fontWeight: weight,
       fontStyle: style,
@@ -251,7 +252,7 @@ Widget defaultCheckBox(bool isChecked, text, context, onTap, {color: corPrimaria
 }
 
 Widget defaultActionButton(String text, context, Function onPressed,
-    {var icon = Icons.add,color = corPrimaria, textColor = Colors.white,size= 50}) {
+    {var icon = Icons.add,color = corPrimaria, textColor = Colors.white,double size= 25.0}) {
   return MaterialButton(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     color: color,
@@ -261,7 +262,7 @@ Widget defaultActionButton(String text, context, Function onPressed,
         icon == null
             ? Container()
             : Icon(
-                icon,size:ScreenUtil.instance.setSp(size),
+                icon,size:ResponsivePixelHandler.toPixel(size, context),
                 color: textColor,
               ),
         icon == null ? Container() : sb,
@@ -861,7 +862,7 @@ dToastTop(String msg) {
       fontSize: 16.0);
 }
 
-dToast(String msg, {int timeInSecForIoss, String cor}) {
+dToast(String msg, {int timeInSecForIoss, String cor }) {
   Fluttertoast.showToast(
       msg: msg,
       toastLength: Toast.LENGTH_SHORT,
@@ -939,7 +940,7 @@ myAppBar(String titulo, context,
     centerTitle: true,
     actionsIconTheme: new IconThemeData(   color: colorIcon == null? Colors.black: colorIcon, size: 100),
     actions: actions,
-    title: hTextBank(titulo, context, size: 100)
+    title: hTextBank(titulo, context, size: 40)
 
 
   );
@@ -950,6 +951,14 @@ String ROUTE_QUERY(double lat, double lng, double lat1, double lng1) {
   print(url);
   return url;
 }
+
+String ROUTE_QUERY2(double lat, double lng, double lat1, double lng1, double lat2, double lng2) {
+  String url =
+      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$lng1,$lat1;$lat2,$lng2?alternatives=true&geometries=geojson&steps=true&access_token=$MAP_TOKEN';
+  print(url);
+  return url;
+}
+
 nutrannoLogo(context, m1, m2) {
   return SizedBox(
     width: MediaQuery.of(context).size.width * m1,

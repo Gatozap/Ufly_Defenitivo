@@ -30,6 +30,12 @@ class RotaController extends BlocBase {
       new BehaviorSubject<List<LatLng>>();
   Stream<List<LatLng>> get outPoly => controllerPolyline.stream;
   Sink<List<LatLng>> get inPoly => controllerPolyline.sink;
+
+  BehaviorSubject<List<LatLng>> controllerPolylineMotorista =
+  new BehaviorSubject<List<LatLng>>();
+  Stream<List<LatLng>> get outPolyMotorista => controllerPolylineMotorista.stream;
+  Sink<List<LatLng>> get inPolyMotorista => controllerPolylineMotorista.sink;
+  
   RotaController() {
     PolylinePoints polylinePoints = PolylinePoints();
 
@@ -50,32 +56,66 @@ class RotaController extends BlocBase {
     )
         .then((result) {
       polylineCoordinates.add(LatLng(v.latitude, v.longitude));
-      print("RESULTADO ${result.body}");
+
 
       Rota r = Rota.fromJson(json.decode(result.body));
       rota = r;
-        for (var i in r.routes[0].legs) {
-          double ii = (i.duration)/3600;
-
-          print('aqui tempo ${ii.toStringAsFixed(2)} aqui routes ${r.routes} ');
-          for (var j in i.steps) {
-            print('aqui routes ${ j.intersections[0]} ');
-            for (var k in j.intersections) {
+      for (var i in r.routes[0].legs) {
+        double ii = (i.duration)/3600;
 
 
-              polylineCoordinates.add(LatLng(k.location[1], k.location[0]));
+        for (var j in i.steps) {
 
-            }
+          for (var k in j.intersections) {
+
+
+            polylineCoordinates.add(LatLng(k.location[1], k.location[0]));
+
           }
         }
+      }
 
       polylineCoordinates.add(LatLng(c.latitude, c.longitude));
-      print("RETORNOU ROTA CALCULADA ${polylineCoordinates.length}");
+
       Geolocator().placemarkFromCoordinates(c.latitude, c.longitude);
       inPoly.add(polylineCoordinates);
     });
   }
 
+  CalcularRotaMotorista(LatLng v, LatLng c) async {
+    List<LatLng> polylineCoordinates = [];
+
+    http
+        .get(
+      ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude),
+    )
+        .then((result) {
+      polylineCoordinates.add(LatLng(v.latitude, v.longitude));
+
+
+      Rota r = Rota.fromJson(json.decode(result.body));
+      rota = r;
+      for (var i in r.routes[0].legs) {
+        double ii = (i.duration)/3600;
+
+
+        for (var j in i.steps) {
+
+          for (var k in j.intersections) {
+
+
+            polylineCoordinates.add(LatLng(k.location[1], k.location[0]));
+
+          }
+        }
+      }
+
+      polylineCoordinates.add(LatLng(c.latitude, c.longitude));
+
+      Geolocator().placemarkFromCoordinates(c.latitude, c.longitude);
+      inPolyMotorista.add(polylineCoordinates);
+    });
+  }
   @override
   void dispose() {
     controllerLocalizacao.close();

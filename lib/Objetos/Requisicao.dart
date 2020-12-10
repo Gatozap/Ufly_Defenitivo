@@ -40,7 +40,7 @@ class Requisicao{
         rota = json['rota'] == null? null: Rota.fromJson(json['rota']),
         tempo_estimado = json['tempo_estimado'],
         distancia = json['distancia'],
-        ofertas = json['ofertas'] == null? null: decodeOfertas(json['ofertas']),
+        ofertas = json['ofertas'],
         aceito = json['aceito'] == null? null: OfertaCorrida.fromJson(json['aceito']);
 
   Map<String, dynamic> toJson() => {
@@ -58,7 +58,7 @@ class Requisicao{
         'rota': rota == null? null: rota.toJson(),
         'tempo_estimado': tempo_estimado,
         'distancia': distancia,
-        'ofertas': ofertas == null? null: encodeOfertas(),
+        'ofertas': ofertas,
         'aceito': aceito == null? null: aceito.toJson(),
       };
 
