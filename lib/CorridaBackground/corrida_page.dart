@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'dart:math';
 
-
+import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -11,17 +11,11 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_map/flutter_map.dart' as fm;
 
-
-
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-
-
-
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_pixel/responsive_pixel.dart';
-
 
 import 'package:timer_count_down/timer_controller.dart';
 import 'package:timer_count_down/timer_count_down.dart';
@@ -36,7 +30,6 @@ import 'package:ufly/CorridaBackground/requisicao_corrida_controller.dart';
 import 'package:ufly/GoogleServices/geolocator_service.dart';
 
 import 'package:ufly/Helpers/References.dart';
-
 
 import 'package:ufly/Motorista/motorista_controller.dart';
 import 'package:ufly/Motorista/motorista_controller_edit.dart';
@@ -70,7 +63,7 @@ class CorridaPage extends StatefulWidget {
 
 class _CorridaPageState extends State<CorridaPage> {
   double tempo = 25;
-  bool requisicaoChegou;
+
   var controllerPreco = new MoneyMaskedTextController(
       leftSymbol: 'R\$', decimalSeparator: '.', thousandSeparator: ',');
   final GeolocatorService geo = GeolocatorService();
@@ -102,6 +95,7 @@ class _CorridaPageState extends State<CorridaPage> {
   void initState() {
     bg.BackgroundGeolocation.start();
     localizacaoInicial();
+    AndroidAlarmManager.initialize();
     Timer(Duration(seconds: 2), () {
       geo.getCurrentLocation().listen((position) {
         telaCentralizada(position);
@@ -153,70 +147,80 @@ class _CorridaPageState extends State<CorridaPage> {
     }
 
     var map = StreamBuilder(
-      stream: rc.outPoly,
-      builder: (context, snap) {
-        List<Polyline> polylines = getPolys(snap.data);
-        return StreamBuilder<LatLng>(
-            stream: rc.outLocalizacao,
-            builder: (context, localizacao) {
-              print('localizacao ${localizacao.data}');
-              if (localizacao.data == null) {
-                return StreamBuilder<Position>(
-                    stream: geo.getCurrentLocation(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return Center(child: CircularProgressIndicator());
-                      }
+        stream: rc.outPolyMotorista,
+        builder: (context, snapMotorista) {
+          return StreamBuilder(
+            stream: rc.outPoly,
+            builder: (context, snap) {
+              List<Polyline> polylines =
+                  getPolys(snap.data, snapMotorista.data);
+              return StreamBuilder<LatLng>(
+                  stream: rc.outLocalizacao,
+                  builder: (context, localizacao) {
+                    print('localizacao ${localizacao.data}');
+                    if (localizacao.data == null) {
+                      return StreamBuilder<Position>(
+                          stream: geo.getCurrentLocation(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return Center(child: CircularProgressIndicator());
+                            }
 
-                      return StreamBuilder(
-                          stream: pf.outUser,
-                          builder: (context, user) {
-                            print('aqui user ${user.data}');
-                            return GoogleMap(
-                              myLocationEnabled: true,
-                              myLocationButtonEnabled: true,
-                              //polylines: polylines.toSet(),
-                              mapType: MapType.normal,
-
-                              zoomGesturesEnabled: true,
-                              zoomControlsEnabled: false,
-                              initialCameraPosition: CameraPosition(
-                                  target: localizacao.data,
-                                  zoom: Helper.localUser.zoom),
-                              onMapCreated: (GoogleMapController controller) {
-                                _controller.complete(controller);
-                              },
-                            );
+                            return StreamBuilder(
+                                stream: pf.outUser,
+                                builder: (context, user) {
+                                  print('aqui user ${user.data}');
+                                  return GoogleMap(
+                                    myLocationEnabled: true,
+                                    myLocationButtonEnabled: true,
+                                    //polylines: polylines.toSet(),
+                                    mapType: MapType.normal,
+                                    rotateGesturesEnabled: false,
+                                    zoomGesturesEnabled: true,
+                                    zoomControlsEnabled: false,
+                                    initialCameraPosition: CameraPosition(
+                                        target: _initialPosition,
+                                        zoom: Helper.localUser.zoom),
+                                    onMapCreated:
+                                        (GoogleMapController controller) {
+                                      _controller.complete(controller);
+                                    },
+                                  );
+                                });
                           });
-                    });
-              }
-              List<Marker> markers = getMarkers(passageiro_latlng, destino,
-                  destino == null ? null : _initialPosition);
+                    }
+                    List<Marker> markers = getMarkers(passageiro_latlng,
+                        destino, destino == null ? null : _initialPosition);
 
-              return StreamBuilder(
-                  stream: pf.outUser,
-                  builder: (context, user) {
-                    return GoogleMap(
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: false,
-                      trafficEnabled: true,
-                      polylines: polylines.toSet(),
-                      markers: destino != null ? markers.toSet() : null,
-                      mapType: MapType.terrain,
-                      zoomGesturesEnabled: true,
-                      zoomControlsEnabled: false,
-                      initialCameraPosition: CameraPosition(
-                          target: localizacao.data,
-                          zoom: Helper.localUser.zoom),
-                      onMapCreated: (GoogleMapController controller) {
-                        _controller.complete(controller);
-                        destino == null ? null : centerView();
-                      },
-                    );
+                    return StreamBuilder(
+                        stream: pf.outUser,
+                        builder: (context, user) {
+                          return GoogleMap(
+                            myLocationEnabled: true,
+                            myLocationButtonEnabled: false,
+                            trafficEnabled: true,
+                            polylines: polylines.toSet(),
+                            markers: destino != null ? markers.toSet() : null,
+                            mapType: MapType.terrain,
+                            zoomGesturesEnabled: true,
+                            zoomControlsEnabled: false,
+                            rotateGesturesEnabled: false,
+                            initialCameraPosition: CameraPosition(
+                                target: localizacao.data,
+                                zoom: Helper.localUser.zoom),
+                            onMapCreated: (GoogleMapController controller) {
+                              _controller.complete(controller);
+                              destino == null ? null : centerView();
+                              geo.getCurrentLocation().listen((position) {
+                                telaCentralizada(position);
+                              });
+                            },
+                          );
+                        });
                   });
-            });
-      },
-    );
+            },
+          );
+        });
 
     return Scaffold(
       drawer: CustomDrawerWidget(),
@@ -240,96 +244,275 @@ class _CorridaPageState extends State<CorridaPage> {
               );
             }),
       ]),
-      bottomSheet: Container(
-        color: Colors.white,
-        child: StreamBuilder<Carro>(
-          stream: corridaController.outCarro,
-          builder: (context, carro) {
+      bottomSheet: StreamBuilder<FiltroMotorista>(
+          stream: cf.outFiltro,
+          builder: (context, filtro) {
+            return StreamBuilder<bool>(
+                stream: cf.outRequisicaoChegou,
+                builder: (context, requisicaoChegou) {
+                  if (cf.RequisicaoChegou == null) {
+                    cf.RequisicaoChegou = false;
+                  }
 
-            return StreamBuilder<FiltroMotorista>(
-                stream: cf.outFiltro,
-                builder: (context, filtro) {
-                 
+                  return Container(
+                    color: Colors.white,
+                    child: StreamBuilder<Carro>(
+                      stream: corridaController.outCarro,
+                      builder: (context, carro) {
+                        return StreamBuilder<Motorista>(
+                            stream: mt.outMotorista,
+                            builder: (context, snap) {
+                              return StreamBuilder<List<Requisicao>>(
+                                  stream: requisicaoController.outRequisicoes,
+                                  builder: (context,
+                                      AsyncSnapshot<List<Requisicao>>
+                                          requisicao) {
 
+                                    if (requisicao.data == null || requisicao.data.isEmpty) {
+                                            return Container(  width: getLargura(context),
+                                              height: getAltura(context) * .060, child:    Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .center,
+                                                  children: <Widget>[
+                                                    carro.data == null
+                                                        ? Expanded(
+                                                      child: hText(
+                                                          'Não conseguimos encontrar seu carro contate o suporte',
+                                                          context,
+                                                          color: Colors
+                                                              .white,
+                                                          textaling:
+                                                          TextAlign
+                                                              .center),
+                                                    )
+                                                        : GestureDetector(
+                                                      onTap:
+                                                          () async {
+                                                        FiltroMotorista
+                                                        f =
+                                                        await cf
+                                                            .outFiltro
+                                                            .first;
+                                                        f.isOnline =
+                                                        false;
 
-                  return StreamBuilder<Motorista>(
-                      stream: mt.outMotorista,
-                      builder: (context, snap) {
+                                                        cf.inFiltro
+                                                            .add(f);
 
-                       return  Container(
-                                width: getLargura(context),
-                                height: getAltura(context) * .060,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      carro.data == null
-                                          ? Expanded(
-                                              child: hText(
-                                                  'Não conseguimos encontrar seu carro contate o suporte',
-                                                  context,
-                                                  color: Colors.white,
-                                                  textaling: TextAlign.center),
-                                            )
-                                          : GestureDetector(
-                                              onTap: () async {
-                                                FiltroMotorista f =
-                                                    await cf.outFiltro.first;
-                                                f.isOnline = false;
+                                                        snap.data
+                                                            .isOnline =
+                                                            f.isOnline;
+                                                        motoristaRef
+                                                            .doc(snap
+                                                            .data
+                                                            .id)
+                                                            .update(snap
+                                                            .data
+                                                            .toJson());
 
-                                                cf.inFiltro.add(f);
+                                                        corridaController
+                                                            .finalizarCorrida();
+                                                      },
+                                                      child: hTextAbel(
+                                                          'OFFLINE',
+                                                          context,
+                                                          size: 20,
+                                                          weight:
+                                                          FontWeight
+                                                              .bold,
+                                                          color: snap.data.isOnline ==
+                                                              false
+                                                              ? Color.fromRGBO(
+                                                              255,
+                                                              184,
+                                                              0,
+                                                              30)
+                                                              : Colors
+                                                              .black),
+                                                    ),
+                                                    sb,
+                                                    sb,
+                                                    hTextAbel('|', context,
+                                                        size: 20),
+                                                    sb,
+                                                    sb,
+                                                    GestureDetector(
+                                                      onTap: () async {
+                                                        FiltroMotorista f =
+                                                        await cf
+                                                            .outFiltro
+                                                            .first;
+                                                        f.isOnline = true;
 
-                                                snap.data.isOnline = f.isOnline;
-                                                  motoristaRef.doc(snap.data.id).update(snap.data.toJson()); ;
+                                                        cf.inFiltro.add(f);
 
-                                                corridaController
-                                                    .finalizarCorrida();
-                                              },
-                                              child: hTextAbel(
-                                                  'OFFLINE', context,
-                                                  size: 20,
-                                                  weight: FontWeight.bold,
-                                                  color: snap.data.isOnline == false
-                                                      ? Color.fromRGBO(
-                                                          255, 184, 0, 30)
-                                                      : Colors.black),
-                                            ),
-                                      sb,
-                                      sb,
-                                      hTextAbel('|', context, size: 20),
-                                      sb,
-                                      sb,
-                                      GestureDetector(
-                                        onTap: () async {
-                                          FiltroMotorista f =
-                                              await cf.outFiltro.first;
-                                          f.isOnline = true;
+                                                        snap.data.isOnline =
+                                                            f.isOnline;
+                                                        motoristaRef
+                                                            .doc(snap
+                                                            .data.id)
+                                                            .update(snap
+                                                            .data
+                                                            .toJson());
+                                                        ;
+                                                        corridaController
+                                                            .iniciarCorrida();
+                                                      },
+                                                      child: hTextAbel(
+                                                        'ONLINE',
+                                                        context,
+                                                        size: 20,
+                                                        weight:
+                                                        FontWeight.bold,
+                                                        color: snap.data
+                                                            .isOnline ==
+                                                            true
+                                                            ? Color
+                                                            .fromRGBO(
+                                                            255,
+                                                            184,
+                                                            0,
+                                                            30)
+                                                            : Colors.black,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),);
+                                    } else {
+                                      for (Requisicao i in requisicao.data) {
+                                        return
+                                          Container(
+                                              width: getLargura(context),
+                                              height: getAltura(context) * .060,
+                                              child: Padding(
+                                                padding:
+                                                const EdgeInsets.all(8.0),
+                                                child: i.motoristas_chamados
+                                                    .contains(
+                                                    Helper.localUser.id)
+                                                    ? Container()
+                                                    :
+                                                Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .center,
+                                                  children: <Widget>[
+                                                    carro.data == null
+                                                        ? Expanded(
+                                                      child: hText(
+                                                          'Não conseguimos encontrar seu carro contate o suporte',
+                                                          context,
+                                                          color: Colors
+                                                              .white,
+                                                          textaling:
+                                                          TextAlign
+                                                              .center),
+                                                    )
+                                                        : GestureDetector(
+                                                      onTap:
+                                                          () async {
+                                                        FiltroMotorista
+                                                        f =
+                                                        await cf
+                                                            .outFiltro
+                                                            .first;
+                                                        f.isOnline =
+                                                        false;
 
-                                          cf.inFiltro.add(f);
+                                                        cf.inFiltro
+                                                            .add(f);
 
-                                          snap.data.isOnline = f.isOnline;
-                                          motoristaRef.doc(snap.data.id).update(snap.data.toJson()); ;
-                                          corridaController.iniciarCorrida();
-                                        },
-                                        child: hTextAbel(
-                                          'ONLINE',
-                                          context,
-                                          size: 20,
-                                          weight: FontWeight.bold,
-                                          color: snap.data.isOnline == true
-                                              ? Color.fromRGBO(255, 184, 0, 30)
-                                              : Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ));
-                      });
+                                                        snap.data
+                                                            .isOnline =
+                                                            f.isOnline;
+                                                        motoristaRef
+                                                            .doc(snap
+                                                            .data
+                                                            .id)
+                                                            .update(snap
+                                                            .data
+                                                            .toJson());
+
+                                                        corridaController
+                                                            .finalizarCorrida();
+                                                      },
+                                                      child: hTextAbel(
+                                                          'OFFLINE',
+                                                          context,
+                                                          size: 20,
+                                                          weight:
+                                                          FontWeight
+                                                              .bold,
+                                                          color: snap.data
+                                                              .isOnline ==
+                                                              false
+                                                              ? Color.fromRGBO(
+                                                              255,
+                                                              184,
+                                                              0,
+                                                              30)
+                                                              : Colors
+                                                              .black),
+                                                    ),
+                                                    sb,
+                                                    sb,
+                                                    hTextAbel('|', context,
+                                                        size: 20),
+                                                    sb,
+                                                    sb,
+                                                    GestureDetector(
+                                                      onTap: () async {
+                                                        FiltroMotorista f =
+                                                        await cf
+                                                            .outFiltro
+                                                            .first;
+                                                        f.isOnline = true;
+
+                                                        cf.inFiltro.add(f);
+
+                                                        snap.data.isOnline =
+                                                            f.isOnline;
+                                                        motoristaRef
+                                                            .doc(snap
+                                                            .data.id)
+                                                            .update(snap
+                                                            .data
+                                                            .toJson());
+                                                        ;
+                                                        corridaController
+                                                            .iniciarCorrida();
+                                                      },
+                                                      child: hTextAbel(
+                                                        'ONLINE',
+                                                        context,
+                                                        size: 20,
+                                                        weight:
+                                                        FontWeight.bold,
+                                                        color: snap.data
+                                                            .isOnline ==
+                                                            true
+                                                            ? Color
+                                                            .fromRGBO(
+                                                            255,
+                                                            184,
+                                                            0,
+                                                            30)
+                                                            : Colors.black,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ));
+                                      }
+                                    }
+                                  });
+                            });
+                      },
+                    ),
+                  );
                 });
-          },
-        ),
-      ),
+          }),
       body: StreamBuilder<bool>(
           stream: cf.outHide,
           builder: (context, hide) {
@@ -357,25 +540,29 @@ class _CorridaPageState extends State<CorridaPage> {
                     stream: requisicaoController.outRequisicoes,
                     builder:
                         (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-                      print('aqui a porra da requisicao');
                       return ListView.builder(
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
                           Requisicao req = requisicao.data[index];
+                          print('aqui a porra da requisicao');
                           if (req.aceito == null) {
                             if (req.motoristas_chamados
                                 .contains(Helper.localUser.id)) {
-                              requisicaoChegou = true;
+                              print('aqui a porra da requisicao ${cf.RequisicaoChegou}');
                               print('aqui bool ${req}');
                               return Padding(
                                 padding: EdgeInsets.only(
                                     bottom: getAltura(context) * .045),
                                 child: cf.hide == true
                                     ? Container()
-                                    : SolicitacaoDoPassageiro(req),
+                                    : 
+                                  SolicitacaoDoPassageiro(req)
+
                               );
                             } else {
-                              requisicaoChegou = false;
+                              print(
+                                  'aqui a porra da requisicao ${cf.RequisicaoChegou}');
+
                               return Container();
                             }
                           } else {
@@ -431,7 +618,6 @@ class _CorridaPageState extends State<CorridaPage> {
                           centerView();
                           cf.hide = true;
                           cf.inHide.add(snapshot.data);
-
                         },
                         child: Container(
                           width: getLargura(context) * .5,
@@ -545,52 +731,8 @@ class _CorridaPageState extends State<CorridaPage> {
                               ],
                             ),
                           ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  top: ResponsivePixelHandler.toPixel(
-                                      30, context),
-                                  bottom: ResponsivePixelHandler.toPixel(
-                                      5, context),
-                                  left: ResponsivePixelHandler.toPixel(
-                                      15, context),
-                                  right: ResponsivePixelHandler.toPixel(
-                                      15, context)),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.timer,
-                                      color: Colors.black, size: 20),
-                                  Countdown(
-                                    controller: controller,
-                                    seconds: 25,
-                                    build: (_, double time) => hTextAbel(
-                                        time.toStringAsFixed(0), context,
-                                        size: 35,
-                                        color:
-                                            time > 10 ? color_green : color_red,
-                                        weight: FontWeight.bold),
-                                    interval: Duration(milliseconds: 100),
-                                    onFinished: () async {
-                                      /* try {
-                    await requisicaoRef.doc(req.id).update({
-                      'motoristas_chamados': FieldValue.arrayRemove(
-                              ['${Helper.localUser.id}'])
-                    }).then((v) {
-                      print('sucesso ao tirar motorista da lista');
-                    });
-                  }catch (e) {
-                    print(e);
-                  }     */
-                                    },
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
+
+                            //cronometro(context)
                           /* StreamBuilder<bool>(
                                       stream: cf.outHide,
                                       builder: (context, snapshot) {
@@ -1034,17 +1176,32 @@ class _CorridaPageState extends State<CorridaPage> {
         zoom: Helper.localUser.zoom)));
   }
 
-  List<Polyline> getPolys(data) {
+  List<Polyline> getPolys(data, motorista) {
     List<Polyline> poly = new List();
+
     if (data == null) {
       return poly;
     }
+    if (motorista == null) {
+      return poly;
+    }
     PolylineId id = PolylineId("poly");
+    PolylineId id2 = PolylineId("poly2");
+    print('aqui a data ${data.toString()}');
     try {
       poly.add(Polyline(
         polylineId: id,
         color: Colors.red,
         points: data,
+      ));
+    } catch (err) {
+      print(err.toString());
+    }
+    try {
+      poly.add(Polyline(
+        polylineId: id2,
+        color: Colors.blue,
+        points: motorista,
       ));
     } catch (err) {
       print(err.toString());
@@ -1088,6 +1245,7 @@ class _CorridaPageState extends State<CorridaPage> {
         '${place.name.isNotEmpty ? place.name + ', ' : ''}${place.thoroughfare.isNotEmpty ? place.thoroughfare + ', ' : ''}${place.subLocality.isNotEmpty ? place.subLocality + ', ' : ''}${place.locality.isNotEmpty ? place.locality + ', ' : ''}${place.subAdministrativeArea.isNotEmpty ? place.subAdministrativeArea + ', ' : ''}${place.postalCode.isNotEmpty ? place.postalCode + ', ' : ''}${place.administrativeArea.isNotEmpty ? place.administrativeArea : ''}';
 
     rc.CalcularRota(inicial_posicao, destination);
+    rc.CalcularRotaMotorista(_initialPosition, inicial_posicao);
   }
 }
 

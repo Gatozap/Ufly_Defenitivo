@@ -6,7 +6,7 @@ class FiltroMotorista{
   bool documento_veiculo;
   bool bom;
   bool isOnline;
-  bool isOffline;
+  
   bool ruim;
   bool pessimo;
   bool reset;
@@ -30,7 +30,7 @@ class FiltroMotorista{
       this.mtbom,
       this.bom,
       this.isOnline,
-      this.isOffline,
+
       this.ruim,
       this.pessimo,
       this.reset,

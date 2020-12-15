@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
+import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
@@ -22,6 +23,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_pixel/responsive_pixel.dart';
+import 'package:timer_count_down/timer_controller.dart';
+import 'package:timer_count_down/timer_count_down.dart';
 
 import 'package:ufly/Objetos/User.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -141,6 +144,66 @@ hTextAbel(text, context,
     ),
   );
 }
+ cronometro(context){
+   final CountdownController controller = CountdownController();
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      shape: BoxShape.circle,
+    ),
+    child: Padding(
+      padding: EdgeInsets.only(
+          top: ResponsivePixelHandler.toPixel(
+              30, context),
+          bottom: ResponsivePixelHandler.toPixel(
+              5, context),
+          left: ResponsivePixelHandler.toPixel(
+              15, context),
+          right: ResponsivePixelHandler.toPixel(
+              15, context)),
+      child: Column(
+        children: [
+          Icon(Icons.timer,
+              color: Colors.black, size: 20),
+          Countdown(
+
+            controller: controller,
+            seconds: 25,
+            build: (_, double time) =>
+
+
+                hTextAbel(
+                    time.toStringAsFixed(0), context,
+                    size: 35,
+                    color:
+                    time > 10 ?  Colors.green : Colors.red,
+                    weight: FontWeight.bold),
+            interval: Duration(milliseconds:   100),
+            onFinished: () async {
+
+
+
+              /* try {
+                    await requisicaoRef.doc(req.id).update({
+                      'motoristas_chamados': FieldValue.arrayRemove(
+                              ['${Helper.localUser.id}'])
+                    }).then((v) {
+                    requisicaoChegou = false;
+                      print('sucesso ao tirar motorista da lista');
+                    });
+                  }catch (e) {
+                    print(e);
+                  }     */
+            },
+          )
+        ],
+      ),
+    ),
+  );
+ }
+
+
+
 hTextBank(text, context,
     {double size = 20,
       Color color = Colors.black,

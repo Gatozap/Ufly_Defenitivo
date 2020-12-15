@@ -192,11 +192,12 @@ class _HomePageState extends State<HomePage> {
                               zoomControlsEnabled: false,
 
                               initialCameraPosition: CameraPosition(
-                                  target: localizacao.data,
+                                  target: _initialPosition,
                                   zoom: Helper.localUser.zoom),
                               onMapCreated: (GoogleMapController controller) {
                                 _controller.complete(controller);
                                 centerView();
+
                               },
                             );
                           });
@@ -401,7 +402,7 @@ class _HomePageState extends State<HomePage> {
                                   cf.inPreenchimento.add(preenchimento.data);
 
                                 }else {
-                                  inicialController.clear();
+                                
                                   gg.Prediction p = await PlacesAutocomplete.show(
                                       context: context,
 
@@ -704,13 +705,14 @@ class _HomePageState extends State<HomePage> {
       LatLng inicial_posicao = LatLng(lat, lng);
 
       _initialPosition = inicial_posicao;
+      print('aqui inicial ${inicial_posicao}');
       LatLng destination = LatLng(latitude, longitude);
       dToast('Efetuando calculo de rota');
       rc.CalcularRota(inicial_posicao, destination);
 
       destino = destination;
 
-      getMarkers(inicial_posicao, destino);
+      getMarkers(inicial_posicao, destination);
 
       endereco_origem = Endereco(
           numero: inicialPosicao[0].name,
@@ -838,7 +840,7 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder<Requisicao>(
         stream: requisicaoController.outRequisicao,
         builder: (context, requisicao) {
-          print('aqui requisicao ${requisicao.data}');
+
 
           return StreamBuilder<FiltroMotorista>(
               stream: cf.outFiltro,
@@ -852,6 +854,10 @@ class _HomePageState extends State<HomePage> {
                     if (requisicao.data == null ||
                         requisicao.data.user != Helper.localUser.id) {
                       requisitarMotoristas(requisicao.data, snap.data.viagem);
+                      Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  MotoristaProximoPage()));
                     } else {
                       showDialog(
                           context: context,
@@ -956,8 +962,8 @@ class _HomePageState extends State<HomePage> {
                     margin: EdgeInsets.symmetric(
                         horizontal: getLargura(context) * .010,
                         vertical: getAltura(context) * .040),
-                    height: getLargura(context) * .5,
-                    width: getLargura(context) * .97,
+                    height: getLargura(context) * .050,
+                    width: getLargura(context) * .90,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -1119,6 +1125,7 @@ List<Marker> getMarkers(LatLng data, LatLng d) {
   MarkerId markerId2 = MarkerId('id2');
   try {
     markers.add(Marker(
+
         markerId: markerId,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
         position: data));

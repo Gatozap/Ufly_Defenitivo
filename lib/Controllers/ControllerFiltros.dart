@@ -25,6 +25,11 @@ class ControllerFiltros extends BlocBase{
   Sink<bool> get inPreenchimento => controllerPreenchimento.sink;
   bool Preenchimento;
 
+  BehaviorSubject<bool> controllerRequisicaoChegou = new BehaviorSubject<bool>();
+  Stream<bool> get outRequisicaoChegou=> controllerRequisicaoChegou.stream;
+  Sink<bool> get inRequisicaoChegou => controllerRequisicaoChegou.sink;
+  bool RequisicaoChegou;
+
   ControllerFiltros(){
     inHide.add(false);
     inZoom.add(0);
@@ -38,7 +43,7 @@ class ControllerFiltros extends BlocBase{
         mtbom: false,
         bom: false,
         isOnline: false,
-        isOffline: false,
+
         ruim: false,
         pessimo: false,
         reset: false,
@@ -63,6 +68,7 @@ class ControllerFiltros extends BlocBase{
     controllerZoom.close();
     controllerFiltro.close();
     controllerHide.close();
+    controllerRequisicaoChegou.close();
     controllerPreenchimento.close();
   }
 

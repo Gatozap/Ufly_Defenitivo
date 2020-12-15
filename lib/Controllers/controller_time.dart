@@ -11,6 +11,7 @@ class ControllerTime implements BlocBase {
   Stream<int> get outContagem => _controllerContagem.stream;
 
   Sink<int> get inContagem => _controllerContagem.sink;
+  int Contagem;
 
   BehaviorSubject<Timer> _controllerTimer = new BehaviorSubject<Timer>();
 
@@ -27,8 +28,7 @@ class ControllerTime implements BlocBase {
     _controllerTimer.close();
   }
 
-  ControllerTime(int contagem, Timer tempo){
-   inContagem.add(contagem);
-   inTimer.add(tempo);
+  ControllerTime(){
+       inContagem.add(25);
   }
 }

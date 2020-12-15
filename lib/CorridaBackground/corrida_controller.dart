@@ -186,7 +186,7 @@ class CorridaController extends BlocBase {
             lastPoint = l;
           }
         }
-        print("CHEGOU AQUI LOLO2  ");
+        print("CHEGOU AQUI LOLO2 ${started} ");
 
         inDistanciaPercorrida.add(distanciaPercorrida);
         //if (started) {
@@ -375,9 +375,9 @@ class CorridaController extends BlocBase {
   }
   Localizacao LastLoc;
   novaLocalizacao(LatLng l) {
-    print('Nova localização ${l.toString()}');
-    if (started) {
 
+    if (started == true) {
+      print('Nova localização ${started}');
       Localizacao loc;
 
 
@@ -386,10 +386,11 @@ class CorridaController extends BlocBase {
           new Marker(
             width: 25,
             height: 25,
-
             point: l,
             builder: (ctx) => new Container(
-              child: Icon(Icons.account_circle),
+              child: Image.asset(
+                "assets/marker.png",
+              ),
             ),
           ),
         ],

@@ -304,7 +304,7 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                                       content: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: <Widget>[
-                                            hTextAbel('Zoom automático ${snapshot.data.zoom.toStringAsFixed(0)}', context, size: 60),sb,
+                                            hTextAbel('Zoom automático ${snapshot.data.zoom.toStringAsFixed(0)}', context, size: 20),sb,
                                           Container(
                                               width: getLargura(context),
                                               child: CupertinoSlider(divisions: 25,min: 0,max: 50, value:  snapshot.data.zoom,onChanged:(double novoValor){
@@ -362,7 +362,7 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                                                       child: hTextAbel(
                                                           'SALVAR',
                                                           context,
-                                                          size: 100))),
+                                                          size: 25))),
                                             ),
                                           ),
 
