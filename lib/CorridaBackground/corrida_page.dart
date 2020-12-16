@@ -95,12 +95,13 @@ class _CorridaPageState extends State<CorridaPage> {
   void initState() {
     bg.BackgroundGeolocation.start();
     localizacaoInicial();
-    AndroidAlarmManager.initialize();
-    Timer(Duration(seconds: 2), () {
+
+
       geo.getCurrentLocation().listen((position) {
         telaCentralizada(position);
       });
-    });
+
+
 
     super.initState();
   }
@@ -114,11 +115,15 @@ class _CorridaPageState extends State<CorridaPage> {
     ResponsivePixelHandler.init(
       baseWidth: 360, //A largura usado pelo designer no modelo desenhado
     );
+    localizacaoInicial();
     if (requisicaoController == null) {
       requisicaoController = RequisicaoCorridaController();
     }
     if (corridaController == null) {
       corridaController = CorridaController();
+    }
+    if (rc == null) {
+      rc = RotaController();
     }
     if (rccc == null) {
       rccc = RequisicaoController();
@@ -127,9 +132,6 @@ class _CorridaPageState extends State<CorridaPage> {
       criarrequisicaocontroller = CriarRequisicaoController();
     }
 
-    if (rc == null) {
-      rc = RotaController();
-    }
     if (ac == null) {
       ac = AtivosController();
     }
@@ -158,35 +160,33 @@ class _CorridaPageState extends State<CorridaPage> {
                   stream: rc.outLocalizacao,
                   builder: (context, localizacao) {
                     print('localizacao ${localizacao.data}');
+                    print('aqui position ${_initialPosition}');
                     if (localizacao.data == null) {
                       return StreamBuilder<Position>(
-                          stream: geo.getCurrentLocation(),
+                          stream: localizacaoInicial(),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
-                              return Center(child: CircularProgressIndicator());
+                              print('aqui position ${_initialPosition}');
+                              return localizacaoInicial();
                             }
-
-                            return StreamBuilder(
-                                stream: pf.outUser,
-                                builder: (context, user) {
-                                  print('aqui user ${user.data}');
-                                  return GoogleMap(
+                            return  GoogleMap(
                                     myLocationEnabled: true,
-                                    myLocationButtonEnabled: true,
+                                    myLocationButtonEnabled: false,
                                     //polylines: polylines.toSet(),
                                     mapType: MapType.normal,
-                                    rotateGesturesEnabled: false,
                                     zoomGesturesEnabled: true,
                                     zoomControlsEnabled: false,
+                              rotateGesturesEnabled: false,
                                     initialCameraPosition: CameraPosition(
                                         target: _initialPosition,
                                         zoom: Helper.localUser.zoom),
-                                    onMapCreated:
-                                        (GoogleMapController controller) {
+                                    onMapCreated: (GoogleMapController controller) {
                                       _controller.complete(controller);
+                                      centerView();
+
                                     },
                                   );
-                                });
+
                           });
                     }
                     List<Marker> markers = getMarkers(passageiro_latlng,
@@ -247,6 +247,8 @@ class _CorridaPageState extends State<CorridaPage> {
       bottomSheet: StreamBuilder<FiltroMotorista>(
           stream: cf.outFiltro,
           builder: (context, filtro) {
+            FiltroMotorista f= filtro.data;
+            print('aqui f ${f.isOnline}');
             return StreamBuilder<bool>(
                 stream: cf.outRequisicaoChegou,
                 builder: (context, requisicaoChegou) {
@@ -261,7 +263,15 @@ class _CorridaPageState extends State<CorridaPage> {
                       builder: (context, carro) {
                         return StreamBuilder<Motorista>(
                             stream: mt.outMotorista,
-                            builder: (context, snap) {
+                            builder: (context, motorista) {
+
+                                          if(motorista.data == null){
+                                            return Container();
+                                          }
+                                          if( motorista.data.isOnline == null){
+                                            motorista.data.isOnline = filtro.data.isOnline;
+                                          }
+                              print('aqui motorista ${motorista.data}');
                               return StreamBuilder<List<Requisicao>>(
                                   stream: requisicaoController.outRequisicoes,
                                   builder: (context,
@@ -300,14 +310,12 @@ class _CorridaPageState extends State<CorridaPage> {
                                                         cf.inFiltro
                                                             .add(f);
 
-                                                        snap.data
-                                                            .isOnline =
-                                                            f.isOnline;
+                                                        motorista.data.isOnline = f.isOnline;
                                                         motoristaRef
-                                                            .doc(snap
+                                                            .doc(motorista
                                                             .data
                                                             .id)
-                                                            .update(snap
+                                                            .update(motorista
                                                             .data
                                                             .toJson());
 
@@ -321,7 +329,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                                           weight:
                                                           FontWeight
                                                               .bold,
-                                                          color: snap.data.isOnline ==
+                                                          color: motorista.data.isOnline ==
                                                               false
                                                               ? Color.fromRGBO(
                                                               255,
@@ -347,12 +355,12 @@ class _CorridaPageState extends State<CorridaPage> {
 
                                                         cf.inFiltro.add(f);
 
-                                                        snap.data.isOnline =
+                                                        motorista.data.isOnline =
                                                             f.isOnline;
                                                         motoristaRef
-                                                            .doc(snap
+                                                            .doc(motorista
                                                             .data.id)
-                                                            .update(snap
+                                                            .update(motorista
                                                             .data
                                                             .toJson());
                                                         ;
@@ -365,7 +373,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                                         size: 20,
                                                         weight:
                                                         FontWeight.bold,
-                                                        color: snap.data
+                                                        color: motorista.data
                                                             .isOnline ==
                                                             true
                                                             ? Color
@@ -423,14 +431,14 @@ class _CorridaPageState extends State<CorridaPage> {
                                                         cf.inFiltro
                                                             .add(f);
 
-                                                        snap.data
+                                                        motorista.data
                                                             .isOnline =
                                                             f.isOnline;
                                                         motoristaRef
-                                                            .doc(snap
+                                                            .doc(motorista
                                                             .data
                                                             .id)
-                                                            .update(snap
+                                                            .update(motorista
                                                             .data
                                                             .toJson());
 
@@ -444,7 +452,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                                           weight:
                                                           FontWeight
                                                               .bold,
-                                                          color: snap.data
+                                                          color: motorista.data
                                                               .isOnline ==
                                                               false
                                                               ? Color.fromRGBO(
@@ -471,12 +479,12 @@ class _CorridaPageState extends State<CorridaPage> {
 
                                                         cf.inFiltro.add(f);
 
-                                                        snap.data.isOnline =
+                                                        motorista.data.isOnline =
                                                             f.isOnline;
                                                         motoristaRef
-                                                            .doc(snap
+                                                            .doc(motorista
                                                             .data.id)
-                                                            .update(snap
+                                                            .update(motorista
                                                             .data
                                                             .toJson());
                                                         ;
@@ -489,7 +497,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                                         size: 20,
                                                         weight:
                                                         FontWeight.bold,
-                                                        color: snap.data
+                                                        color: motorista.data
                                                             .isOnline ==
                                                             true
                                                             ? Color
@@ -1213,6 +1221,7 @@ class _CorridaPageState extends State<CorridaPage> {
     Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((v) async {
+          print('aqui porra da localização ${v.latitude}');
       telaCentralizada(v);
       rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
       _initialPosition = LatLng(v.latitude, v.longitude);

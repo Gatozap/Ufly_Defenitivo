@@ -40,10 +40,8 @@ class RotaController extends BlocBase {
     PolylinePoints polylinePoints = PolylinePoints();
 
     Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
-
+      print('aqui loca ${v.latitude} e ${v.longitude}');
       inLocalizacao.add(LatLng(v.latitude, v.longitude));
-
-
     });
   }
 
@@ -120,6 +118,6 @@ class RotaController extends BlocBase {
   void dispose() {
     controllerLocalizacao.close();
     controllerPolyline.close();
-
+    controllerPolylineMotorista.close();
   }
 }

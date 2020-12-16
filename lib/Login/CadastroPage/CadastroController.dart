@@ -66,6 +66,10 @@ class CadastroController implements BlocBase {
   BehaviorSubject<bool> controllerisMotorista = BehaviorSubject<bool>();
   Stream<bool> get outisMotorista => controllerisMotorista.stream;
   Sink<bool> get inisMotorista => controllerisMotorista.sink;
+
+  BehaviorSubject<bool> controllerisMoto= BehaviorSubject<bool>();
+  Stream<bool> get outisMoto => controllerisMoto.stream;
+  Sink<bool> get inisMoto => controllerisMoto.sink;
   
   BehaviorSubject<String> controllerTelefone = BehaviorSubject<String>();
   Stream<String> get outTelefone => controllerTelefone.stream;
@@ -245,6 +249,7 @@ class CadastroController implements BlocBase {
   CadastroController({bool editar = false, this.carro, this.motorista}){
 
     inIsMale.add(false);
+    inisMoto.add(false);
     inIsMotoristaSelected.add(false);
     inisMotorista.add(false);
     telefone = '';
@@ -255,6 +260,9 @@ class CadastroController implements BlocBase {
 
   void atualizarDados(SwiperController sc, BuildContext context) {
     outIsMotoristaSelected.first.then((isMotorista) {
+      outisMoto.first.then((isMoto){
+
+
       outIsMale.first.then((isMale) async {
         if (isMotorista != null || isMale || null) {
           if (telefone == '' || datanascimento == '') {
@@ -351,6 +359,7 @@ class CadastroController implements BlocBase {
 
         }
       });
+      });
     });
   }
   erros(data) {
@@ -379,6 +388,7 @@ class CadastroController implements BlocBase {
    controllerDocumentoRg.close();
    controllerDocumentoCPF.close();
    controllerDocumentoCNH.close();
+   controllerisMoto.close();
   }
 
 }

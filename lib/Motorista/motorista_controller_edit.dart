@@ -13,8 +13,7 @@ class MotoristaControllerEdit extends BlocBase {
   Sink<Motorista> get inMotorista => _controllerMotorista.sink;
   Motorista motorista;
 
-
-
+ 
   MotoristaControllerEdit() {
 
     // Fired whenever a location is recorded
@@ -22,8 +21,10 @@ class MotoristaControllerEdit extends BlocBase {
     motoristaRef.where('id_usuario', isEqualTo: Helper.localUser.id)
         .get()
         .then((v) {
+      print('aqui carro 232');
       List<Motorista> motoristas = new List<Motorista>();
       for (var d in v.docs) {
+        print('aqui carro 232');
         Motorista m = Motorista.fromJson(d.data());
         print('aqui carro 232 ${m.toJson()}');
 
@@ -41,6 +42,6 @@ class MotoristaControllerEdit extends BlocBase {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    _controllerMotorista.close(); // TODO: implement dispose
   }
 }

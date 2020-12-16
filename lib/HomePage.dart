@@ -174,11 +174,11 @@ class _HomePageState extends State<HomePage> {
               print('aqui localização ${localizacao.data}');
               if (localizacao.data == null) {
                 return StreamBuilder<Position>(
-                    stream: geo.getCurrentLocation(),
+                    stream: localizacaoInicial(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         print('aqui position ${snapshot.data}');
-                        return Center(child: CircularProgressIndicator());
+                        return localizacaoInicial();
                       }
                       return StreamBuilder(
                           stream: pf.outUser,
@@ -992,7 +992,7 @@ class _HomePageState extends State<HomePage> {
   void requisitarMotoristas(requiup, filtro) {
     double soma = calculateDistance(_initialPosition.latitude,
         _initialPosition.longitude, destino.latitude, destino.longitude);
-
+       print('aqui ativos ac.ativos ${ac.ativos}');
     Endereco _destino = endereco_destino;
     Endereco inicial = endereco_origem;
     double tempo_estimado;
@@ -1005,8 +1005,15 @@ class _HomePageState extends State<HomePage> {
     List motorista = new List();
 
     for (CarroAtivo ca in ac.ativos) {
+      print('aqui motorista ativo ${ca.user_id}');
+      double distancia = calculateDistance(ca.localizacao.latitude,
+          ca.localizacao.longitude, _initialPosition.latitude, _initialPosition.longitude);
+      print('aqui motorista ativo ${distancia}');
       if (isInAlcance(ca, _initialPosition)) {
+
         motorista.add(ca.user_id);
+        print('aqui motorista ativo2 ${motorista}');
+
       }
     }
 
@@ -1031,7 +1038,9 @@ class _HomePageState extends State<HomePage> {
 
       requisicoes2.add(requisicao2);
       print('requisicao2 ${requisicao2.toJson()}');
-      criaRc.CriarRequisicao(requisicao2);
+      Timer(Duration(seconds: 5), () {
+        criaRc.CriarRequisicao(requisicao2);
+      });
     } else {
       print('entrou aqui update ${requiup}');
       List<Requisicao> requisicoes = new List();
@@ -1052,8 +1061,9 @@ class _HomePageState extends State<HomePage> {
       );
 
       requisicoes.add(requisicao);
-
-      criaRc.UpdateRequisicao(requisicao);
+      Timer(Duration(seconds: 5), () {
+        criaRc.UpdateRequisicao(requisicao);
+      });
     }
 
     Navigator.of(context)
@@ -1063,8 +1073,9 @@ class _HomePageState extends State<HomePage> {
   bool isInAlcance(CarroAtivo ca, LatLng origem) {
     double distancia = calculateDistance(ca.localizacao.latitude,
         ca.localizacao.longitude, origem.latitude, origem.longitude);
+                print('aqui distancia ${distancia}');
 
-    return 25 > distancia;
+    return 50 > distancia;
   }
 }
 

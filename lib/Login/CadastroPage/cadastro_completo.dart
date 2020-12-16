@@ -871,7 +871,7 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                       ),
                                     ],
                                   ),
-                                  sb,
+
 
 
                                   StreamBuilder<bool>(
@@ -938,7 +938,72 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                           ],
                                         );
                                       }),
-                                  sb,
+                                      StreamBuilder<bool>(
+                                          stream: cc.outisMoto,
+                                          builder: (context, isMoto) {
+                                            return Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                      top: getAltura(context) * .020),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius:
+                                                      BorderRadius.circular(20),
+                                                    ),
+                                                    height: getAltura(context) * .070,
+                                                    width: getLargura(context) * .6,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                      children: <Widget>[
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            cc.inisMoto.add(true);
+                                                            print('moto ${isMoto.data}');
+                                                          },
+                                                          child: hTextAbel(
+                                                            'Carro',
+                                                            context,
+                                                            size: 20,
+                                                            weight: FontWeight.bold,
+                                                            color:
+                                                            isMoto.data == false
+                                                                ? Colors.black
+                                                                : corPrimaria,
+                                                          ),
+                                                        ),
+                                                        sb,
+                                                        hText('|', context, size: 20),
+                                                        sb,
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            cc.inisMoto.add(false);
+                                                          },
+                                                          child: hTextAbel(
+                                                            'Moto',
+                                                            context,
+                                                            size: 20,
+                                                            weight: FontWeight.bold,
+                                                            color:
+                                                            isMoto.data == false
+                                                                ? corPrimaria
+                                                                : Colors.black,
+                                                          ),
+                                                        ),
+
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }),
 
                                       Container(
                                         child: Row(
@@ -2740,115 +2805,121 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                                       carroController.outCarro,
                                                   builder: (context, snapshot) {
                                                     Carro carro = snapshot.data;
-                                                    return GestureDetector(
-                                                      onTap: () async {
-                                                        String foto = carro.foto;
-                                                        String foto_d =
-                                                            carro.foto_documento;
-                                                        List<Carro> carros =
-                                                            new List();
-                                                        Carro cccc = Carro(
-                                                          id_usuario: Helper.localUser.id,
-                                                          cor: controllerCor.text,
-                                                          ano: int.parse(
-                                                              controllerAno.text),
-                                                          placa: controllerPlaca
-                                                              .text,
-                                                          modelo: controllerModelo
-                                                              .text,
-                                                          foto: foto,
-                                                          foto_documento: foto_d,
-                                                          nome_motorista: Helper
-                                                              .localUser.nome,
-                                                        );
-                                                        carros.add(cccc);
+                                                    return StreamBuilder<bool>(
+                                                      stream: cc.outisMoto,
+                                                      builder: (context, isMoto) {
+                                                        return GestureDetector(
+                                                          onTap: () async {
+                                                            String foto = carro.foto;
+                                                            String foto_d =
+                                                                carro.foto_documento;
+                                                            List<Carro> carros =
+                                                                new List();
+                                                            Carro cccc = Carro(
+                                                              id_usuario: Helper.localUser.id,
+                                                              cor: controllerCor.text,
+                                                              ano: int.parse(
+                                                                  controllerAno.text),
+                                                              placa: controllerPlaca
+                                                                  .text,
+                                                              modelo: controllerModelo
+                                                                  .text,
+                                                              foto: foto,
+                                                              foto_documento: foto_d,
+                                                              nome_motorista: Helper
+                                                                  .localUser.nome,
+                                                              isMoto: isMoto.data
+                                                            );
+                                                            carros.add(cccc);
 
-                                                        List<Motorista>
-                                                            motoristas =
-                                                            new List();
-                                                        Motorista motorista =
-                                                            Motorista(
-                                                              isOnline: false,
-                                                          id_usuario:
-                                                              Helper.localUser.id,
-                                                          nome_usuario: Helper
-                                                              .localUser.nome,
-                                                          nome: Helper
-                                                              .localUser.nome,
-                                                          foto: Helper
-                                                              .localUser.foto,
-                                                        );
-                                                        motoristas.add(motorista);
+                                                            List<Motorista>
+                                                                motoristas =
+                                                                new List();
+                                                            Motorista motorista =
+                                                                Motorista(
+                                                                  isOnline: false,
+                                                              id_usuario:
+                                                                  Helper.localUser.id,
+                                                              nome_usuario: Helper
+                                                                  .localUser.nome,
+                                                              nome: Helper
+                                                                  .localUser.nome,
+                                                              foto: Helper
+                                                                  .localUser.foto,
+                                                            );
+                                                            motoristas.add(motorista);
 
-                                                        Helper.localUser.cpf =
-                                                            controllercpf.text;
-                                                        Helper.localUser.celular =
-                                                            telefone.text;
-                                                        DateFormat df =
-                                                            DateFormat(
-                                                                'dd/MM/yyyy');
-                                                        print(
-                                                            'AQUI DATA ${await dataNascimento.text}');
+                                                            Helper.localUser.cpf =
+                                                                controllercpf.text;
+                                                            Helper.localUser.celular =
+                                                                telefone.text;
+                                                            DateFormat df =
+                                                                DateFormat(
+                                                                    'dd/MM/yyyy');
+                                                            print(
+                                                                'AQUI DATA ${await dataNascimento.text}');
 
-                                                        Helper.localUser
-                                                                .data_nascimento =
-                                                            df.parse(
-                                                                await dataNascimento
-                                                                    .text);
+                                                            Helper.localUser
+                                                                    .data_nascimento =
+                                                                df.parse(
+                                                                    await dataNascimento
+                                                                        .text);
 
-                                                        if (motorista == null ||
-                                                            cccc == null) {
-                                                          dToast(
-                                                              'Preencha os dados do carro e motorista corretamente');
-                                                        } else {
-                                                          carroController
-                                                              .CriarCarros(cccc,
-                                                                  motorista);
-                                                          cc.atualizarDados(
-                                                              sc, context);
-                                                        }
-                                                      },
-                                                      child:
-                                                      Container(
-                                                        height:
-                                                            getAltura(context) *
-                                                                .1,
-                                                        width:
-                                                            getLargura(context) *
-                                                                .850,
-                                                        decoration: BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                          color:
-                                                              Color(0xFFf6aa3c),
-                                                        ),
-                                                        child: Container(
-                                                            height: getAltura(
-                                                                    context) *
-                                                                .125,
-                                                            width: getLargura(
-                                                                    context) *
-                                                                .85,
-                                                            decoration:
-                                                                BoxDecoration(
+                                                            if (motorista == null ||
+                                                                cccc == null) {
+                                                              dToast(
+                                                                  'Preencha os dados do carro e motorista corretamente');
+                                                            } else {
+                                                              carroController
+                                                                  .CriarCarros(cccc,
+                                                                      motorista);
+                                                              cc.atualizarDados(
+                                                                  sc, context);
+                                                            }
+                                                          },
+                                                          child:
+                                                          Container(
+                                                            height:
+                                                                getAltura(context) *
+                                                                    .1,
+                                                            width:
+                                                                getLargura(context) *
+                                                                    .850,
+                                                            decoration: BoxDecoration(
                                                               borderRadius:
                                                                   BorderRadius
-                                                                      .circular(
-                                                                          10),
+                                                                      .circular(10),
                                                               color:
-                                                                  Color.fromRGBO(
-                                                                      255,
-                                                                      184,
-                                                                      0,
-                                                                      30),
+                                                                  Color(0xFFf6aa3c),
                                                             ),
-                                                            child: Center(
-                                                                child: hTextAbel(
-                                                                    'CADASTRAR',
-                                                                    context,
-                                                                    size: 30))),
-                                                      ),
+                                                            child: Container(
+                                                                height: getAltura(
+                                                                        context) *
+                                                                    .125,
+                                                                width: getLargura(
+                                                                        context) *
+                                                                    .85,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                  color:
+                                                                      Color.fromRGBO(
+                                                                          255,
+                                                                          184,
+                                                                          0,
+                                                                          30),
+                                                                ),
+                                                                child: Center(
+                                                                    child: hTextAbel(
+                                                                        'CADASTRAR',
+                                                                        context,
+                                                                        size: 30))),
+                                                          ),
+                                                        );
+                                                      }
                                                     );
                                                   });
                                             })
