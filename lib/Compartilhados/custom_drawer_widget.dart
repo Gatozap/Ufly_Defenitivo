@@ -50,18 +50,7 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
     if(cr == null){
       cr = CadastroCarroController();
     }
-
-    Carro c = Carro();
-    var linearGradient = const BoxDecoration(
-      gradient: const LinearGradient(
-        begin: FractionalOffset.topLeft,
-        end: FractionalOffset.bottomRight,
-        colors: <Color>[
-          Color.fromRGBO(0, 168, 180, 100),
-          Colors.indigo,
-        ],
-      ),
-    );
+    
     return Drawer(
 
         child: Stack(children: <Widget>[
@@ -119,7 +108,8 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                             );
                         });       
           },
-                  child: Container(
+                  child:
+                  Container(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -158,7 +148,7 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                 Divider(),
                 sb,
                 Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
+                  padding:  EdgeInsets.only(left: 8.0),
                   child: Row(
                     children: <Widget>[
                       Container(

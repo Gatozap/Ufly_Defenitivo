@@ -6,16 +6,16 @@ class OfertaCorrida {
   String id;
   String id_usuario;
   DateTime data;
-  String forma_pagamento;
+
 
   double preco ;
 
-  OfertaCorrida({this.motorista, this.requisicao, this.id, this.data,this.forma_pagamento, this.id_usuario,
+  OfertaCorrida({this.motorista, this.requisicao, this.id, this.data, this.id_usuario,
       this.preco});
 
   @override
   String toString() {
-    return 'OfertaCorrida{motorista: $motorista, requisicao: $requisicao,id_usuario:$id_usuario ,forma_pagamento: $forma_pagamento,id: $id, data: $data, preco: $preco}';
+    return 'OfertaCorrida{motorista: $motorista, requisicao: $requisicao,id_usuario:$id_usuario ,id: $id, data: $data, preco: $preco}';
   }
 
   OfertaCorrida.fromJson( json)
@@ -23,7 +23,7 @@ class OfertaCorrida {
         requisicao = json['requisicao'],
         id = json['id'],
         id_usuario = json['id_usuario'],
-        forma_pagamento = json['forma_pagamento'],
+
         data = json['data']== null? null: DateTime.fromMicrosecondsSinceEpoch(json["data"]),
 
         preco = json['preco'];
@@ -31,7 +31,7 @@ class OfertaCorrida {
   Map<String, dynamic> toJson() => {
         'motorista': motorista,
         'requisicao': requisicao,
-    'forma_pagamento':forma_pagamento,
+
         'id': id,
     'id_usuario': id_usuario,
         'data': this.data == null? null: this.data.millisecondsSinceEpoch,

@@ -21,6 +21,9 @@ class MotoristasListItem extends StatelessWidget {
   OfertaCorridaController ofertaCorridaController;
   @override
   Widget build(BuildContext context) {
+    ResponsivePixelHandler.init(
+      baseWidth: 360, //The width used by the designer in the model designed
+    );
     if (motorista.agua == null) {
       motorista.agua = false;
     }

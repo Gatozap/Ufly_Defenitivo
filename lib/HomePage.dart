@@ -58,6 +58,7 @@ import 'package:ufly/Objetos/Motorista.dart';
 import 'package:ufly/Objetos/OfertaCorrida.dart';
 import 'package:ufly/Objetos/Requisicao.dart';
 import 'package:ufly/Objetos/Rota.dart';
+import 'package:ufly/Objetos/SizeConfig.dart';
 import 'package:ufly/Perfil/PerfilController.dart';
 import 'package:ufly/Rota/rota_controller.dart';
 import 'package:ufly/Viagens/MotoristaProximoPage.dart';
@@ -70,6 +71,7 @@ import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
 import 'package:ufly/Helpers/Helper.dart';
 
 import 'package:ufly/Viagens/FiltroPage.dart';
+import 'Compartilhados/SideBar.dart';
 import 'Controllers/camera_controller.dart';
 import 'Helpers/SqliteDatabase.dart';
 import 'Objetos/FiltroMotorista.dart';
@@ -148,6 +150,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     ResponsivePixelHandler.init(
       baseWidth: 360, //A largura usado pelo designer no modelo desenhado
     );
@@ -232,7 +235,7 @@ class _HomePageState extends State<HomePage> {
     );
     return Scaffold(
       key: homeScaffoldKey,
-      appBar:
+     /* appBar:
           myAppBar('', context, color: Colors.transparent, actions: <Widget>[
         StreamBuilder<FiltroMotorista>(
             stream: cf.outFiltro,
@@ -299,19 +302,17 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    Container(
-                      child: hTextAbel('ID', context, size: 25),
-                    ),
+
                   ],
                 ),
               );
             }),
-      ]),
-      drawer: CustomDrawerWidget(),
-      body: SlidingUpPanel(
+      ]),*/
+     // drawer: CustomDrawerWidget(),
+      body:
+      SlidingUpPanel(
         panel: _floatingPanel(),
         renderPanelSheet: false,
-        minHeight: 100,
         maxHeight: getAltura(context) * .40,
         borderRadius: BorderRadius.circular(20),
         collapsed: Container(
@@ -357,16 +358,18 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         body: Container(
-          height: getAltura(context),
-          width: getLargura(context),
+          height: SizeConfig.safeBlockVertical ,
+          width: SizeConfig.safeBlockHorizontal ,
           color: Colors.white,
           child: Stack(
             children: <Widget>[
+
               Container(
                 width: getLargura(context),
                 height: getAltura(context),
                 child: map,
               ),
+
               StreamBuilder<bool>(
                 stream: cf.outPreenchimento,
                 builder: (context, preenchimento) {
@@ -378,6 +381,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
+                      
                       Padding(
                         padding: EdgeInsets.only(
                             top: getAltura(context) * .050,
@@ -616,7 +620,7 @@ class _HomePageState extends State<HomePage> {
                     ),
               Positioned(
                 right: getLargura(context) * .060,
-                bottom: getAltura(context) * .250,
+                bottom: getAltura(context) * .150,
                 child: FloatingActionButton(
                   onPressed: () {
                     localizacaoInicial();
@@ -625,6 +629,7 @@ class _HomePageState extends State<HomePage> {
                   backgroundColor: Colors.white,
                 ),
               ),
+              SideBar(),
             ],
           ),
         ),
@@ -674,7 +679,7 @@ class _HomePageState extends State<HomePage> {
 
     var left = min(_initialPosition.latitude, destino.latitude);
     var right = max(_initialPosition.latitude, destino.latitude);
-    var top = max(_initialPosition.longitude, destino.longitude);
+    var top = min(_initialPosition.longitude, destino.longitude);
     var bottom = min(_initialPosition.longitude, destino.longitude);
 
     var bounds = LatLngBounds(
@@ -1024,6 +1029,7 @@ class _HomePageState extends State<HomePage> {
       Requisicao requisicao2 = Requisicao(
         user: Helper.localUser.id,
         isViagem: filtro,
+        
         created_at: DateTime.now(),
         updated_at: DateTime.now(),
         destino: _destino,

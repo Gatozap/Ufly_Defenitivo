@@ -21,7 +21,7 @@ Widget menuButton(
   size,
 }) {
   return Container(
-      width: MediaQuery.of(context).size.width * .8,
+      width: MediaQuery.of(context).size.width * .7,
       child: MaterialButton(
         onPressed: onPress,
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),

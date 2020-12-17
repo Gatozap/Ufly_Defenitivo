@@ -12,6 +12,7 @@ class Requisicao{
   DateTime created_at,valid_until, updated_at,deleted_at;
   Endereco destino;
   Endereco origem;
+  String forma_de_pagamento;
   Rota rota;
   var tempo_estimado;
   var distancia;
@@ -21,12 +22,13 @@ class Requisicao{
 
   @override
   String toString() {
-    return 'Requisicao{id: $id, user: $user,isViagem = $isViagem,user_nome:$user_nome, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
+    return 'Requisicao{id: $id, user: $user,isViagem: $isViagem,forma_de_pagamento: $forma_de_pagamento,user_nome:$user_nome, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
   }
 
 
   Requisicao.fromJson(json)
       : id = json['id'],
+        forma_de_pagamento=json['forma_de_pagamento'],
         user_nome = json['user_nome'],
         isViagem = json['isViagem'],
         user = json['user'],
@@ -48,6 +50,7 @@ class Requisicao{
         'id': id,
         'user': user,
     'user_nome': user_nome,
+    'forma_de_pagamento': forma_de_pagamento,
         'motoristas_chamados': motoristas_chamados,
         'created_at': this.created_at == null? null: this.created_at.millisecondsSinceEpoch,
         'valid_until': this.valid_until == null? null: this.valid_until.millisecondsSinceEpoch,
@@ -78,6 +81,7 @@ class Requisicao{
       this.tempo_estimado,
       this.distancia,
       this.ofertas,
+       this.forma_de_pagamento,
       this.aceito});
 
   encodeOfertas(){

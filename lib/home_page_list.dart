@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:responsive_pixel/responsive_pixel.dart';
 import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:ufly/CorridaBackground/corrida_page.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/Objetos/Motorista.dart';
+import 'package:ufly/Objetos/SizeConfig.dart';
 
 import 'package:ufly/Viagens/InicioDeViagemPage/InicioDeViagemPage.dart';
 
@@ -26,6 +28,7 @@ class FrotaListItem extends StatelessWidget {
    CarroController cr ;
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     if(isFavorito == null){
       isFavorito = false ;
     }
@@ -54,8 +57,8 @@ class FrotaListItem extends StatelessWidget {
             builder: (context) => RotaPage()));*/
     }       ,
       child:       Container(
-            width: getLargura(context)*.95,
-                  height: getAltura(context)*.42,
+            width: SizeConfig.safeBlockHorizontal * 95,
+                  height: SizeConfig.safeBlockHorizontal * 42,
             decoration: BoxDecoration(
               color: Colors.white,
 
@@ -78,7 +81,7 @@ class FrotaListItem extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Padding(
-                      padding:  EdgeInsets.only(top: 15.0),
+                      padding:  EdgeInsets.only(top: ResponsivePixelHandler.toPixel(10, context)),
                       child: StreamBuilder<List<Carro>>(
                         stream: cr.outCarros,
                         builder: (context, snapshot) {
