@@ -3,19 +3,18 @@ import 'dart:io';
 
 
 
-import 'package:google_directions_api/google_directions_api.dart';
+
 import 'package:provider/provider.dart';
 import 'package:ufly/Objetos/Notificacao.dart';
-import 'package:ufly/Objetos/User.dart';
+
 import 'package:ufly/splash_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:ufly/Objetos/Notificacao.dart';
 import 'GoogleServices/geolocator_service.dart';
 import 'Helpers/Helper.dart';
 import 'Helpers/NotificacoesHelper.dart';

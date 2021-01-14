@@ -26,59 +26,105 @@ class RotaController extends BlocBase {
   Stream<Position> get outPosition => controllerPosition.stream;
   Sink<Position> get inPosition => controllerPosition.sink;
 
-  BehaviorSubject<List<LatLng>> controllerPolyline =
-      new BehaviorSubject<List<LatLng>>();
-  Stream<List<LatLng>> get outPoly => controllerPolyline.stream;
-  Sink<List<LatLng>> get inPoly => controllerPolyline.sink;
+  BehaviorSubject<List<List<LatLng>>> controllerPolyline =
+      new BehaviorSubject<List<List<LatLng>>>();
+  Stream<List<List<LatLng>>> get outPoly => controllerPolyline.stream;
+  Sink<List<List<LatLng>>> get inPoly => controllerPolyline.sink;
+
+  BehaviorSubject<List<LatLng>> controllerPolyline2 =
+  new BehaviorSubject<List<LatLng>>();
+  Stream<List<LatLng>> get outPoly2 => controllerPolyline2.stream;
+  Sink<List<LatLng>> get inPoly2 => controllerPolyline2.sink;
 
   BehaviorSubject<List<LatLng>> controllerPolylineMotorista =
   new BehaviorSubject<List<LatLng>>();
   Stream<List<LatLng>> get outPolyMotorista => controllerPolylineMotorista.stream;
   Sink<List<LatLng>> get inPolyMotorista => controllerPolylineMotorista.sink;
-  
+
+  BehaviorSubject<List<Waypoints>> controllerWayPoints =
+  new BehaviorSubject<List<Waypoints>>();
+  Stream<List<Waypoints>> get outWayPoints => controllerWayPoints.stream;
+  Sink<List<Waypoints>> get inWayPoints => controllerWayPoints.sink;
+
+     LatLng localizacaoUsuario;
+  LatLng destinoFinal;
   RotaController() {
     PolylinePoints polylinePoints = PolylinePoints();
 
     Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((v) async {
-      print('aqui loca ${v.latitude} e ${v.longitude}');
-      inLocalizacao.add(LatLng(v.latitude, v.longitude));
+
+      localizacaoUsuario = LatLng(v.latitude, v.longitude);
+      inLocalizacao.add(localizacaoUsuario);
+
     });
   }
 
-  CalcularRota(LatLng v, LatLng c) async {
-    List<LatLng> polylineCoordinates = [];
+  Future<List<List<LatLng>>> CalcularRota(LatLng v, LatLng c,{bool isdestinoFinal = true} ) async {
+     List<List<LatLng>> polylineCoordinates = [];
 
-    http
+    return http
         .get(
-      ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude),
+      ROUTE_QUERY2(v.latitude, v.longitude, c.latitude, c.longitude),
     )
         .then((result) {
-      polylineCoordinates.add(LatLng(v.latitude, v.longitude));
+          if(isdestinoFinal == true){
+             destinoFinal = c;
+          }
 
 
+     // polylineCoordinates2.add(LatLng(v.latitude, v.longitude));
       Rota r = Rota.fromJson(json.decode(result.body));
       rota = r;
-      for (var i in r.routes[0].legs) {
-        double ii = (i.duration)/3600;
 
 
-        for (var j in i.steps) {
+         for(int i = 0;i< r.routes.length; i++){
+           print('aqui a rota 1 ${r.routes[i].toJson()}');
+           List<LatLng> rotas = [];
+            if(i == 0){
+              rotas.add(LatLng(v.latitude, v.longitude));
+            }
+           for(var l in r.routes[i].legs){
+             for( var s in l.steps){
+               for( var i in s.intersections){
 
-          for (var k in j.intersections) {
+                 rotas.add(LatLng(i.location[1], i.location[0]));
+               }
+             }
+           }
+           print('aqui a rota 1111111 ${rotas}');
+           polylineCoordinates.add(rotas);
+         }
 
-
-            polylineCoordinates.add(LatLng(k.location[1], k.location[0]));
-
-          }
-        }
-      }
-
-      polylineCoordinates.add(LatLng(c.latitude, c.longitude));
-
+      polylineCoordinates.last.add(LatLng(c.latitude, c.longitude));
+      //polylineCoordinates2.add(LatLng(c.latitude, c.longitude));
+      //polylineCoordinates.add(LatLng(-24.7913417, -50.00328539999999));
       Geolocator().placemarkFromCoordinates(c.latitude, c.longitude);
+      //inPoly2 .add(polylineCoordinates2);
+
       inPoly.add(polylineCoordinates);
+          return polylineCoordinates;
     });
   }
+    List<LatLng> paradas = [];
+   AdicionarParada(LatLng u) async {
+     if(paradas.length == 0){
+       paradas.add(localizacaoUsuario);
+     }
+      paradas.add(u);
+      paradas.add(destinoFinal);
+      List<List<LatLng>> rotasTemp = [];
+
+     for(var i = 0; i < paradas.length; i++){
+
+       if(i+1 < paradas.length) {
+         var l = await CalcularRota(paradas[i], paradas[i+1], isdestinoFinal: false);
+         rotasTemp.addAll(l);
+         print('aqui a rotatemp ${rotasTemp.length}');
+
+       }
+     }
+     inPoly.add(rotasTemp);
+   }
 
   CalcularRotaMotorista(LatLng v, LatLng c) async {
     List<LatLng> polylineCoordinates = [];
@@ -119,5 +165,6 @@ class RotaController extends BlocBase {
     controllerLocalizacao.close();
     controllerPolyline.close();
     controllerPolylineMotorista.close();
+    controllerWayPoints.close();
   }
 }

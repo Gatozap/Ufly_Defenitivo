@@ -1008,16 +1008,16 @@ myAppBar(String titulo, context,
 
   );
 }
-String ROUTE_QUERY(double lat, double lng, double lat1, double lng1) {
+String ROUTE_QUERY(double lat, double lng, double lat1, double lng1,{double latway1,double lngway1, double latway2, double lngway2, double latway3, double lngway3}) {
   String url =
-      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$lng1,$lat1?alternatives=true&geometries=geojson&steps=true&access_token=$MAP_TOKEN';
+      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$lng1,$lat1?alternatives=true&geometries=geojson&coordinates=$latway1,$lngway1;$latway2,$lngway2;$latway3,$lngway3&steps=true&access_token=$MAP_TOKEN';
   print(url);
   return url;
 }
 
-String ROUTE_QUERY2(double lat, double lng, double lat1, double lng1, double lat2, double lng2) {
+String ROUTE_QUERY2(double lat, double lng, double lat1, double lng1, ) {
   String url =
-      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$lng1,$lat1;$lat2,$lng2?alternatives=true&geometries=geojson&steps=true&access_token=$MAP_TOKEN';
+      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$lng1,$lat1?alternatives=true&geometries=geojson&steps=true&access_token=$MAP_TOKEN';
   print(url);
   return url;
 }
