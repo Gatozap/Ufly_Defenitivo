@@ -57,7 +57,7 @@ class _MyAppState extends State<MyApp> {
 
     return
       FutureProvider(
-        create: (context) => geoService.getPosicaoInicial(),
+        create: (context) => geoService.getPosition(),
         child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home:SplashPage(),
@@ -93,7 +93,7 @@ class _MyAppState extends State<MyApp> {
 
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     var initializationSettingsAndroid =
-    new AndroidInitializationSettings('ic_launcher');
+    new AndroidInitializationSettings('@mipmap/ic_launcher');
     var initializationSettingsIOS = new IOSInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,

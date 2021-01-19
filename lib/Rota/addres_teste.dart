@@ -28,18 +28,6 @@ class _AddresTesteState extends State<AddresTeste> {
     });
   }
   void initState() {
-    Future<LatLng> _getPosition() async {
-      final lc.Location location = lc.Location();
-      if (!await location.serviceEnabled()) {
-        if (!await location.requestService()) throw 'GPS service is disabled';
-      }
-      if (await location.hasPermission() == lc.PermissionStatus.denied) {
-        if (await location.requestPermission() != lc.PermissionStatus.granted)
-          throw 'No GPS permissions';
-      }
-      final data = await location.getLocation();
-      return LatLng(data.latitude, data.longitude);
-    }
     WidgetsFlutterBinding.ensureInitialized();
     localizacaoInicial();
     super.initState();

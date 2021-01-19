@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
 import 'package:address_search_field/address_search_field.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -82,9 +82,8 @@ import 'Viagens/Requisicao/requisicao_controller.dart';
 import 'home_page_list.dart';
 
 class HomePage extends StatefulWidget {
-  final Position initialPosition;
-  Requisicao requisicao;
-  HomePage(this.initialPosition, {this.requisicao});
+
+  HomePage();
   @override
   _HomePageState createState() {
     return _HomePageState();
@@ -199,50 +198,60 @@ class _HomePageState extends State<HomePage> {
                       return StreamBuilder(
                           stream: pf.outUser,
                           builder: (context, user) {
-                            return GoogleMap(
-                              onTap: (l) {
-                                rc.AdicionarParada(l);
-                              },
-                              myLocationEnabled: true,
-                              myLocationButtonEnabled: false,
-                              mapType: MapType.normal,
-                              zoomGesturesEnabled: true,
-                              zoomControlsEnabled: false,
-                              initialCameraPosition: CameraPosition(
-                                  target: _initialPosition,
-                                  zoom: Helper.localUser.zoom),
-                              onMapCreated: (GoogleMapController controller) {
-                                _controller.complete(controller);
-                              },
-                            );
+                            return  GoogleMap(
+                                  onTap: (l) {
+                                    print('aqui o L ${l}');
+                                    rc.AdicionarParada(l);
+                                  },
+                                  myLocationEnabled: true,
+                                  myLocationButtonEnabled: false,
+                                  mapType: MapType.normal,
+                                  zoomGesturesEnabled: true,
+                                  zoomControlsEnabled: false,
+                                  initialCameraPosition: CameraPosition(
+                                      target: _initialPosition,
+                                      zoom: Helper.localUser.zoom),
+                                  onMapCreated: (GoogleMapController controller) {
+                                    _controller.complete(controller);
+                                  },
+                                );
+
                           });
                     });
               }
 
-              markers = getMarkers(_initialPosition, destino);
+              markers = getMarkers(_initialPosition, destino, null);
               print("AQUI MARKERS ${markers.length}");
               print("AQUI Poly ${polylines.length}");
               return StreamBuilder(
                   stream: pf.outUser,
                   builder: (context, user) {
-                    return GoogleMap(
-                      onTap: (l) {
-                        rc.AdicionarParada(l);
-                      },
-                      myLocationEnabled: true,
-                      compassEnabled: true,
-                      myLocationButtonEnabled: false,
-                      polylines: polylines.toSet(),
-                      markers: destino != null ? markers.toSet() : null,
-                      mapType: MapType.normal,
-                      zoomGesturesEnabled: true,
-                      zoomControlsEnabled: false,
-                      initialCameraPosition: CameraPosition(
-                          target: localizacao.data,
-                          zoom: Helper.localUser.zoom),
-                      onMapCreated: (GoogleMapController controller) {
-                        _controller.complete(controller);
-                      },
+                    return StreamBuilder(
+                        stream: rc.outMarker,
+                        builder: (context, snapshot) {
+
+
+                          return GoogleMap(
+                          onTap: (l) {
+                            print('aqui o L ${l}');
+                            rc.AdicionarParada(l);
+                          },
+                          myLocationEnabled: true,
+                          compassEnabled: true,
+                          myLocationButtonEnabled: false,
+                          polylines: polylines.toSet(),
+                          markers: destino != null ? markers.toSet() : null,
+                          mapType: MapType.normal,
+                          zoomGesturesEnabled: true,
+                          zoomControlsEnabled: false,
+                          initialCameraPosition: CameraPosition(
+                              target: localizacao.data,
+                              zoom: Helper.localUser.zoom),
+                          onMapCreated: (GoogleMapController controller) {
+                            _controller.complete(controller);
+                          },
+                        );
+                      }
                     );
                   });
             });
@@ -430,9 +439,6 @@ class _HomePageState extends State<HomePage> {
                                               localizacaoInicial();
                                               inicialController.text =
                                                   _currentAddress;
-                                              cf.Preenchimento = true;
-                                              cf.inPreenchimento
-                                                  .add(preenchimento.data);
                                             },
                                             icon: Icon(Icons.my_location,
                                                 color: Colors.black)),
@@ -601,6 +607,8 @@ class _HomePageState extends State<HomePage> {
                                                   builder:
                                                       AddressDialogBuilder(),
                                                   onDone: (address) {
+
+
                                                     requisicao(
                                                         inicialController.text,
                                                         locationController
@@ -736,8 +744,7 @@ class _HomePageState extends State<HomePage> {
                                           context: context,
                                           builder: (BuildContext context) {
                                             return AlertDialog(
-                                                content: Waypoints(waypointsMgr,
-                                                    waypointBuilder));
+                                            );
                                           })),
                                   ElevatedButton(
                                     child: Text('Search'),
@@ -761,10 +768,10 @@ class _HomePageState extends State<HomePage> {
                 child: FloatingActionButton(
                   heroTag: null,
                   onPressed: () {
-                    polylines.clear();
+
                     centerView();
 
-                    markers.clear();
+
                   },
                   child: Icon(Icons.zoom_out_map, color: Colors.black),
                   backgroundColor: Colors.white,
@@ -781,6 +788,7 @@ class _HomePageState extends State<HomePage> {
                             desiredAccuracy: LocationAccuracy.high)
                         .then((v) async {
                       telaCentralizada(v);
+
                     });
                   },
                   child: Icon(Icons.my_location, color: Colors.black),
@@ -849,7 +857,7 @@ class _HomePageState extends State<HomePage> {
 
   Endereco endereco_destino;
 
-  requisicao(String destinoFinal, String inicial) async {
+  requisicao( String inicial, String destinoFinal) async {
     Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((v) async {
@@ -866,7 +874,7 @@ class _HomePageState extends State<HomePage> {
       LatLng inicial_posicao = LatLng(lat, lng);
 
       _initialPosition = inicial_posicao;
-      print('aqui inicial ${inicial_posicao}');
+      print('aqui inicial ${_initialPosition}');
       LatLng destination = LatLng(latitude, longitude);
       dToast('Efetuando calculo de rota');
       rc.CalcularRota(inicial_posicao, destination);
@@ -875,7 +883,7 @@ class _HomePageState extends State<HomePage> {
       origem_nome = inicialPosicao[0];
       getMarkers(
         inicial_posicao,
-        destination,
+        destination, null
       );
 
       endereco_origem = Endereco(
@@ -1248,43 +1256,15 @@ List<Polyline> getPolys(data) {
     Colors.blue,                
     Colors.yellow,
     Colors.green,
-    Colors.red,
-    Colors.blue,
-    Colors.yellow,
-    Colors.green,
-    Colors.red,
-    Colors.blue,
-    Colors.yellow,
-    Colors.green,
-    Colors.red,
-    Colors.blue,
-    Colors.yellow,
-    Colors.green,
-    Colors.red,
-    Colors.blue,
-    Colors.yellow,
-    Colors.green,
-    Colors.red,
-    Colors.blue,
-    Colors.yellow,
-    Colors.green,
-    Colors.red,
-    Colors.blue,
-    Colors.yellow,
-    Colors.green,
-    Colors.red,
-    Colors.blue,
-    Colors.yellow,
-    Colors.green,
-    Colors.red,
-    Colors.blue,
-    Colors.yellow,
-    Colors.green,
+    Colors.amber,
+    Colors.deepOrange,
+
   ];
   try {
     for (int i = 0; i < data.length; i++) {
       PolylineId id = PolylineId("poly${i}");
       poly.add(Polyline(
+        
         polylineId: id,
         color: cores[i],
         points: data[i],
@@ -1330,12 +1310,13 @@ doLogout(context) async {
 }
 
 List<Marker> getMarkers(LatLng data, LatLng d,
-    {LatLng way1}) {
+    way1) {
   List<Marker> markers = [];
   MarkerId markerId = MarkerId('id');
   MarkerId markerId2 = MarkerId('id2');
-  MarkerId markerId3 = MarkerId('id3');
-
+    if(way1 == null){
+      way1 = markers;
+    }
   try {
     markers.add(Marker(
         infoWindow: InfoWindow(title: 'Embarque'),
@@ -1349,20 +1330,20 @@ List<Marker> getMarkers(LatLng data, LatLng d,
     markers.add(Marker(
         infoWindow: InfoWindow(title: 'Desembarque'),
         markerId: markerId2,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
         position: LatLng(d.latitude, d.longitude)));
   } catch (err) {
     print(err.toString());
   }
 
-  
+
   try {
     for (int i = 0; i < way1.length; i++) {
       markers.add(Marker(
-          markerId: markerId3,
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueViolet),
-          position: LatLng(-24.7913417, -50.00328539999999)));
+          infoWindow: InfoWindow(title: 'Parada${i}'),
+          markerId: way1[i],
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
+          position: way1));
     }
   } catch (err) {
     print(err.toString());
@@ -1370,64 +1351,4 @@ List<Marker> getMarkers(LatLng data, LatLng d,
   return markers;
 }
 
-class Waypoints extends StatelessWidget {
-  Waypoints(this.waypointsMgr, this.waypointBuilder);
-  List<Marker> markers = [];
-  final WaypointsManager waypointsMgr;
-  final AddressSearchBuilder waypointBuilder;
-  LatLng coord;
-  @override
-  Widget build(BuildContext context) {
-    ResponsivePixelHandler.init(
-      baseWidth: 360, //The width used by the designer in the model designed
-    );
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-              icon: Icon(Icons.location_off_rounded),
-              onPressed: () => waypointsMgr.clear()),
-          sb,
-          IconButton(
-            icon: Icon(Icons.add_location_alt),
-            onPressed: () => showDialog(
-              context: context,
-              builder: (context) => waypointBuilder.buildDefault(
-                  builder: AddressDialogBuilder(),
-                  onDone: (address) {
-                    print('aqui way22 ${address}');
 
-                    MarkerId markerId2 = MarkerId('Ponto de parada');
-
-                    try {
-                      markers.add(Marker(
-                          markerId: markerId2,
-                          icon: BitmapDescriptor.defaultMarkerWithHue(
-                              BitmapDescriptor.hueViolet),
-                          position: LatLng(address.coords.latitude,
-                              address.coords.longitude)));
-                    } catch (err) {
-                      print(err.toString());
-                    }
-
-                    print('way ${coord}');
-                  }),
-            ),
-          )
-        ],
-      ),
-      body: Container(
-        height: getAltura(context) * .10,
-        child: ValueListenableBuilder<List<Address>>(
-          valueListenable: waypointsMgr.valueNotifier,
-          builder: (context, value, _) => ListView.separated(
-            itemCount: value.length,
-            separatorBuilder: (BuildContext context, int index) => Divider(),
-            itemBuilder: (BuildContext context, int index) =>
-                ListTile(title: Text(value[index].reference)),
-          ),
-        ),
-      ),
-    );
-  }
-}

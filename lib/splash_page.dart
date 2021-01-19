@@ -91,16 +91,8 @@ class _SplashPageState extends State<SplashPage> {
           User u = new User.fromJson(value.data());
           Helper.localUser = u;
 
-            Navigator.of(context)
-                .pushReplacement((MaterialPageRoute(builder: (context) => u.isMotorista == true? Consumer<Position>(
-                builder: (context, position, widget) {
-                  return CorridaPage(position);
-                  }
-                ): Consumer<Position>(
-                builder: (context, position, widget) {
-                  return HomePage(position);
-                  }
-                ))));
+          Navigator.of(context).pushReplacement(
+              (MaterialPageRoute(builder: (context) => u.isMotorista == true?CorridaPage(): HomePage())));
 
         } else {
           Navigator.of(context).pushReplacement(

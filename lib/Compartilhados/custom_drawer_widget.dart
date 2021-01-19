@@ -159,7 +159,7 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => Consumer<Position>(
                                 builder: (context, position, widget) {
-                                  return Helper.localUser.isMotorista == true? CorridaPage(position) :HomePage(position);
+                                  return Helper.localUser.isMotorista == true? CorridaPage() :HomePage();
                                 }
                             )));
                       }),

@@ -54,8 +54,8 @@ import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
 import 'package:ufly/Helpers/Helper.dart';
 
 class CorridaPage extends StatefulWidget {
-  final Position initialPosition;
-  CorridaPage(this.initialPosition);
+
+  CorridaPage();
 
   @override
   _CorridaPageState createState() => new _CorridaPageState();

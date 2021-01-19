@@ -345,11 +345,11 @@ class CadastroController implements BlocBase {
                 MaterialPageRoute(
                     builder: (context) => Helper.localUser.isMotorista == true? Consumer<Position>(
                         builder: (context, position, widget) {
-                          return CorridaPage(position);
+                          return CorridaPage();
                         }
                     ): Consumer<Position>(
                         builder: (context, position, widget) {
-                          return HomePage(position);
+                          return HomePage();
                         }
                     )));
           }).catchError((err) {

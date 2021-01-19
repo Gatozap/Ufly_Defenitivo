@@ -110,7 +110,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) =>
                                     Consumer<Position>(builder: (context, position, widget) {
-                                      return HomePage(position);
+                                      return HomePage();
                                     })));
                           },
                         )

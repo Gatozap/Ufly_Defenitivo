@@ -1015,10 +1015,13 @@ String ROUTE_QUERY(double lat, double lng, double lat1, double lng1,{double latw
   return url;
 }
 
-String ROUTE_QUERY2(double lat, double lng, double lat1, double lng1, ) {
+
+
+String ROUTE_QUERY2(double lat, double lng, double lat1, double lng1,) {
+
   String url =
       'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$lng1,$lat1?alternatives=true&geometries=geojson&steps=true&access_token=$MAP_TOKEN';
-  print(url);
+  print('aqui a url ${url}');
   return url;
 }
 
