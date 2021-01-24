@@ -1,63 +1,47 @@
 import 'dart:async';
-import 'dart:convert';
+
 import 'dart:math';
 
-
 import 'package:address_search_field/address_search_field.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:google_maps_webservice/places.dart';
-import 'package:http/http.dart';
 import 'package:responsive_pixel/responsive_pixel.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:google_directions_api/google_directions_api.dart' as ggt;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import 'package:google_maps_webservice/places.dart' as gg;
 
-import 'package:http/http.dart' as http;
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:ufly/Ajuda/AjudaPage.dart';
+
 import 'package:ufly/Ativos/AtivosController.dart';
-import 'package:ufly/Configuracao/ConfiguracaoPage.dart';
+
 
 import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:ufly/CorridaBackground/corrida_controller.dart';
-import 'package:ufly/CorridaBackground/corrida_page.dart';
+
 
 import 'package:ufly/GoogleServices/geolocator_service.dart';
-import 'package:ufly/Helpers/References.dart';
+
 import 'package:ufly/Login/Login.dart';
 
 import 'package:ufly/Motorista/motorista_controller.dart';
 import 'package:ufly/Objetos/CarroAtivo.dart';
 import 'package:ufly/Objetos/Endereco.dart';
-import 'package:ufly/Objetos/Localizacao.dart';
+
 
 import 'package:ufly/Objetos/Motorista.dart';
-import 'package:ufly/Objetos/OfertaCorrida.dart';
+
 import 'package:ufly/Objetos/Requisicao.dart';
-import 'package:ufly/Objetos/Rota.dart';
+
+import 'package:ufly/Rota/paradas_list_item.dart';
 import 'package:ufly/Objetos/SizeConfig.dart';
 import 'package:ufly/Perfil/PerfilController.dart';
 import 'package:ufly/Rota/rota_controller.dart';
@@ -82,7 +66,6 @@ import 'Viagens/Requisicao/requisicao_controller.dart';
 import 'home_page_list.dart';
 
 class HomePage extends StatefulWidget {
-
   HomePage();
   @override
   _HomePageState createState() {
@@ -98,6 +81,9 @@ class _HomePageState extends State<HomePage> {
   final GeolocatorService geo = GeolocatorService();
   TextEditingController locationController = TextEditingController();
   TextEditingController inicialController = TextEditingController();
+  TextEditingController parada1Controller = TextEditingController();
+  TextEditingController parada2Controller = TextEditingController();
+  TextEditingController parada3Controller = TextEditingController();
   Completer<GoogleMapController> _controller = Completer();
   CorridaController cc;
   AtivosController alc;
@@ -134,11 +120,11 @@ class _HomePageState extends State<HomePage> {
 
     localizacaoInicial();
 
-    Timer(Duration(seconds: 5), () {
+
       geo.getCurrentLocation().listen((position) {
         telaCentralizada(position);
       });
-    });
+
     if (rc == null) {
       rc = RotaController();
     }
@@ -163,6 +149,7 @@ class _HomePageState extends State<HomePage> {
     );
 
     SizeConfig().init(context);
+    print('aqui filtro ${filtro}');
     ResponsivePixelHandler.init(
       baseWidth: 360, //A largura usado pelo designer no modelo desenhado
     );
@@ -198,24 +185,23 @@ class _HomePageState extends State<HomePage> {
                       return StreamBuilder(
                           stream: pf.outUser,
                           builder: (context, user) {
-                            return  GoogleMap(
-                                  onTap: (l) {
-                                    print('aqui o L ${l}');
-                                    rc.AdicionarParada(l);
-                                  },
-                                  myLocationEnabled: true,
-                                  myLocationButtonEnabled: false,
-                                  mapType: MapType.normal,
-                                  zoomGesturesEnabled: true,
-                                  zoomControlsEnabled: false,
-                                  initialCameraPosition: CameraPosition(
-                                      target: _initialPosition,
-                                      zoom: Helper.localUser.zoom),
-                                  onMapCreated: (GoogleMapController controller) {
-                                    _controller.complete(controller);
-                                  },
-                                );
-
+                            return GoogleMap(
+                              onTap: (l) {
+               
+                               // rc.AdicionarParada(l);
+                              },
+                              myLocationEnabled: true,
+                              myLocationButtonEnabled: false,
+                              mapType: MapType.normal,
+                              zoomGesturesEnabled: true,
+                              zoomControlsEnabled: false,
+                              initialCameraPosition: CameraPosition(
+                                  target: _initialPosition,
+                                  zoom: Helper.localUser.zoom),
+                              onMapCreated: (GoogleMapController controller) {
+                                _controller.complete(controller);
+                              },
+                            );
                           });
                     });
               }
@@ -229,30 +215,27 @@ class _HomePageState extends State<HomePage> {
                     return StreamBuilder(
                         stream: rc.outMarker,
                         builder: (context, snapshot) {
-
-
                           return GoogleMap(
-                          onTap: (l) {
-                            print('aqui o L ${l}');
-                            rc.AdicionarParada(l);
-                          },
-                          myLocationEnabled: true,
-                          compassEnabled: true,
-                          myLocationButtonEnabled: false,
-                          polylines: polylines.toSet(),
-                          markers: destino != null ? markers.toSet() : null,
-                          mapType: MapType.normal,
-                          zoomGesturesEnabled: true,
-                          zoomControlsEnabled: false,
-                          initialCameraPosition: CameraPosition(
-                              target: localizacao.data,
-                              zoom: Helper.localUser.zoom),
-                          onMapCreated: (GoogleMapController controller) {
-                            _controller.complete(controller);
-                          },
-                        );
-                      }
-                    );
+                            onTap: (l) {
+
+                             // rc.AdicionarParada(l);
+                            },
+                            myLocationEnabled: true,
+                            compassEnabled: true,
+                            myLocationButtonEnabled: false,
+                            polylines: polylines.toSet(),
+                            markers: destino != null ? markers.toSet() : null,
+                            mapType: MapType.normal,
+                            zoomGesturesEnabled: true,
+                            zoomControlsEnabled: false,
+                            initialCameraPosition: CameraPosition(
+                                target: localizacao.data,
+                                zoom: Helper.localUser.zoom),
+                            onMapCreated: (GoogleMapController controller) {
+                              _controller.complete(controller);
+                            },
+                          );
+                        });
                   });
             });
       },
@@ -387,8 +370,8 @@ class _HomePageState extends State<HomePage> {
           child: Stack(
             children: <Widget>[
               Container(
-                width: getLargura(context),
                 height: getAltura(context),
+                width: getLargura(context),
                 child: map,
               ),
               StreamBuilder<bool>(
@@ -401,6 +384,7 @@ class _HomePageState extends State<HomePage> {
                         geoMethods: geoMethods,
                         originCtrl: inicialController,
                         destinationCtrl: locationController,
+
                         builder: (
                           BuildContext context,
                           originBuilder,
@@ -470,101 +454,229 @@ class _HomePageState extends State<HomePage> {
                                             );
                                       },
                                     ),
-                                    /*  TextFormField(
-                                onTap: () async {
-
-                                  if(cf.Preenchimento == true){
-                                    cf.Preenchimento = false;
-                                    cf.inPreenchimento.add(preenchimento.data);
-
-                                  }else {
-
-                                    gg.Prediction p = await PlacesAutocomplete.show(
-                                        context: context,
-
-                                        apiKey:
-                                        'AIzaSyCW3el7IIcqaKRx_PZ24Ab6P0VJnWhMAx4',
-                                        language: 'pt_BR',
-                                        components: [
-                                          gg.Component(gg.Component.country, 'br')
-                                        ],
-                                        sessionToken: Uuid().generateV4(),
-                                        mode: Mode.overlay,
-                                        types: ['address'],
-                                        radius: 100000,
-
-                                        strictbounds: false,
-                                        location: Location(latinicial, lnginicial));
-                                    inicialController.text = p.description;
-                                  }
-                                },
-                                controller: inicialController,
-                                decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  suffixIcon: IconButton(
-                                      onPressed: () {
-                                        localizacaoInicial();
-                                        inicialController.text = _currentAddress;
-                                        cf.Preenchimento = true;
-                                        cf.inPreenchimento.add(preenchimento.data);
-
-                                      },
-                                      icon: Icon(Icons.my_location,
-                                          color: Colors.black)),
-                                  prefixIcon:
-                                      Icon(Icons.location_on, color: Colors.black),
-                                  labelText: 'Onde estou?',
-                                  contentPadding: EdgeInsets.fromLTRB(
-                                      getAltura(context) * .025,
-                                      getLargura(context) * .020,
-                                      getAltura(context) * .025,
-                                      getLargura(context) * .020),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(25.0),
-                                      borderSide: BorderSide(color: Colors.white)),
-                                ),
-                              )*/
-                                    /*AddressSearchField(
-
-                                decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  suffixIcon: IconButton(
-                                      onPressed: () {
-                                        print('clicou');
-                                        localizacaoInicial();
-                                        inicialController.text = _currentAddress;
-                                      },
-                                      icon: Icon(Icons.my_location,
-                                          color: Colors.black)),
-                                  prefixIcon:
-                                      Icon(Icons.location_on, color: Colors.black),
-                                  labelText: 'Onde estou?',
-                                  contentPadding: EdgeInsets.fromLTRB(
-                                      getAltura(context) * .025,
-                                      getLargura(context) * .020,
-                                      getAltura(context) * .025,
-                                      getLargura(context) * .020),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(25.0),
-                                      borderSide: BorderSide(color: Colors.white)),
-                                ),
-                                controller: inicialController,
-                                country: "Brasil",
-                                city: '$filtro',
-                                hintText: "Pontos",
-
-                                noResultsText: "Nenhum local encontrado...",
-                                onDone: (BuildContext dialogContext,
-                                    AddressPoint point) async {
-                                  Navigator.of(context).pop();
-                                },
-                                onCleaned: () => print("clean"),
-                              )*/
                                   ),
                                 ),
                               ),
+
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    top: getAltura(context) * .010,
+                                    bottom: getAltura(context) * .010),
+                                child: Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    width: getLargura(context) * .80,
+                                    child: TextField(
+                                      decoration: InputDecoration(
+                                        fillColor: Colors.white,
+                                        filled: true,
+                                        prefixIcon: IconButton(
+                                            onPressed: () {
+                                            parada1Controller.clear();
+                                            },
+                                            icon: Icon(Icons.close,
+                                                color: Colors.red,size: 30)),
+
+                                        labelText: 'Parada nº um',
+                                        contentPadding: EdgeInsets.fromLTRB(
+                                            getAltura(context) * .025,
+                                            getLargura(context) * .020,
+                                            getAltura(context) * .025,
+                                            getLargura(context) * .020),
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(25.0),
+                                            borderSide: BorderSide(
+                                                color: Colors.white)),
+                                      ),
+                                      controller: parada1Controller,
+                                      onTap: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                AddressSearchBuilder(
+                                                  geoMethods: geoMethods,
+                                                  controller: parada1Controller,
+                                                  builder: (
+                                                      BuildContext context,
+                                                      AsyncSnapshot<List<Address>> snapshot, {
+                                                        TextEditingController controller,
+                                                        Future<void> Function() searchAddress,
+                                                        Future<Address> Function(Address address) getGeometry,
+                                                      }) {
+                                                    return AddressSearchDialog(
+                                                      snapshot: snapshot,
+                                                      controller: controller,
+                                                      searchAddress: searchAddress,
+                                                      getGeometry: getGeometry,
+                                                      onDone: (Address address) => print('aqui parada ${snapshot.data}'),
+                                                    );
+                                                  },
+                                                ),
+                                          // false = user must tap button, true = tap outside dialog
+
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                             parada1Controller.text.isEmpty?Container():
+                             Padding(
+                                padding: EdgeInsets.only(
+                                    top: getAltura(context) * .010,
+                                    bottom: getAltura(context) * .010),
+                                child: Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    width: getLargura(context) * .80,
+                                    child: TextField(
+                                      decoration: InputDecoration(
+                                        fillColor: Colors.white,
+                                        filled: true,
+                                        prefixIcon: IconButton(
+                                            onPressed: () {
+                                              parada2Controller.clear();
+                                            },
+                                            icon: Icon(Icons.close,
+                                                color: Colors.red,size: 30 )),
+                                        labelText: 'Parada nº dois',
+                                        contentPadding: EdgeInsets.fromLTRB(
+                                            getAltura(context) * .025,
+                                            getLargura(context) * .020,
+                                            getAltura(context) * .025,
+                                            getLargura(context) * .020),
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(25.0),
+                                            borderSide: BorderSide(
+                                                color: Colors.white)),
+                                      ),
+                                      controller: parada2Controller,
+                                      onTap: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                AddressSearchBuilder(
+                                                  geoMethods: geoMethods,
+                                                  controller: parada2Controller,
+                                                  builder: (
+                                                      BuildContext context,
+                                                      AsyncSnapshot<List<Address>> snapshot, {
+                                                        TextEditingController controller,
+                                                        Future<void> Function() searchAddress,
+                                                        Future<Address> Function(Address address) getGeometry,
+                                                      }) {
+                                                    return AddressSearchDialog(
+                                                      snapshot: snapshot,
+                                                      controller: controller,
+                                                      searchAddress: searchAddress,
+                                                      getGeometry: getGeometry,
+                                                      onDone: (Address address) {
+                                                        parada2Controller.text =
+                                                            controller.text;
+                                                      }
+                                                    );
+                                                  },
+                                                )
+                                          // false = user must tap button, true = tap outside dialog
+
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              parada2Controller.text.isEmpty?Container():
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    top: getAltura(context) * .010,
+                                    bottom: getAltura(context) * .010),
+                                child: Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    width: getLargura(context) * .80,
+                                    child: TextField(
+                                      decoration: InputDecoration(
+                                        fillColor: Colors.white,
+                                        filled: true,
+                                        prefixIcon: IconButton(
+                                            onPressed: () {
+                                              parada3Controller.clear();
+                                            },
+                                            icon: Icon(Icons.close,
+                                                color: Colors.red,size: 30 )),
+                                        labelText: 'Parada nº três',
+                                        contentPadding: EdgeInsets.fromLTRB(
+                                            getAltura(context) * .025,
+                                            getLargura(context) * .020,
+                                            getAltura(context) * .025,
+                                            getLargura(context) * .020),
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(25.0),
+                                            borderSide: BorderSide(
+                                                color: Colors.white)),
+                                      ),
+                                      controller: parada3Controller,
+                                      onTap: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                AddressSearchBuilder(
+                                                  geoMethods: geoMethods,
+                                                  controller: parada3Controller,
+                                                  builder: (
+                                                      BuildContext context,
+                                                      AsyncSnapshot<List<Address>> snapshot, {
+                                                        TextEditingController controller,
+                                                        Future<void> Function() searchAddress,
+                                                        Future<Address> Function(Address address) getGeometry,
+                                                      }) {
+                                                    return AddressSearchDialog(
+                                                        snapshot: snapshot,
+                                                        controller: controller,
+                                                        searchAddress: searchAddress,
+                                                        getGeometry: getGeometry,
+                                                        onDone: (Address address) {
+                                                          parada3Controller
+                                                              .text =
+                                                              controller.text;
+                                                        }
+                                                    );
+                                                  },
+                                                )
+                                          // false = user must tap button, true = tap outside dialog
+
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              //ParadasListItem(filtro: filtro),
                               Padding(
                                 padding: EdgeInsets.only(
                                     top: getAltura(context) * .010,
@@ -607,8 +719,8 @@ class _HomePageState extends State<HomePage> {
                                                   builder:
                                                       AddressDialogBuilder(),
                                                   onDone: (address) {
-
-
+                                                    print(
+                                                        'aqui address ${address.coords}');
                                                     requisicao(
                                                         inicialController.text,
                                                         locationController
@@ -618,29 +730,7 @@ class _HomePageState extends State<HomePage> {
                                                         () {
                                                       centerView();
                                                     });
-                                                  })
-                                          // false = user must tap button, true = tap outside dialog
-
-                                          );
-                                      /*showDialog(
-                                                context: context,
-                                                builder: (context) =>
-                                                    destinationBuilder.buildDefault(
-                                                        builder:
-                                                            AddressDialogBuilder(useButtons: false),
-
-                                                        onDone: (address)async{
-                                                                requisicao(locationController.text, inicialController.text);
-
-
-
-
-
-                                                        })
-
-                                                // false = user must tap button, true = tap outside dialog
-
-                                                ); */
+                                                  }));
                                     },
                                   ),
                                   /*TextFormField(
@@ -735,26 +825,48 @@ class _HomePageState extends State<HomePage> {
                                 )),
                               ),
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   ElevatedButton(
-                                      child: Text('Pontos Paradas'),
+                                      child: Text('Pontos de Paradas'),
                                       onPressed: () => showDialog(
                                           context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                            );
-                                          })),
-                                  ElevatedButton(
-                                    child: Text('Search'),
-                                    onPressed: () async {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  AddresTeste()));
-                                    },
-                                  ),
+                                          builder: (context) =>
+                                              destinationBuilder.buildDefault(
+                                                  builder:
+                                                      AddressDialogBuilder(),
+                                                  onDone: (address) {
+                                                    List<String> paradas = [];
+                                  
+                                                    if (parada1Controller
+                                                        .text.isEmpty) {
+                                                      parada1Controller.text =
+                                                          address.coords
+                                                              .toString();
+                                                      paradas.add(
+                                                          parada1Controller
+                                                              .text);
+                                                      rc.inParadas.add(paradas);
+                                                    } else if (parada2Controller
+                                                        .text.isEmpty) {
+                                                      parada2Controller.text =
+                                                          address.coords
+                                                              .toString();
+                                                      paradas.add(
+                                                          parada1Controller
+                                                              .text);
+                                                      rc.inParadas.add(paradas);
+                                                    } else if (parada3Controller
+                                                        .text.isEmpty) {
+                                                      parada3Controller.text =
+                                                          address.coords
+                                                              .toString();
+                                                      paradas.add(
+                                                          parada1Controller
+                                                              .text);
+                                                      rc.inParadas.add(paradas);
+                                                    }
+                                                  }))),
                                 ],
                               ),
                             ],
@@ -768,10 +880,7 @@ class _HomePageState extends State<HomePage> {
                 child: FloatingActionButton(
                   heroTag: null,
                   onPressed: () {
-
                     centerView();
-
-
                   },
                   child: Icon(Icons.zoom_out_map, color: Colors.black),
                   backgroundColor: Colors.white,
@@ -788,7 +897,6 @@ class _HomePageState extends State<HomePage> {
                             desiredAccuracy: LocationAccuracy.high)
                         .then((v) async {
                       telaCentralizada(v);
-
                     });
                   },
                   child: Icon(Icons.my_location, color: Colors.black),
@@ -814,17 +922,17 @@ class _HomePageState extends State<HomePage> {
 
       _initialPosition = LatLng(v.latitude, v.longitude);
       print('aqui localização ${_initialPosition}');
-      Timer(Duration(seconds: 4), () async {
+
         List<Placemark> mark = await Geolocator()
             .placemarkFromCoordinates(v.latitude, v.longitude);
 
         Placemark place = mark[0];
         filtro = '${place.subAdministrativeArea}';
         _currentAddress =
-            '${place.name.isNotEmpty ? place.name + ', ' : ''}${place.thoroughfare.isNotEmpty ? place.thoroughfare + ', ' : ''}${place.subLocality.isNotEmpty ? place.subLocality + ', ' : ''}${place.locality.isNotEmpty ? place.locality + ', ' : ''}';
+            '${place.name.isNotEmpty ? place.name + ', ' : ''}${place.thoroughfare.isNotEmpty ? place.thoroughfare + ', ' : ''}${place.subLocality.isNotEmpty ? place.subLocality + ', ' : ''}${place.locality.isNotEmpty ? place.locality: ''}';
         print('aqui place ${_currentAddress}');
         print('aqui place ${place.toString()}');
-      });
+    
     });
   }
 
@@ -857,7 +965,7 @@ class _HomePageState extends State<HomePage> {
 
   Endereco endereco_destino;
 
-  requisicao( String inicial, String destinoFinal) async {
+  requisicao(String inicial, String destinoFinal,{String parada1, String parada2 , String parada3} ) async {
     Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((v) async {
@@ -867,7 +975,6 @@ class _HomePageState extends State<HomePage> {
       double longitude = location[0].position.longitude;
       List<Placemark> inicialPosicao =
           await Geolocator().placemarkFromAddress(inicial);
-
       double lat = inicialPosicao[0].position.latitude;
       double lng = inicialPosicao[0].position.longitude;
 
@@ -877,14 +984,12 @@ class _HomePageState extends State<HomePage> {
       print('aqui inicial ${_initialPosition}');
       LatLng destination = LatLng(latitude, longitude);
       dToast('Efetuando calculo de rota');
+
       rc.CalcularRota(inicial_posicao, destination);
 
       destino = destination;
       origem_nome = inicialPosicao[0];
-      getMarkers(
-        inicial_posicao,
-        destination, null
-      );
+      getMarkers(inicial_posicao, destination, null);
 
       endereco_origem = Endereco(
           numero: inicialPosicao[0].name,
@@ -1253,18 +1358,16 @@ List<Polyline> getPolys(data) {
   print('aqui poly ${data.length}');
   List<Color> cores = [
     Colors.red,
-    Colors.blue,                
+    Colors.blue,
     Colors.yellow,
     Colors.green,
     Colors.amber,
     Colors.deepOrange,
-
   ];
   try {
     for (int i = 0; i < data.length; i++) {
       PolylineId id = PolylineId("poly${i}");
       poly.add(Polyline(
-        
         polylineId: id,
         color: cores[i],
         points: data[i],
@@ -1309,14 +1412,13 @@ doLogout(context) async {
       .pushReplacement(MaterialPageRoute(builder: (context) => Login()));
 }
 
-List<Marker> getMarkers(LatLng data, LatLng d,
-    way1) {
+List<Marker> getMarkers(LatLng data, LatLng d, way1) {
   List<Marker> markers = [];
   MarkerId markerId = MarkerId('id');
   MarkerId markerId2 = MarkerId('id2');
-    if(way1 == null){
-      way1 = markers;
-    }
+  if (way1 == null) {
+    way1 = markers;
+  }
   try {
     markers.add(Marker(
         infoWindow: InfoWindow(title: 'Embarque'),
@@ -1336,13 +1438,13 @@ List<Marker> getMarkers(LatLng data, LatLng d,
     print(err.toString());
   }
 
-
   try {
     for (int i = 0; i < way1.length; i++) {
       markers.add(Marker(
           infoWindow: InfoWindow(title: 'Parada${i}'),
           markerId: way1[i],
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
           position: way1));
     }
   } catch (err) {
@@ -1350,5 +1452,3 @@ List<Marker> getMarkers(LatLng data, LatLng d,
   }
   return markers;
 }
-
-

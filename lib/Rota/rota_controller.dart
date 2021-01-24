@@ -37,10 +37,10 @@ class RotaController extends BlocBase {
   Stream<List<List<LatLng>>> get outMarker => controllerMarker.stream;
   Sink<List<List<LatLng>>> get inMarker => controllerMarker.sink;
 
-  BehaviorSubject<List<LatLng>> controllerPolyline2 =
-      new BehaviorSubject<List<LatLng>>();
-  Stream<List<LatLng>> get outPoly2 => controllerPolyline2.stream;
-  Sink<List<LatLng>> get inPoly2 => controllerPolyline2.sink;
+  BehaviorSubject<List<String>> controllerParadas =
+  new BehaviorSubject<List<String>>();
+  Stream<List<String>> get outParadas => controllerParadas.stream;
+  Sink<List<String>> get inParadas => controllerParadas.sink;
 
 
 
@@ -68,12 +68,12 @@ class RotaController extends BlocBase {
     });
   }
 
-  Future<List<List<LatLng>>> CalcularRota(LatLng v, LatLng c, {bool isdestinoFinal = true}) async {
+  Future<List<List<LatLng>>> CalcularRota(LatLng v, LatLng c,  {LatLng way, LatLng way2, LatLng way3,bool isdestinoFinal = true}) async {
     List<List<LatLng>> polylineCoordinates = [];
 
     return http
         .get(
-      ROUTE_QUERY2(v.latitude, v.longitude, c.latitude, c.longitude),
+      ROUTE_QUERY2(v.latitude, v.longitude, c.latitude, c.longitude,way: way.latitude, way2: way.longitude,way3: way2.latitude, way4: way2.longitude ),
     )
         .then((result) {
       localizacaoUsuario = v;
@@ -185,6 +185,7 @@ class RotaController extends BlocBase {
     controllerLocalizacao.close();
     controllerPolyline.close();
     controllerPolylineMotorista.close();
+    controllerParadas.close();
     controllerWayPoints.close();
   }
 }
