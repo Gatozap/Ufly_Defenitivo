@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:ufly/Helpers/SqliteDatabase.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart' ;
 import 'package:ufly/Objetos/CorridaTeste.dart';
 import 'package:ufly/Objetos/Motorista.dart';
 import 'corrida_controller.dart';
@@ -108,10 +108,15 @@ class CorridaFirebaseSender {
   }
 
   Future uploadFile(File file, Corrida corrida) async {
-    StorageReference storageReference =
+    Reference storageReference =
         FirebaseStorage.instance.ref().child('localizacoes/${corrida.id}.json');
-    StorageUploadTask uploadTask = storageReference.putFile(file);
-    await uploadTask.onComplete;
+    UploadTask  uploadTask = storageReference.putFile(file);
+    await uploadTask.then((TaskSnapshot snapshot) {
+      print('Upload complete!');
+    })
+        .catchError((Object e) {
+      print(e); // FirebaseException
+    });
     print('File Uploaded');
     storageReference.getDownloadURL().then((fileURL) {
       corrida.points_path = fileURL;

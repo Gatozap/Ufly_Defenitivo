@@ -67,9 +67,9 @@ Future<String> uploadPicture(String filepath,
   if (filename == null) {
     filename = 'image_$random.${extension}';
   }
-  StorageReference ref = FirebaseStorage.instance.ref().child(filename);
-  StorageUploadTask uploadTask = ref.put(imageFile);
-  return uploadTask.onComplete.then((d) {
+  Reference ref = FirebaseStorage.instance.ref().child(filename);
+  UploadTask uploadTask = ref.putFile(imageFile);
+  return uploadTask.then((d) {
     return d.ref.getDownloadURL().then((url) {
       var downloadUrl = url;
       return downloadUrl.toString();

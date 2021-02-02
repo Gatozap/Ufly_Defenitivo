@@ -188,7 +188,7 @@ class _HomePageState extends State<HomePage> {
                             return GoogleMap(
                               onTap: (l) {
                
-                               // rc.AdicionarParada(l);
+                               rc.AdicionarParada(l);
                               },
                               myLocationEnabled: true,
                               myLocationButtonEnabled: false,
@@ -217,8 +217,7 @@ class _HomePageState extends State<HomePage> {
                         builder: (context, snapshot) {
                           return GoogleMap(
                             onTap: (l) {
-
-                             // rc.AdicionarParada(l);
+                              rc.AdicionarParada(l);
                             },
                             myLocationEnabled: true,
                             compassEnabled: true,

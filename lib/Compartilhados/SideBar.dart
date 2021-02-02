@@ -365,7 +365,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin<S
                 ),
               ),
               Align(
-                alignment: Alignment(0, -0.5),
+                alignment: Alignment(0, -0.15),
                 child: GestureDetector(
                   onTap: () {
                     onIconPressed();
@@ -374,7 +374,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin<S
                     clipper: CustomMenuClipper(),
                     child: Container(
                       width: 35,
-                      height: 110,
+                      height: 100,
                       color:Colors.white,
                       alignment: Alignment.centerLeft,
                       child: AnimatedIcon(

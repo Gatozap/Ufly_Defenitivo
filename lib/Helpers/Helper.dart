@@ -47,9 +47,9 @@ Future<String> uploadPicture(String filepath,
   if (filename == null) {
     filename = 'image_$random.${extension}';
   }
-  StorageReference ref = FirebaseStorage.instance.ref().child(filename);
-  StorageUploadTask uploadTask = ref.put(imageFile);
-  return uploadTask.onComplete.then((d) {
+  Reference ref = FirebaseStorage.instance.ref().child(filename);
+  UploadTask uploadTask = ref.putFile(imageFile);
+  return uploadTask.then((d) {
     return d.ref.getDownloadURL().then((url) {
       var downloadUrl = url;
       return downloadUrl.toString();
@@ -1008,19 +1008,34 @@ myAppBar(String titulo, context,
 
   );
 }
-String ROUTE_QUERY(double lat, double lng, double lat1, double lng1,{double latway1,double lngway1, double latway2, double lngway2, double latway3, double lngway3}) {
+String ROUTE_QUERY(double lat, double lng, double lat1, double lng1) {
+
   String url =
-      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$lng1,$lat1?alternatives=true&geometries=geojson&coordinates=$latway1,$lngway1;$latway2,$lngway2;$latway3,$lngway3&steps=true&access_token=$MAP_TOKEN';
+      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$lng1,$lat1?alternatives=true&geometries=geojson&continue_straight=true&steps=true&access_token=$MAP_TOKEN';
+  print(url);
+  return url;
+}
+String ROUTE_QUERY2(double lat, double lng, double lat1, double lng1,double latway1,double lngway1) {
+
+  String url =
+      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$lngway1,$latway1;$lng1,$lat1?alternatives=true&geometries=geojson&continue_straight=true&steps=true&access_token=$MAP_TOKEN';
   print(url);
   return url;
 }
 
 
-
-String ROUTE_QUERY2(double lat, double lng, double lat1, double lng1,{double way,double way2, double way3,double way4, double way5, double way6}) {
+String ROUTE_QUERY3(double lat, double lng, double lat1, double lng1,double way,double way2, double way3,double way4) {
 
   String url =
-      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$way,$way2;$way3,$way4;$way5,$way6;$lng1,$lat1?alternatives=true&geometries=geojson&steps=true&access_token=$MAP_TOKEN';
+      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$way,$way2;$way3,$way4;$lng1,$lat1?alternatives=true&geometries=geojson&continue_straight=true&steps=true&access_token=$MAP_TOKEN';
+  print('aqui a url ${url}');
+  return url;
+}
+
+String ROUTE_QUERY4(double lat, double lng, double lat1, double lng1,double way,double way2, double way3,double way4, double way5, double way6) {
+
+  String url =
+      'https://api.mapbox.com/directions/v5/mapbox/driving/$lng,$lat;$way,$way2;$way3,$way4;$way5,$way6;$lng1,$lat1?alternatives=true&geometries=geojson&steps=true&continue_straight=true&access_token=$MAP_TOKEN';
   print('aqui a url ${url}');
   return url;
 }
@@ -1152,9 +1167,9 @@ class Helper {
     if (filename == null) {
       filename = 'image_$random.${extension}';
     }
-    StorageReference ref = FirebaseStorage.instance.ref().child(filename);
-    StorageUploadTask uploadTask = ref.putFile(imageFile);
-    return uploadTask.onComplete.then((d) {
+    Reference ref = FirebaseStorage.instance.ref().child(filename);
+    UploadTask uploadTask = ref.putFile(imageFile);
+    return uploadTask.then((d) {
       return d.ref.getDownloadURL().then((url) {
         var downloadUrl = url;
         return downloadUrl.toString();

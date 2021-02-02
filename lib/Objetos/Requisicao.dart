@@ -12,6 +12,10 @@ class Requisicao{
   DateTime created_at,valid_until, updated_at,deleted_at;
   Endereco destino;
   Endereco origem;
+  Endereco primeiraParada;
+  Endereco segundaParada;
+  Endereco terceiraParada;
+
   String forma_de_pagamento;
   Rota rota;
   var tempo_estimado;
@@ -22,9 +26,8 @@ class Requisicao{
 
   @override
   String toString() {
-    return 'Requisicao{id: $id, user: $user,isViagem: $isViagem,forma_de_pagamento: $forma_de_pagamento,user_nome:$user_nome, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
+    return 'Requisicao{id: $id, user: $user, user_nome: $user_nome, foto: $foto, isViagem: $isViagem, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, primeiraParada: $primeiraParada, segundaParada: $segundaParada, terceiraParada: $terceiraParada, forma_de_pagamento: $forma_de_pagamento, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
   }
-
 
   Requisicao.fromJson(json)
       : id = json['id'],
@@ -38,6 +41,9 @@ class Requisicao{
         updated_at = json['updated_at']== null? null: DateTime.fromMicrosecondsSinceEpoch(json["updated_at"]),
         deleted_at = json['deleted_at']== null? null: DateTime.fromMicrosecondsSinceEpoch(json["deleted_at"]),
         destino = json['destino'] == null? null : Endereco.fromJson(json['destino']),
+        primeiraParada = json['primeiraParada'] == null? null : Endereco.fromJson(json['primeiraParada']),
+        segundaParada = json['segundaParada'] == null? null : Endereco.fromJson(json['segundaParada']),
+        terceiraParada = json['terceiraParada'] == null? null : Endereco.fromJson(json['terceiraParada']),
         origem = json['origem'] == null? null: Endereco.fromJson(json['origem']),
         rota = json['rota'] == null? null: Rota.fromJson(json['rota']),
         tempo_estimado = json['tempo_estimado'],
@@ -58,6 +64,9 @@ class Requisicao{
         'deleted_at': this.deleted_at == null? null: this.deleted_at.millisecondsSinceEpoch,
         'destino': destino == null? null: this.destino.toJson(),
         'origem': origem == null? null: this.origem.toJson(),
+    'primeiraParada': primeiraParada == null? null: this.primeiraParada.toJson(),
+    'segundaParada': segundaParada == null? null: this.segundaParada.toJson(),
+    'terceiraParada': terceiraParada == null? null: this.terceiraParada.toJson(),
         'rota': rota == null? null: rota.toJson(),
         'tempo_estimado': tempo_estimado,
         'distancia': distancia,
@@ -76,6 +85,7 @@ class Requisicao{
       this.updated_at,
       this.deleted_at,
       this.destino,
+       this.primeiraParada, this.segundaParada, this.terceiraParada,
       this.origem,
       this.rota,
       this.tempo_estimado,

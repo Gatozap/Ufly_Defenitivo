@@ -21,7 +21,7 @@ import 'Helpers/NotificacoesHelper.dart';
 
 
 Future main() async {
-
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 
   FirebaseOptions options = FirebaseOptions(

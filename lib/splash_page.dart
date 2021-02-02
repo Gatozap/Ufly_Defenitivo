@@ -87,7 +87,7 @@ class _SplashPageState extends State<SplashPage> {
           await _auth.signInWithEmailAndPassword(email: email, password: senha);
       if (user != null) {
         var value = await userRef.doc(user.user.uid).get();
-        if (value.data != null) {
+        if (value.data() != null) {
           User u = new User.fromJson(value.data());
           Helper.localUser = u;
 

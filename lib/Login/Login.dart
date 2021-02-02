@@ -200,17 +200,10 @@ class _LoginState extends State<Login> {
                               });
 
 
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (context) => Helper.localUser.isMotorista == true? Consumer<Position>(
-                                          builder: (context, position, widget) {
-                                            return CorridaPage();
-                                          }
-                                      ): Consumer<Position>(
-                                          builder: (context, position, widget) {
-                                            return HomePage();
-                                          }
-                                      )));
+                             Helper.localUser.isMotorista == true? Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => CorridaPage())):
+                             Navigator.of(context).push(MaterialPageRoute(
+                                 builder: (context) => HomePage()));
                             }
                           }).catchError((err) {
                             dToastTop('E-mail ou senha inválidas');
@@ -223,7 +216,7 @@ class _LoginState extends State<Login> {
                         print('Login Error 2: ${err.toString()}');
 
                         return false;
-                      });;
+                      });
                     },
                     child: Container(
                         height: getAltura(context)*.090,
