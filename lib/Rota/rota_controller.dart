@@ -73,6 +73,7 @@ class RotaController extends BlocBase {
 
   Future<List<List<LatLng>>> CalcularRota(LatLng v, LatLng c,   {bool isdestinoFinal = true}) async {
     List<List<LatLng>> polylineCoordinates = [];
+    List<List<LatLng>> marcasCoordinates = [];
     return http
         .get(
         ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude)
@@ -99,7 +100,7 @@ class RotaController extends BlocBase {
           //rotas.add(parada1);
         }
 
-        for (var l in r.routes[i].legs) {
+        for (var l in r.routes[0].legs) {
           for (var s in l.steps) {
             for (var i in s.intersections) {
 
@@ -117,9 +118,10 @@ class RotaController extends BlocBase {
       inPoly.add(polylineCoordinates);
       List<LatLng> marcas = [];
       marcas.add(localizacaoUsuario);
-      marcas.add(parada1);
+
       marcas.add(destinoFinal);
-      print('aqui aprada ${marcas.toString()}');
+      marcasCoordinates.add(marcas);
+      marcasCoordinates.last.add(LatLng(marcasCoordinates.last.last.latitude, marcasCoordinates.last.last.longitude));
 
 
       inMarker.add(marcas);
@@ -129,19 +131,28 @@ class RotaController extends BlocBase {
   }
 
   List<LatLng> paradas = [];
-  AdicionarParada(LatLng u) async {
+  AdicionarParada(LatLng way) async {
       List<LatLng> paradasTemp = paradas;
       paradas = [];
+
     if (destinoFinal == null) {
       destinoFinal = paradas.last;
     }
     paradas.add(localizacaoUsuario);
     for(var a in paradasTemp){
-      if(a != localizacaoUsuario) {
+      if(a != localizacaoUsuario && a != destinoFinal) {
         paradas.add(a);
+        print('aqui letra a ${a.toString()}');
       }
     }
-    paradas.add(u);
+
+
+
+
+
+      paradas.add(way);
+
+
     paradas.add(destinoFinal);
 
     List<List<LatLng>> rotasTemp = [];
@@ -157,12 +168,11 @@ class RotaController extends BlocBase {
 
         var l = await CalcularRota(paradas[i], paradas[i+1],
             isdestinoFinal: false);
-        print('aqui paradas ${l.toString()}');
+        print('aqui paradas ${(paradas[i+1].toString())}');
 
         rotasTemp.addAll(l);
       }
     }
-    paradas.add(destinoFinal);
     inPoly.add(rotasTemp);
 
   }

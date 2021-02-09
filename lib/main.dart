@@ -19,27 +19,12 @@ import 'GoogleServices/geolocator_service.dart';
 import 'Helpers/Helper.dart';
 import 'Helpers/NotificacoesHelper.dart';
 
+final geoService = GeolocatorService();
+Future<void> main() async {
+  
 
-Future main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 
-  FirebaseOptions options = FirebaseOptions(
-    messagingSenderId: '1040230764138',
-    apiKey: 'AIzaSyB_niut8QCQctZAwMCWUEO5V7wk93ScrrI',
-    projectId: 'ufly-56615',
-    databaseURL: 'https://ufly-56615.firebaseio.com',
-    storageBucket: 'ufly-56615.appspot.com',
-    androidClientId:
-    '1040230764138-addsr9kprf5rn8dsfe65hug1d5ilco0q.apps.googleusercontent.com',
-    appId:
-    '1040230764138-addsr9kprf5rn8dsfe65hug1d5ilco0q.apps.googleusercontent.com',
-  );
-  try {
-    await Firebase.initializeApp(name: 'ufly', options: options);
-  }catch(err){
-
-  }
 }
 
 class MyApp extends StatefulWidget {
@@ -50,18 +35,23 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final geoService = GeolocatorService();
+
 
   @override
   Widget build(BuildContext context) {
-
+        final Future<FirebaseApp> fbbApp = Firebase.initializeApp();
     return
-      FutureProvider(
-        create: (context) => geoService.getPosition(),
-        child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home:SplashPage(),
+      FutureBuilder(
+        future: fbbApp,
+        builder: (context, snapshot) {
+          return FutureProvider(
+            create: (context) => geoService.getPosition(),
+            child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home:SplashPage(),
     ),
+          );
+        }
       );
   }
 
