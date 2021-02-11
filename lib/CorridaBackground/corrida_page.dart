@@ -67,7 +67,7 @@ class _CorridaPageState extends State<CorridaPage> {
   var controllerPreco = new MoneyMaskedTextController(
       leftSymbol: 'R\$', decimalSeparator: '.', thousandSeparator: ',');
   final GeolocatorService geo = GeolocatorService();
-  RequisicaoController rccc = RequisicaoController();
+
   Completer<GoogleMapController> _controller = Completer();
   RotaController rc;
   final CountdownController controller = CountdownController();
@@ -75,7 +75,7 @@ class _CorridaPageState extends State<CorridaPage> {
       RequisicaoCorridaController();
   var color_green = Colors.green;
   var color_red = Colors.red;
-  CriarRequisicaoController criarrequisicaocontroller;
+
   ControllerFiltros cf;
   MotoristaControllerEdit mt;
   Placemark placemark;
@@ -112,6 +112,7 @@ class _CorridaPageState extends State<CorridaPage> {
 
   @override
   Widget build(BuildContext context) {
+
     ResponsivePixelHandler.init(
       baseWidth: 360, //A largura usado pelo designer no modelo desenhado
     );
@@ -125,12 +126,7 @@ class _CorridaPageState extends State<CorridaPage> {
     if (rc == null) {
       rc = RotaController();
     }
-    if (rccc == null) {
-      rccc = RequisicaoController();
-    }
-    if (criarrequisicaocontroller == null) {
-      criarrequisicaocontroller = CriarRequisicaoController();
-    }
+
 
     if (ac == null) {
       ac = AtivosController();
@@ -247,16 +243,13 @@ class _CorridaPageState extends State<CorridaPage> {
       bottomSheet: StreamBuilder<FiltroMotorista>(
           stream: cf.outFiltro,
           builder: (context, filtro) {
+            if(filtro.data.isOnline == null){
+              filtro.data.isOnline = false;
+            }
             FiltroMotorista f= filtro.data;
             print('aqui f ${f.isOnline}');
-            return StreamBuilder<bool>(
-                stream: cf.outRequisicaoChegou,
-                builder: (context, requisicaoChegou) {
-                  if (cf.RequisicaoChegou == null) {
-                    cf.RequisicaoChegou = false;
-                  }
-
-                  return Container(
+            return
+                    Container(
                     color: Colors.white,
                     child: StreamBuilder<Carro>(
                       stream: corridaController.outCarro,
@@ -519,7 +512,7 @@ class _CorridaPageState extends State<CorridaPage> {
                       },
                     ),
                   );
-                });
+
           }),
       body: StreamBuilder<bool>(
           stream: cf.outHide,
@@ -548,6 +541,8 @@ class _CorridaPageState extends State<CorridaPage> {
                     stream: requisicaoController.outRequisicoes,
                     builder:
                         (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+                    
+                      print('aqui requisicao ${requisicao.data}');
                       return ListView.builder(
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
@@ -556,7 +551,7 @@ class _CorridaPageState extends State<CorridaPage> {
                           if (req.aceito == null) {
                             if (req.motoristas_chamados
                                 .contains(Helper.localUser.id)) {
-                              print('aqui a porra da requisicao ${cf.RequisicaoChegou}');
+
                               print('aqui bool ${req}');
                               return Padding(
                                 padding: EdgeInsets.only(
@@ -568,8 +563,7 @@ class _CorridaPageState extends State<CorridaPage> {
 
                               );
                             } else {
-                              print(
-                                  'aqui a porra da requisicao ${cf.RequisicaoChegou}');
+
 
                               return Container();
                             }

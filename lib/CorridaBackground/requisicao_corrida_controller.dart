@@ -31,15 +31,17 @@ class RequisicaoCorridaController extends BlocBase {
     requisicaoRef
         .snapshots()
         .listen((QuerySnapshot snap) {
+      print('aqui essa porra 2 ${snap.docs.toString()}');
       requisicoes = new List();
       if (snap.docs.length > 0) {
         for (DocumentSnapshot ds in snap.docs) {
+
           Requisicao r =  Requisicao.fromJson(ds.data());
+          print('aqui essa porra 3 ${ds.id}');
           r.id = ds.id;
           requisicoes.add(r);
-          print('aqui essa porra 1 ${requisicoes}');
+          print('aqui essa porra 4 ${requisicoes}');
         }
-
         requisicoes.sort(
                 (Requisicao a, Requisicao b) => a.id.compareTo(b.id));
         requisicoesmain = requisicoes;

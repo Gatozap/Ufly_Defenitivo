@@ -12,10 +12,12 @@ class Requisicao{
   DateTime created_at,valid_until, updated_at,deleted_at;
   Endereco destino;
   Endereco origem;
-  Endereco primeiraParada;
-  Endereco segundaParada;
-  Endereco terceiraParada;
-
+  var primeiraParada_lat;
+  var primeiraParada_lng;
+  var segundaParada_lat;
+  var segundaParada_lng;
+  var terceiraParada_lat;
+  var terceiraParada_lng;
   String forma_de_pagamento;
   Rota rota;
   var tempo_estimado;
@@ -26,24 +28,27 @@ class Requisicao{
 
   @override
   String toString() {
-    return 'Requisicao{id: $id, user: $user, user_nome: $user_nome, foto: $foto, isViagem: $isViagem, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, primeiraParada: $primeiraParada, segundaParada: $segundaParada, terceiraParada: $terceiraParada, forma_de_pagamento: $forma_de_pagamento, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
+    return 'Requisicao{id: $id, user: $user, user_nome: $user_nome, foto: $foto, isViagem: $isViagem, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, primeiraParada_lat: $primeiraParada_lat, primeiraParada_lng: $primeiraParada_lng,segundaParada_lat: $segundaParada_lat, segundaParada_lng: $segundaParada_lng,terceiraParada_lat: $terceiraParada_lat, terceiraParada_lng: $terceiraParada_lng,forma_de_pagamento: $forma_de_pagamento, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
   }
 
   Requisicao.fromJson(json)
-      : id = json['id'],
+      : id = json['id'] == null? null: json['id'],
         forma_de_pagamento=json['forma_de_pagamento'],
         user_nome = json['user_nome'],
-        isViagem = json['isViagem'],
-        user = json['user'],
-        motoristas_chamados = json['motoristas_chamados'],
+        isViagem = json['isViagem'] == null? true : json['isViagem'],
+        user = json['user']== null? null : json['isViagem'],
+        motoristas_chamados = json['motoristas_chamados'] == null? null : json['motoristas_chamados'],
         created_at = json['created_at'] == null? null: DateTime.fromMicrosecondsSinceEpoch(json["created_at"]),
         valid_until = json['valid_until']== null? null: DateTime.fromMicrosecondsSinceEpoch(json["valid_until"]),
         updated_at = json['updated_at']== null? null: DateTime.fromMicrosecondsSinceEpoch(json["updated_at"]),
         deleted_at = json['deleted_at']== null? null: DateTime.fromMicrosecondsSinceEpoch(json["deleted_at"]),
         destino = json['destino'] == null? null : Endereco.fromJson(json['destino']),
-        primeiraParada = json['primeiraParada'] == null? null : Endereco.fromJson(json['primeiraParada']),
-        segundaParada = json['segundaParada'] == null? null : Endereco.fromJson(json['segundaParada']),
-        terceiraParada = json['terceiraParada'] == null? null : Endereco.fromJson(json['terceiraParada']),
+        primeiraParada_lat = null? null:  double.parse(json['primeiraParada_lat'].toString()),
+        segundaParada_lat = null? null:  double.parse(json['segundaParada_lat'].toString()),
+        terceiraParada_lat =null? null:  double.parse(json['terceiraParada_lat'].toString()),
+        primeiraParada_lng = null? null:  double.parse(json['primeiraParada_lng'].toString()),
+        segundaParada_lng = null? null:  double.parse(json['segundaParada_lng'].toString()),
+        terceiraParada_lng =null? null:  double.parse(json['terceiraParada_lng'].toString()),
         origem = json['origem'] == null? null: Endereco.fromJson(json['origem']),
         rota = json['rota'] == null? null: Rota.fromJson(json['rota']),
         tempo_estimado = json['tempo_estimado'],
@@ -52,9 +57,9 @@ class Requisicao{
         aceito = json['aceito'] == null? null: OfertaCorrida.fromJson(json['aceito']);
 
   Map<String, dynamic> toJson() => {
-    'isViagem': isViagem,
-        'id': id,
-        'user': user,
+    'isViagem': isViagem == null? null: this.isViagem,
+        'id': id  == null? null: this.id,
+        'user': user  == null? null: this.user,
     'user_nome': user_nome,
     'forma_de_pagamento': forma_de_pagamento,
         'motoristas_chamados': motoristas_chamados,
@@ -64,9 +69,12 @@ class Requisicao{
         'deleted_at': this.deleted_at == null? null: this.deleted_at.millisecondsSinceEpoch,
         'destino': destino == null? null: this.destino.toJson(),
         'origem': origem == null? null: this.origem.toJson(),
-    'primeiraParada': primeiraParada == null? null: this.primeiraParada.toJson(),
-    'segundaParada': segundaParada == null? null: this.segundaParada.toJson(),
-    'terceiraParada': terceiraParada == null? null: this.terceiraParada.toJson(),
+    'primeiraParada_lat': this.primeiraParada_lat == null ? null : this.primeiraParada_lat,
+    'segundaParada_lat': this.segundaParada_lat == null ? null : this.segundaParada_lat,
+    'terceiraParada_lat': this.terceiraParada_lat == null ? null : this.terceiraParada_lat,
+    'primeiraParada_lng': this.primeiraParada_lng == null ? null : this.primeiraParada_lng,
+    'segundaParada_lng': this.segundaParada_lng == null ? null : this.segundaParada_lng,
+    'terceiraParada_lng': this.terceiraParada_lng == null ? null : this.terceiraParada_lng,
         'rota': rota == null? null: rota.toJson(),
         'tempo_estimado': tempo_estimado,
         'distancia': distancia,
@@ -85,7 +93,8 @@ class Requisicao{
       this.updated_at,
       this.deleted_at,
       this.destino,
-       this.primeiraParada, this.segundaParada, this.terceiraParada,
+       this.primeiraParada_lat, this.segundaParada_lat, this.terceiraParada_lat,
+       this.primeiraParada_lng, this.segundaParada_lng, this.terceiraParada_lng,
       this.origem,
       this.rota,
       this.tempo_estimado,

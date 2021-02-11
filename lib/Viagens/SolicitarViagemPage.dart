@@ -29,12 +29,7 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
     pc.inPageController.add(index);
   }
 
-  var page0;
-  var page1;
-  var page2;
-  var page3;
-  var page4;
-  int page = 0;
+
   @override
   void initState() {
 
@@ -46,7 +41,7 @@ class _SolicitarViagemPageState extends State<SolicitarViagemPage> {
   void dispose() {
     super.dispose();
   }
-
+  String forma_de_pagamento;
   @override
   Widget build(BuildContext context) {
     if(cf == null){

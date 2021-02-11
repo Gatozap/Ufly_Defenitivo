@@ -73,7 +73,7 @@ class RotaController extends BlocBase {
 
   Future<List<List<LatLng>>> CalcularRota(LatLng v, LatLng c,   {bool isdestinoFinal = true}) async {
     List<List<LatLng>> polylineCoordinates = [];
-    List<List<LatLng>> marcasCoordinates = [];
+
     return http
         .get(
         ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude)
@@ -116,15 +116,8 @@ class RotaController extends BlocBase {
           polylineCoordinates.last.last.latitude,
           polylineCoordinates.last.last.longitude));
       inPoly.add(polylineCoordinates);
-      List<LatLng> marcas = [];
-      marcas.add(localizacaoUsuario);
-
-      marcas.add(destinoFinal);
-      marcasCoordinates.add(marcas);
-      marcasCoordinates.last.add(LatLng(marcasCoordinates.last.last.latitude, marcasCoordinates.last.last.longitude));
 
 
-      inMarker.add(marcas);
       return polylineCoordinates;
     });
 
@@ -135,6 +128,8 @@ class RotaController extends BlocBase {
       List<LatLng> paradasTemp = paradas;
       paradas = [];
 
+
+
     if (destinoFinal == null) {
       destinoFinal = paradas.last;
     }
@@ -142,6 +137,7 @@ class RotaController extends BlocBase {
     for(var a in paradasTemp){
       if(a != localizacaoUsuario && a != destinoFinal) {
         paradas.add(a);
+
         print('aqui letra a ${a.toString()}');
       }
     }
@@ -149,27 +145,17 @@ class RotaController extends BlocBase {
 
 
 
-
-      paradas.add(way);
-
-
+    paradas.add(way);
     paradas.add(destinoFinal);
+
 
     List<List<LatLng>> rotasTemp = [];
     for (var i = 0; i+1 < paradas.length; i++) {
       if (paradas[i+1] != null) {
 
-       /* List<LatLng> marcas = [];
-        marcas.add(paradas[i]);
-        List<List<LatLng>> marcasFinais = [];
-        marcasFinais.add(marcas);
-        print('aqui marcas ${marcas.toString()}');
-        //inMarker.add(marcasFinais);*/
-
         var l = await CalcularRota(paradas[i], paradas[i+1],
             isdestinoFinal: false);
-        print('aqui paradas ${(paradas[i+1].toString())}');
-
+        print('aqui paradas 2323${(l.toList())}');
         rotasTemp.addAll(l);
       }
     }

@@ -30,9 +30,9 @@ class CriarRequisicaoController extends BlocBase {
       requisicoes = new List();
       if (snap.docs.length > 0) {
         for (DocumentSnapshot ds in snap.docs) {
-          print('aqui3 ');
+          print('aqui3 ${ds.id} ');
           Requisicao p =  Requisicao.fromJson(ds.data());
-          print('aqui4 ${p.tempo_estimado}');
+         
           p.id = ds.id;
           requisicoes.add(p);
           print('aqui4');

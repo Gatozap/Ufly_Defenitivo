@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:address_search_field/address_search_field.dart';
-
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -87,11 +87,18 @@ class _HomePageState extends State<HomePage> {
   Completer<GoogleMapController> _controller = Completer();
   CorridaController cc;
   AtivosController alc;
+  double lat_parada_um;
+  double lng_parada_um;
+  double lat_parada_dois;
+  double lng_parada_dois;
+  double lat_parada_tres;
+  double lng_parada_tres;
   Requisicao req;
   double latinicial;
   double lnginicial;
+  List<LatLng> marcas = [];
   Placemark origem_nome;
-
+   String forma_de_pagamento;
   ControllerFiltros cf;
   FiltroMotorista fm;
   LatLng coord;
@@ -102,9 +109,9 @@ class _HomePageState extends State<HomePage> {
   List<Marker> markers;
   static LatLng _initialPosition;
   static LatLng destino;
-  LatLng lat_lng_de_parada_um;
-  LatLng lat_lng_de_parada_dois;
-  LatLng lat_lng_de_parada_tres;
+  static LatLng lat_lng_de_parada_um;
+  static LatLng lat_lng_de_parada_dois;
+  static LatLng lat_lng_de_parada_tres;
   LatLng get initialPosition => _initialPosition;
   String _currentAddress;
   String filtro;
@@ -299,11 +306,16 @@ class _HomePageState extends State<HomePage> {
                                             await Geolocator().placemarkFromAddress(parada1Controller.text);
                                         double lat = Parada1Posicao[0].position.latitude;
                                         double lng = Parada1Posicao[0].position.longitude;
+                                          lat_parada_um = lat;
+                                          lng_parada_um = lng;
+
 
                                         LatLng posicaoParada1 = LatLng(lat, lng);
                                         endereco_paradaUm = snapshot.data[0].reference.toString();
+
                                              lat_lng_de_parada_um = posicaoParada1;
-                                        getMarkers(_initialPosition, destino, way1: lat_lng_de_parada_um, texto1: endereco_paradaUm);
+                                            marcas.add(lat_lng_de_parada_um);
+                                              rc.inMarker.add(marcas);
                                         rc.AdicionarParada(lat_lng_de_parada_um);
 
                                       }
@@ -378,15 +390,24 @@ class _HomePageState extends State<HomePage> {
                                           controller: controller,
                                           searchAddress: searchAddress,
                                           getGeometry: getGeometry,
-                                          onDone: (Address address) {
+                                          onDone: (Address address) async {
                                             parada2Controller.text =
                                                 controller.text;
-                                            print('aqui o coords ${address.coords}');
+                                            endereco_paradaDois = snapshot.data[0].reference.toString();
+                                            parada1Controller.text = controller.text;
 
+                                            List<Placemark> Parada2Posicao =
+                                                await Geolocator().placemarkFromAddress(parada2Controller.text);
+                                            double lat = Parada2Posicao[0].position.latitude;
+                                            double lng = Parada2Posicao[0].position.longitude;
+                                            lat_parada_dois = lat;
+                                            lng_parada_dois = lng;
                                             lat_lng_de_parada_dois = address.coords;
-                                                print('aqui o lat e lng ${lat_lng_de_parada_um}${lat_lng_de_parada_dois}');
-                                              rc.AdicionarParada(lat_lng_de_parada_dois);
-                                            getMarkers(_initialPosition, destino, way1: lat_lng_de_parada_um, texto1: endereco_paradaUm, way2: lat_lng_de_parada_dois, texto2: endereco_paradaDois);
+
+                                            marcas.add(lat_lng_de_parada_dois);
+                                            rc.inMarker.add(marcas);
+                                            rc.AdicionarParada(lat_lng_de_parada_dois);
+
                                           }
                                       );
                                     },
@@ -458,11 +479,20 @@ class _HomePageState extends State<HomePage> {
                                           controller: controller,
                                           searchAddress: searchAddress,
                                           getGeometry: getGeometry,
-                                          onDone: (Address address) {
+                                          onDone: (Address address) async {
                                             parada3Controller
                                                 .text =
                                                 controller.text;
+                                            List<Placemark> Parada3Posicao =
+                                                await Geolocator().placemarkFromAddress(parada3Controller.text);
+                                            double lat = Parada3Posicao[0].position.latitude;
+                                            double lng = Parada3Posicao[0].position.longitude;
+                                            lat_parada_tres = lat;
+                                            lng_parada_tres = lng;
+                                            endereco_paradaTres = snapshot.data[0].reference.toString();
                                                   lat_lng_de_parada_tres = address.coords;
+                                            marcas.add(lat_lng_de_parada_dois);
+                                            rc.inMarker.add(marcas);
                                               rc.AdicionarParada(lat_lng_de_parada_tres);
 
                                           }
@@ -563,7 +593,7 @@ class _HomePageState extends State<HomePage> {
       stream: rc.outPoly,
       builder: (context, snap) {
         polylines = getPolys(snap.data);
-
+              
         return StreamBuilder<LatLng>(
             stream: rc.outLocalizacao,
             builder: (context, localizacao) {
@@ -580,9 +610,6 @@ class _HomePageState extends State<HomePage> {
                           stream: pf.outUser,
                           builder: (context, user) {
                             return GoogleMap(
-                              onTap: (l) {
-                                    //  rc.AdicionarParada(paradaUm: l);
-                              },
                               myLocationEnabled: true,
                               myLocationButtonEnabled: false,
                               mapType: MapType.normal,
@@ -604,15 +631,15 @@ class _HomePageState extends State<HomePage> {
               return StreamBuilder(
                   stream: pf.outUser,
                   builder: (context, user) {
-                    return StreamBuilder<List<LatLng>>(
+                    return StreamBuilder(
                         stream: rc.outMarker,
-                        builder: (context,AsyncSnapshot<List<LatLng>> snapshot) {
-                              print('snapshot ${snapshot.data}');
-                          markers = getMarkers(_initialPosition, destino, );
-                          return GoogleMap(
-                            onTap: (l) {
-                             // rc.AdicionarParada(paradaUm: l);
-                            },
+                        builder: (context,  snapshot) {
+
+                             markers = getMarkers(_initialPosition, destino, snapshot.data);
+
+                          return
+                            GoogleMap(
+
                             myLocationEnabled: true,
                             compassEnabled: true,
                             myLocationButtonEnabled: false,
@@ -635,79 +662,6 @@ class _HomePageState extends State<HomePage> {
     );
     return Scaffold(
       key: homeScaffoldKey,
-      /* appBar:
-          myAppBar('', context, color: Colors.transparent, actions: <Widget>[
-        StreamBuilder<FiltroMotorista>(
-            stream: cf.outFiltro,
-            builder: (context, snap) {
-              if (snap.data == null) {
-                return Container();
-              }
-              FiltroMotorista ff = snap.data;
-
-              return Padding(
-                padding: EdgeInsets.only(right: getLargura(context) * .050),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Center(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        height: getAltura(context) * .070,
-                        width: getLargura(context) * .7,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            GestureDetector(
-                              onTap: () async {
-                                FiltroMotorista f = await cf.outFiltro.first;
-                                f.viagem = true;
-
-                                cf.inFiltro.add(f);
-                                print('aqui viagem ${f.viagem}');
-                              },
-                              child: hTextAbel('Viagens', context,
-                                  size: 25,
-                                  weight: FontWeight.bold,
-                                  color: ff.viagem == true
-                                      ? Color.fromRGBO(255, 184, 0, 30)
-                                      : Colors.black),
-                            ),
-                            sb,
-                            hText('|', context, size: 25),
-                            sb,
-                            GestureDetector(
-                              onTap: () async {
-                                FiltroMotorista f = await cf.outFiltro.first;
-                                f.viagem = false;
-
-                                cf.inFiltro.add(f);
-                                print('aqui viagem ${f.viagem}');
-                              },
-                              child: hTextAbel(
-                                'Entregas',
-                                context,
-                                size: 25,
-                                weight: FontWeight.bold,
-                                color: ff.viagem == false
-                                    ? Color.fromRGBO(255, 184, 0, 30)
-                                    : Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                  ],
-                ),
-              );
-            }),
-      ]),*/
       // drawer: CustomDrawerWidget(),
       body: SlidingUpPanel(
         panel: _floatingPanel(),
@@ -887,16 +841,12 @@ class _HomePageState extends State<HomePage> {
       LatLng destination = LatLng(latitude, longitude);
       dToast('Efetuando calculo de rota');
 
-
-
-
-
       rc.CalcularRota(inicial_posicao, destination);
 
       destino = destination;
 
-      //getMarkers(inicial_posicao, destination);
-      getMarkers(_initialPosition, destino, way1: lat_lng_de_parada_um, texto1: endereco_paradaUm);
+      
+
 
       endereco_origem = Endereco(
           numero: inicialPosicao[0].name,
@@ -1032,15 +982,220 @@ class _HomePageState extends State<HomePage> {
                   onTap: () {
                     if (requisicao.data == null ||
                         requisicao.data.user != Helper.localUser.id) {
-                      requisitarMotoristas(requisicao.data, snap.data.viagem);
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => MotoristaProximoPage()));
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              content:
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  Container(
+                                    child: hTextAbel(
+                                        'Forma de pagamento',
+                                        context,
+                                        size: 20),
+                                  ),sb,
+                                  StreamBuilder<FiltroMotorista>(
+                                      stream: cf.outFiltro,
+                                      builder: (context, snapshot) {
+
+                                        return Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            Padding(
+                                              padding:  EdgeInsets.only(left: getLargura(context)*.025),
+                                              child: GestureDetector(
+                                                onTap: (){
+                                                  if(snapshot.data.dinheiro == true){
+                                                    snapshot.data.dinheiro = false;
+                                                    cf.inFiltro.add(snapshot.data);
+                                                  }
+                                                  snapshot.data.cartao  = !snapshot.data.cartao;
+                                                  if(snapshot.data.cartao == true){
+                                                    forma_de_pagamento = 'CARTAO';
+                                                  } else{
+                                                    forma_de_pagamento = 'DINHEIRO';
+                                                  }
+                                                  print('aqui pagamento ${forma_de_pagamento}');
+                                                  cf.inFiltro.add(snapshot.data);
+                                                }  ,
+                                                child: Container(
+
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                    children: <Widget>[
+                                                      Icon(MdiIcons.creditCard, color: Colors.black, size: 40,),
+                                                      hTextAbel('Cartão', context, color: Colors.black, size: 20)
+                                                    ],
+                                                  ),
+                                                  width: getLargura(context)*.270,
+                                                  height: getAltura(context)*.140,
+                                                  decoration: BoxDecoration(
+
+                                                    borderRadius: BorderRadius.circular(30.0),
+                                                    color: snapshot.data.cartao == false? Color.fromRGBO(218, 218, 218, 100):  Color.fromRGBO(255, 184, 0, 30),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:  EdgeInsets.only(left:
+                                              getLargura(context)*.025),
+                                              child: GestureDetector(
+                                                onTap: (){
+
+                                                  if(snapshot.data.cartao == true){
+                                                    snapshot.data.cartao = false;
+                                                    cf.inFiltro.add(snapshot.data);
+                                                  }
+                                                  snapshot.data.dinheiro  = !snapshot.data.dinheiro;
+                                                  if(snapshot.data.dinheiro == true){
+                                                    forma_de_pagamento = 'DINHEIRO';
+                                                  } else{
+                                                    forma_de_pagamento = 'CARTAO';
+                                                  }
+                                                  print('aqui pagamento ${forma_de_pagamento}');
+                                                  cf.inFiltro.add(snapshot.data);
+                                                }        ,
+                                                child: Container(
+
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                    children: <Widget>[
+                                                      Container(width: 40,height: 25,child: Image.asset('assets/dinheiro.png', fit: BoxFit.fill,)),
+                                                      hTextAbel('Dinheiro', context, color: Colors.black, size: 20)
+                                                    ],
+                                                  ),
+                                                  width: getLargura(context)*.270,
+                                                  height: getAltura(context)*.140,
+                                                  decoration: BoxDecoration(
+
+                                                    borderRadius: BorderRadius.circular(30.0),
+                                                    color: snapshot.data.dinheiro == false? Color.fromRGBO(218, 218, 218, 100):  Color.fromRGBO(255, 184, 0, 30),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          
+                                          ],
+                                        );
+                                      }
+                                  ),sb,sb,
+                                  StreamBuilder<FiltroMotorista>(
+                                      stream: cf.outFiltro,
+                                      builder: (context, snap) {
+                                        if (snap.data == null) {
+                                          return Container();
+                                        }
+                                        FiltroMotorista ff = snap.data;
+
+                                        return Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(20),
+                                              ),
+                                              height: getAltura(context) * .070,
+
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  GestureDetector(
+                                                    onTap: () async {
+                                                      FiltroMotorista f = await cf.outFiltro.first;
+                                                      f.viagem = true;
+
+                                                      cf.inFiltro.add(f);
+                                                      print('aqui viagem ${f.viagem}');
+                                                    },
+                                                    child: hTextAbel('Viagens', context,
+                                                        size: 25,
+                                                        weight: FontWeight.bold,
+                                                        color: ff.viagem == true
+                                                            ? Color.fromRGBO(255, 184, 0, 30)
+                                                            : Colors.black),
+                                                  ),
+                                                  sb,
+                                                  hText('|', context, size: 25),
+                                                  sb,
+                                                  GestureDetector(
+                                                    onTap: () async {
+                                                      FiltroMotorista f = await cf.outFiltro.first;
+                                                      f.viagem = false;
+
+                                                      cf.inFiltro.add(f);
+                                                      print('aqui viagem ${f.viagem}');
+                                                    },
+                                                    child: hTextAbel(
+                                                      'Entregas',
+                                                      context,
+                                                      size: 25,
+                                                      weight: FontWeight.bold,
+                                                      color: ff.viagem == false
+                                                          ? Color.fromRGBO(255, 184, 0, 30)
+                                                          : Colors.black,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+
+                                          ],
+                                        );
+                                      }),
+                                  sb, GestureDetector(
+                                    onTap: () {
+                                      if(forma_de_pagamento.isEmpty){
+                                       return dToast('preencha a forma de pagamento');
+                                      }else {
+                                        requisitarMotoristas(
+                                          requisicao.data, snap.data.viagem,forma_de_pagamento);
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    MotoristaProximoPage()));
+                                      }
+                                    },
+                                    child: Container(
+                                      height: getAltura(context) * .050,
+                                      width: getLargura(context) * .5,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Color(0xFFf6aa3c),
+                                      ),
+                                      child: Container(
+                                          height: getAltura(context) * .125,
+                                          width: getLargura(context) * .85,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                            BorderRadius.circular(10),
+                                            color:
+                                            Color.fromRGBO(255, 184, 0, 30),
+                                          ),
+                                          child: Center(
+                                              child: hTextAbel(
+                                                  'Solicitar Motorista', context,
+                                                  size: 20))),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          });
+
                     } else {
                       showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              content: Column(
+                              content:
+                              Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Container(
@@ -1165,7 +1320,7 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  void requisitarMotoristas(requiup, filtro) {
+  void requisitarMotoristas(requiup, filtro, String forma_de_pagamento) {
     double soma = calculateDistance(_initialPosition.latitude,
         _initialPosition.longitude, destino.latitude, destino.longitude);
     print('aqui ativos ac.ativos ${ac.ativos}');
@@ -1203,6 +1358,13 @@ class _HomePageState extends State<HomePage> {
         isViagem: filtro,
         created_at: DateTime.now(),
         updated_at: DateTime.now(),
+        primeiraParada_lat: lat_parada_um,
+        segundaParada_lat: lat_parada_dois,
+        terceiraParada_lat: lat_parada_tres,
+        primeiraParada_lng: lng_parada_um,
+        segundaParada_lng: lng_parada_dois,
+        terceiraParada_lng: lng_parada_tres,
+        forma_de_pagamento: forma_de_pagamento,
         destino: _destino,
         user_nome: Helper.localUser.nome,
         origem: inicial,
@@ -1224,10 +1386,17 @@ class _HomePageState extends State<HomePage> {
       Requisicao requisicao = Requisicao(
         id: requiup.id,
         isViagem: filtro,
+        forma_de_pagamento: forma_de_pagamento,
         user: Helper.localUser.id,
         created_at: DateTime.now(),
         updated_at: DateTime.now(),
         destino: _destino,
+        primeiraParada_lat: lat_parada_um,
+        segundaParada_lat: lat_parada_dois,
+        terceiraParada_lat: lat_parada_tres,
+        primeiraParada_lng: lng_parada_um,
+        segundaParada_lng: lng_parada_dois,
+        terceiraParada_lng: lng_parada_tres,
         user_nome: Helper.localUser.nome,
         origem: inicial,
         distancia: soma,
@@ -1313,68 +1482,55 @@ doLogout(context) async {
       .pushReplacement(MaterialPageRoute(builder: (context) => Login()));
 }
 
-List<Marker> getMarkers(LatLng data, LatLng d, {LatLng way1, String texto1, LatLng way2, String texto2, LatLng way3, String texto3}) {
+List<Marker> getMarkers(inicio, destino, way, ) {
   List<Marker> markers = [];
-  MarkerId markerId = MarkerId('id');
-  MarkerId markerId2 = MarkerId('id2');
-  MarkerId markerId3 = MarkerId('id3');
-  MarkerId markerId4 = MarkerId('id4');
-  MarkerId markerId5 = MarkerId('id5');
-        print('aqui a porra da parada um ${way1}');
-  try {
-    markers.add(Marker(
-        infoWindow: InfoWindow(title: 'Embarque'),
-        markerId: markerId,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-        position: data));
-  } catch (err) {
-    print(err.toString());
+  if (destino == null) {
+    return markers;
   }
-  try {
-    markers.add(Marker(
-        infoWindow: InfoWindow(title: 'Desembarque'),
-        markerId: markerId2,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        position: LatLng(d.latitude, d.longitude)));
-  } catch (err) {
-    print(err.toString());
+  if (inicio == null) {
+    return markers;
   }
 
+  try {
+         markers.add(Marker(
+             infoWindow: InfoWindow(title: 'Embarque'),
+             markerId: MarkerId('id${0}'),
+             icon: BitmapDescriptor.defaultMarkerWithHue(
+                 BitmapDescriptor.hueBlue),
+             position: inicio));
+}
+   catch (err) {
+    print(err.toString());
+  }
   try {
 
       markers.add(Marker(
-          infoWindow: InfoWindow(title: '${texto1}', snippet: 'Parada nº 1'),
-          markerId: markerId3,
-          icon:
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-          position: way1));
+          infoWindow: InfoWindow(title: 'Desembarque'),
+          markerId: MarkerId('id${69}'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueGreen),
+          position: destino));
 
-  } catch (err) {
+    }
+  catch (err) {
     print(err.toString());
   }
   try {
-
-    markers.add(Marker(
-        infoWindow: InfoWindow(title: '${texto2}', snippet: 'Parada nº 2'),
-        markerId: markerId4,
-        icon:
-        BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-        position: way2));
-
-  } catch (err) {
-    print(err.toString());
+    print('aqui o way ${way}');
+    for(int i = 0; i < way.length; i++) {
+      print('aqui o way ${way.length}');
+      markers.add(Marker(
+          infoWindow:
+          InfoWindow(title: 'Parada nº ${i+1}'),
+          markerId: MarkerId('id${i+1}'),
+          
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueYellow),
+          position: way[i]));
+    }
   }
-  try {
-
-    markers.add(Marker(
-        infoWindow: InfoWindow(title: '${texto3}', snippet: 'Parada nº 3'),
-        markerId: markerId5,
-        icon:
-        BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-        position: way3));
-
-  } catch (err) {
-    print(err.toString());
+  catch (err) {
+    print('err.toString() ${err.toString()}');
   }
   return markers;
 }
