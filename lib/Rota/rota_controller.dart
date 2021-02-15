@@ -87,7 +87,7 @@ class RotaController extends BlocBase {
       }
 
 
-      // polylineCoordinates2.add(LatLng(v.latitude, v.longitude));
+
       Rota r = Rota.fromJson(json.decode(result.body));
       rota = r;
 
@@ -97,7 +97,7 @@ class RotaController extends BlocBase {
         if (i == 0) {
           rotas.add(LatLng(
               localizacaoUsuario.latitude, localizacaoUsuario.longitude));
-          //rotas.add(parada1);
+
         }
 
         for (var l in r.routes[0].legs) {

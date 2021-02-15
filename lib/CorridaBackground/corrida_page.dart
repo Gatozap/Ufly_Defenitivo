@@ -5,10 +5,10 @@ import 'dart:math';
 import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:ufly/Objetos/Rota.dart';
 import 'package:flutter_map/flutter_map.dart' as fm;
 
 import 'package:geolocator/geolocator.dart';
@@ -54,7 +54,6 @@ import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
 import 'package:ufly/Helpers/Helper.dart';
 
 class CorridaPage extends StatefulWidget {
-
   CorridaPage();
 
   @override
@@ -83,6 +82,7 @@ class _CorridaPageState extends State<CorridaPage> {
   UserListController usc;
   Requisicao rr;
   String _currentAddress;
+  List<Polyline> polylines;
   String destinoAddress;
   MotoristaController motoro;
   static LatLng _initialPosition;
@@ -96,12 +96,9 @@ class _CorridaPageState extends State<CorridaPage> {
     bg.BackgroundGeolocation.start();
     localizacaoInicial();
 
-
-      geo.getCurrentLocation().listen((position) {
-        telaCentralizada(position);
-      });
-
-
+    geo.getCurrentLocation().listen((position) {
+      telaCentralizada(position);
+    });
 
     super.initState();
   }
@@ -112,7 +109,6 @@ class _CorridaPageState extends State<CorridaPage> {
 
   @override
   Widget build(BuildContext context) {
-
     ResponsivePixelHandler.init(
       baseWidth: 360, //A largura usado pelo designer no modelo desenhado
     );
@@ -126,7 +122,6 @@ class _CorridaPageState extends State<CorridaPage> {
     if (rc == null) {
       rc = RotaController();
     }
-
 
     if (ac == null) {
       ac = AtivosController();
@@ -150,8 +145,9 @@ class _CorridaPageState extends State<CorridaPage> {
           return StreamBuilder(
             stream: rc.outPoly,
             builder: (context, snap) {
-              List<Polyline> polylines =
-                  getPolys(snap.data, snapMotorista.data);
+              print('snap polyy ${snap.data}');
+              polylines =
+                  getPolys(snap.data);
               return StreamBuilder<LatLng>(
                   stream: rc.outLocalizacao,
                   builder: (context, localizacao) {
@@ -165,33 +161,29 @@ class _CorridaPageState extends State<CorridaPage> {
                               print('aqui position ${_initialPosition}');
                               return localizacaoInicial();
                             }
-                            return  GoogleMap(
-                                    myLocationEnabled: true,
-                                    myLocationButtonEnabled: false,
-                                    //polylines: polylines.toSet(),
-                                    mapType: MapType.normal,
-                                    zoomGesturesEnabled: true,
-                                    zoomControlsEnabled: false,
+                            return GoogleMap(
+                              myLocationEnabled: true,
+                              myLocationButtonEnabled: false,
+                              //polylines: polylines.toSet(),
+                              mapType: MapType.normal,
+                              zoomGesturesEnabled: true,
+                              zoomControlsEnabled: false,
                               rotateGesturesEnabled: false,
-                                    initialCameraPosition: CameraPosition(
-                                        target: _initialPosition,
-                                        zoom: Helper.localUser.zoom),
-                                    onMapCreated: (GoogleMapController controller) {
-                                      _controller.complete(controller);
-                                      centerView();
-
-                                    },
-                                  );
-
+                              initialCameraPosition: CameraPosition(
+                                  target: _initialPosition,
+                                  zoom: Helper.localUser.zoom),
+                              onMapCreated: (GoogleMapController controller) {
+                                _controller.complete(controller);
+                                centerView();
+                              },
+                            );
                           });
                     }
                     List<Marker> markers = getMarkers(passageiro_latlng,
                         destino, destino == null ? null : _initialPosition);
 
-                    return StreamBuilder(
-                        stream: pf.outUser,
-                        builder: (context, user) {
-                          return GoogleMap(
+                    return
+                            GoogleMap(
                             myLocationEnabled: true,
                             myLocationButtonEnabled: false,
                             trafficEnabled: true,
@@ -212,7 +204,7 @@ class _CorridaPageState extends State<CorridaPage> {
                               });
                             },
                           );
-                        });
+
                   });
             },
           );
@@ -243,276 +235,224 @@ class _CorridaPageState extends State<CorridaPage> {
       bottomSheet: StreamBuilder<FiltroMotorista>(
           stream: cf.outFiltro,
           builder: (context, filtro) {
-            if(filtro.data.isOnline == null){
-              filtro.data.isOnline = false;
-            }
-            FiltroMotorista f= filtro.data;
+            FiltroMotorista f = filtro.data;
             print('aqui f ${f.isOnline}');
-            return
-                    Container(
-                    color: Colors.white,
-                    child: StreamBuilder<Carro>(
-                      stream: corridaController.outCarro,
-                      builder: (context, carro) {
-                        return StreamBuilder<Motorista>(
-                            stream: mt.outMotorista,
-                            builder: (context, motorista) {
+            return Container(
+              color: Colors.white,
+              child: StreamBuilder<Carro>(
+                stream: corridaController.outCarro,
+                builder: (context, carro) {
+                  return StreamBuilder<Motorista>(
+                      stream: mt.outMotorista,
+                      builder: (context, motorista) {
+                        if (motorista.data == null) {
+                          return Container();
+                        }
+                        if (motorista.data.isOnline == null) {
+                          motorista.data.isOnline = filtro.data.isOnline;
+                        }
+                        print('aqui motorista ${motorista.data}');
+                        return StreamBuilder<List<Requisicao>>(
+                            stream: requisicaoController.outRequisicoes,
+                            builder: (context,
+                                AsyncSnapshot<List<Requisicao>> requisicao) {
+                              if (requisicao.data == null ||
+                                  requisicao.data.isEmpty) {
+                                print('aqui req.data ${requisicao.data}');
+                                return Container(
+                                  width: getLargura(context),
+                                  height: getAltura(context) * .060,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      carro.data == null
+                                          ? Expanded(
+                                              child: hText(
+                                                  'Não conseguimos encontrar seu carro contate o suporte',
+                                                  context,
+                                                  color: Colors.white,
+                                                  textaling: TextAlign.center),
+                                            )
+                                          : GestureDetector(
+                                              onTap: () async {
+                                                FiltroMotorista f =
+                                                    await cf.outFiltro.first;
+                                                f.isOnline = false;
 
-                                          if(motorista.data == null){
-                                            return Container();
-                                          }
-                                          if( motorista.data.isOnline == null){
-                                            motorista.data.isOnline = filtro.data.isOnline;
-                                          }
-                              print('aqui motorista ${motorista.data}');
-                              return StreamBuilder<List<Requisicao>>(
-                                  stream: requisicaoController.outRequisicoes,
-                                  builder: (context,
-                                      AsyncSnapshot<List<Requisicao>>
-                                          requisicao) {
+                                                cf.inFiltro.add(f);
 
-                                    if (requisicao.data == null || requisicao.data.isEmpty) {
-                                            return Container(  width: getLargura(context),
-                                              height: getAltura(context) * .060, child:    Row(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .center,
-                                                  children: <Widget>[
-                                                    carro.data == null
-                                                        ? Expanded(
-                                                      child: hText(
-                                                          'Não conseguimos encontrar seu carro contate o suporte',
-                                                          context,
-                                                          color: Colors
-                                                              .white,
-                                                          textaling:
-                                                          TextAlign
-                                                              .center),
-                                                    )
-                                                        : GestureDetector(
-                                                      onTap:
-                                                          () async {
-                                                        FiltroMotorista
-                                                        f =
-                                                        await cf
-                                                            .outFiltro
-                                                            .first;
-                                                        f.isOnline =
-                                                        false;
+                                                motorista.data.isOnline =
+                                                    f.isOnline;
+                                                motoristaRef
+                                                    .doc(motorista.data.id)
+                                                    .update(motorista.data
+                                                        .toJson());
 
-                                                        cf.inFiltro
-                                                            .add(f);
-
-                                                        motorista.data.isOnline = f.isOnline;
-                                                        motoristaRef
-                                                            .doc(motorista
-                                                            .data
-                                                            .id)
-                                                            .update(motorista
-                                                            .data
-                                                            .toJson());
-
-                                                        corridaController
-                                                            .finalizarCorrida();
-                                                      },
-                                                      child: hTextAbel(
-                                                          'OFFLINE',
-                                                          context,
-                                                          size: 20,
-                                                          weight:
-                                                          FontWeight
-                                                              .bold,
-                                                          color: motorista.data.isOnline ==
+                                                corridaController
+                                                    .finalizarCorrida();
+                                              },
+                                              child: hTextAbel(
+                                                  'OFFLINE', context,
+                                                  size: 20,
+                                                  weight: FontWeight.bold,
+                                                  color:
+                                                      motorista.data.isOnline ==
                                                               false
-                                                              ? Color.fromRGBO(
-                                                              255,
-                                                              184,
-                                                              0,
-                                                              30)
-                                                              : Colors
-                                                              .black),
+                                                          ? Color.fromRGBO(
+                                                              255, 184, 0, 30)
+                                                          : Colors.black),
+                                            ),
+                                      sb,
+                                      sb,
+                                      hTextAbel('|', context, size: 20),
+                                      sb,
+                                      sb,
+                                      GestureDetector(
+                                        onTap: () async {
+                                          FiltroMotorista f =
+                                              await cf.outFiltro.first;
+                                          f.isOnline = true;
+
+                                          cf.inFiltro.add(f);
+
+                                          motorista.data.isOnline = f.isOnline;
+                                          motoristaRef
+                                              .doc(motorista.data.id)
+                                              .update(motorista.data.toJson());
+                                          ;
+                                          corridaController.iniciarCorrida();
+                                        },
+                                        child: hTextAbel(
+                                          'ONLINE',
+                                          context,
+                                          size: 20,
+                                          weight: FontWeight.bold,
+                                          color: motorista.data.isOnline == true
+                                              ? Color.fromRGBO(255, 184, 0, 30)
+                                              : Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                for (Requisicao i in requisicao.data) {
+                                  print('aqui req.data323 ${i}');
+                                  return Container(
+                                      width: getLargura(context),
+                                      height: getAltura(context) * .060,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: i.motoristas_chamados
+                                                .contains(Helper.localUser.id)
+                                            ? Container()
+                                            : Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  carro.data == null
+                                                      ? Expanded(
+                                                          child: hText(
+                                                              'Não conseguimos encontrar seu carro contate o suporte',
+                                                              context,
+                                                              color:
+                                                                  Colors.white,
+                                                              textaling:
+                                                                  TextAlign
+                                                                      .center),
+                                                        )
+                                                      : GestureDetector(
+                                                          onTap: () async {
+                                                            FiltroMotorista f =
+                                                                await cf
+                                                                    .outFiltro
+                                                                    .first;
+                                                            f.isOnline = false;
+
+                                                            cf.inFiltro.add(f);
+
+                                                            motorista.data
+                                                                    .isOnline =
+                                                                f.isOnline;
+                                                            motoristaRef
+                                                                .doc(motorista
+                                                                    .data.id)
+                                                                .update(motorista
+                                                                    .data
+                                                                    .toJson());
+
+                                                            corridaController
+                                                                .finalizarCorrida();
+                                                          },
+                                                          child: hTextAbel(
+                                                              'OFFLINE',
+                                                              context,
+                                                              size: 20,
+                                                              weight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: motorista
+                                                                          .data
+                                                                          .isOnline ==
+                                                                      false
+                                                                  ? Color
+                                                                      .fromRGBO(
+                                                                          255,
+                                                                          184,
+                                                                          0,
+                                                                          30)
+                                                                  : Colors
+                                                                      .black),
+                                                        ),
+                                                  sb,
+                                                  sb,
+                                                  hTextAbel('|', context,
+                                                      size: 20),
+                                                  sb,
+                                                  sb,
+                                                  GestureDetector(
+                                                    onTap: () async {
+                                                      FiltroMotorista f =
+                                                          await cf
+                                                              .outFiltro.first;
+                                                      f.isOnline = true;
+
+                                                      cf.inFiltro.add(f);
+
+                                                      motorista.data.isOnline =
+                                                          f.isOnline;
+                                                      motoristaRef
+                                                          .doc(
+                                                              motorista.data.id)
+                                                          .update(motorista.data
+                                                              .toJson());
+                                                      ;
+                                                      corridaController
+                                                          .iniciarCorrida();
+                                                    },
+                                                    child: hTextAbel(
+                                                      'ONLINE',
+                                                      context,
+                                                      size: 20,
+                                                      weight: FontWeight.bold,
+                                                      color: motorista.data
+                                                                  .isOnline ==
+                                                              true
+                                                          ? Color.fromRGBO(
+                                                              255, 184, 0, 30)
+                                                          : Colors.black,
                                                     ),
-                                                    sb,
-                                                    sb,
-                                                    hTextAbel('|', context,
-                                                        size: 20),
-                                                    sb,
-                                                    sb,
-                                                    GestureDetector(
-                                                      onTap: () async {
-                                                        FiltroMotorista f =
-                                                        await cf
-                                                            .outFiltro
-                                                            .first;
-                                                        f.isOnline = true;
-
-                                                        cf.inFiltro.add(f);
-
-                                                        motorista.data.isOnline =
-                                                            f.isOnline;
-                                                        motoristaRef
-                                                            .doc(motorista
-                                                            .data.id)
-                                                            .update(motorista
-                                                            .data
-                                                            .toJson());
-                                                        ;
-                                                        corridaController
-                                                            .iniciarCorrida();
-                                                      },
-                                                      child: hTextAbel(
-                                                        'ONLINE',
-                                                        context,
-                                                        size: 20,
-                                                        weight:
-                                                        FontWeight.bold,
-                                                        color: motorista.data
-                                                            .isOnline ==
-                                                            true
-                                                            ? Color
-                                                            .fromRGBO(
-                                                            255,
-                                                            184,
-                                                            0,
-                                                            30)
-                                                            : Colors.black,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),);
-                                    } else {
-                                      for (Requisicao i in requisicao.data) {
-                                        return
-                                          Container(
-                                              width: getLargura(context),
-                                              height: getAltura(context) * .060,
-                                              child: Padding(
-                                                padding:
-                                                const EdgeInsets.all(8.0),
-                                                child: i.motoristas_chamados
-                                                    .contains(
-                                                    Helper.localUser.id)
-                                                    ? Container()
-                                                    :
-                                                Row(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .center,
-                                                  children: <Widget>[
-                                                    carro.data == null
-                                                        ? Expanded(
-                                                      child: hText(
-                                                          'Não conseguimos encontrar seu carro contate o suporte',
-                                                          context,
-                                                          color: Colors
-                                                              .white,
-                                                          textaling:
-                                                          TextAlign
-                                                              .center),
-                                                    )
-                                                        : GestureDetector(
-                                                      onTap:
-                                                          () async {
-                                                        FiltroMotorista
-                                                        f =
-                                                        await cf
-                                                            .outFiltro
-                                                            .first;
-                                                        f.isOnline =
-                                                        false;
-
-                                                        cf.inFiltro
-                                                            .add(f);
-
-                                                        motorista.data
-                                                            .isOnline =
-                                                            f.isOnline;
-                                                        motoristaRef
-                                                            .doc(motorista
-                                                            .data
-                                                            .id)
-                                                            .update(motorista
-                                                            .data
-                                                            .toJson());
-
-                                                        corridaController
-                                                            .finalizarCorrida();
-                                                      },
-                                                      child: hTextAbel(
-                                                          'OFFLINE',
-                                                          context,
-                                                          size: 20,
-                                                          weight:
-                                                          FontWeight
-                                                              .bold,
-                                                          color: motorista.data
-                                                              .isOnline ==
-                                                              false
-                                                              ? Color.fromRGBO(
-                                                              255,
-                                                              184,
-                                                              0,
-                                                              30)
-                                                              : Colors
-                                                              .black),
-                                                    ),
-                                                    sb,
-                                                    sb,
-                                                    hTextAbel('|', context,
-                                                        size: 20),
-                                                    sb,
-                                                    sb,
-                                                    GestureDetector(
-                                                      onTap: () async {
-                                                        FiltroMotorista f =
-                                                        await cf
-                                                            .outFiltro
-                                                            .first;
-                                                        f.isOnline = true;
-
-                                                        cf.inFiltro.add(f);
-
-                                                        motorista.data.isOnline =
-                                                            f.isOnline;
-                                                        motoristaRef
-                                                            .doc(motorista
-                                                            .data.id)
-                                                            .update(motorista
-                                                            .data
-                                                            .toJson());
-                                                        ;
-                                                        corridaController
-                                                            .iniciarCorrida();
-                                                      },
-                                                      child: hTextAbel(
-                                                        'ONLINE',
-                                                        context,
-                                                        size: 20,
-                                                        weight:
-                                                        FontWeight.bold,
-                                                        color: motorista.data
-                                                            .isOnline ==
-                                                            true
-                                                            ? Color
-                                                            .fromRGBO(
-                                                            255,
-                                                            184,
-                                                            0,
-                                                            30)
-                                                            : Colors.black,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ));
-                                      }
-                                    }
-                                  });
+                                                  ),
+                                                ],
+                                              ),
+                                      ));
+                                }
+                              }
                             });
-                      },
-                    ),
-                  );
-
+                      });
+                },
+              ),
+            );
           }),
       body: StreamBuilder<bool>(
           stream: cf.outHide,
@@ -541,37 +481,32 @@ class _CorridaPageState extends State<CorridaPage> {
                     stream: requisicaoController.outRequisicoes,
                     builder:
                         (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-                    
                       print('aqui requisicao ${requisicao.data}');
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          Requisicao req = requisicao.data[index];
-                          print('aqui a porra da requisicao');
-                          if (req.aceito == null) {
-                            if (req.motoristas_chamados
-                                .contains(Helper.localUser.id)) {
-
-                              print('aqui bool ${req}');
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                    bottom: getAltura(context) * .045),
-                                child: cf.hide == true
-                                    ? Container()
-                                    : 
-                                  SolicitacaoDoPassageiro(req)
-
-                              );
+                      return IgnorePointer(
+                        ignoring: cf.hide,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            Requisicao req = requisicao.data[index];
+                            print('aqui a porra da requisicao');
+                            if (req.aceito == null) {
+                              if (req.motoristas_chamados
+                                  .contains(Helper.localUser.id)) {
+                                print('aqui bool ${req}');
+                                return Padding(
+                                    padding: EdgeInsets.only(
+                                        bottom: getAltura(context) * .045),
+                                    child:
+                                        SolicitacaoDoPassageiro(req, cf.hide));
+                              } else {
+                                return Container();
+                              }
                             } else {
-
-
                               return Container();
                             }
-                          } else {
-                            return Container();
-                          }
-                        },
-                        itemCount: requisicao.data.length,
+                          },
+                          itemCount: requisicao.data.length,
+                        ),
                       );
                     }),
               ],
@@ -580,7 +515,7 @@ class _CorridaPageState extends State<CorridaPage> {
     );
   }
 
-  Widget SolicitacaoDoPassageiro(requisicaoController) {
+  Widget SolicitacaoDoPassageiro(requisicaoController, hide) {
     print('aqui preço ${controllerPreco.text}');
     double preco_recebo = ((double.parse(controllerPreco.text
                 .replaceAll(',', '')
@@ -603,139 +538,185 @@ class _CorridaPageState extends State<CorridaPage> {
           double preco_mercado_liquido = ((preco_mercado) * 75) / 100;
           double preco_minimo = ((preco_mercado) * 85) / 100;
           double preco_minimo_liquido = ((preco_mercado) * 90) / 100;
-
+          print('aqui o hiide ${hide}');
           return Padding(
             padding: EdgeInsets.only(top: 20.0),
             child: Container(
+                color: Colors.transparent.withOpacity(0.0),
                 child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                StreamBuilder<bool>(
-                    stream: cf.outHide,
-                    builder: (context, snapshot) {
-                      return GestureDetector(
-                        onTap: () {
-                          requisicao(requisicaoController);
-                          centerView();
-                          cf.hide = true;
-                          cf.inHide.add(snapshot.data);
-                        },
-                        child: Container(
-                          width: getLargura(context) * .5,
-                          height: getAltura(context) * .050,
-                          child: hTextMal(
-                              requisicaoController.isViagem == true
-                                  ? 'Viagem'
-                                  : 'Entrega',
-                              context,
-                              size: 25,
-                              textaling: TextAlign.center,
-                              weight: FontWeight.bold),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(15),
-                                topLeft: Radius.circular(15)),
-                            color: Colors.white,
-                          ),
-                        ),
-                      );
-                    }),
-                Container(
-                  height: getAltura(context) * .58,
-                  width: getLargura(context),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: Colors.white,
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(
-                                top:
-                                    ResponsivePixelHandler.toPixel(15, context),
-                                bottom:
-                                    ResponsivePixelHandler.toPixel(5, context),
-                                left:
-                                    ResponsivePixelHandler.toPixel(10, context),
-                                right: ResponsivePixelHandler.toPixel(
-                                    10, context)),
-                            child: CircleAvatar(
-                                backgroundImage: user.data[0].foto == null
-                                    ? AssetImage('assets/logo_drawer.png')
-                                    : CachedNetworkImageProvider(
-                                        user.data[0].foto),
-                                radius: 40),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(
-                                top:
-                                    ResponsivePixelHandler.toPixel(15, context),
-                                bottom:
-                                    ResponsivePixelHandler.toPixel(5, context),
-                                left:
-                                    ResponsivePixelHandler.toPixel(10, context),
-                                right: ResponsivePixelHandler.toPixel(
-                                    10, context)),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                Row(
-                                  children: <Widget>[
-                                    hTextMal(
-                                        requisicaoController.user_nome, context,
-                                        size: 20, weight: FontWeight.bold),
-                                    sb,
-                                    Image.asset('assets/estrela.png'),
-                                    sb,
-                                    hTextAbel('5,0', context, size: 20),
-                                    sb,
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    user.data[0].isMale == true
-                                        ? hTextMal('Masculino', context,
-                                            size: 20)
-                                        : hTextMal('Feminino', context,
-                                            size: 20),
-                                    sb,
-                                    Icon(
-                                      MdiIcons.transitConnectionVariant,
-                                      size: 30,
-                                      color: Colors.blue,
-                                    ),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    hide == true
+                        ? Container()
+                        : GestureDetector(
+                            onTap: () {
+                                rotaPassageiro(requisicaoController);
 
-                                    sb,
-
-                                    //hTextMal('${passageiro.viagens} viagens', context,                                     size: 50)
-                                  ],
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: <Widget>[
-                                    hTextMal('Desconhecido', context,
-                                        size: 20, weight: FontWeight.bold),
-                                    Icon(
-                                      Icons.memory,
-                                      size: 25,
-                                    ),
-                                  ],
-                                )
-                              ],
+                              centerView();
+                              cf.hide = true;
+                              cf.inHide.add(cf.hide);
+                            },
+                            child: Container(
+                              width: getLargura(context) * .5,
+                              height: getAltura(context) * .050,
+                              child: hTextMal(
+                                  requisicaoController.isViagem == true
+                                      ? 'Viagem'
+                                      : 'Entrega',
+                                  context,
+                                  size: 25,
+                                  textaling: TextAlign.center,
+                                  weight: FontWeight.bold,
+                                  color: hide == true
+                                      ? Colors.transparent.withOpacity(0.0)
+                                      : Colors.black),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(15),
+                                    topLeft: Radius.circular(15)),
+                                color: hide == true
+                                    ? Colors.transparent.withOpacity(0.0)
+                                    : Colors.white,
+                              ),
                             ),
                           ),
+                    Container(
+                      height: getAltura(context) * .58,
+                      width: getLargura(context),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: hide == true
+                            ? Colors.transparent.withOpacity(0.0)
+                            : Colors.white,
+                      ),
+                      child: Column(
+                        children: <Widget>[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    top: ResponsivePixelHandler.toPixel(
+                                        15, context),
+                                    bottom: ResponsivePixelHandler.toPixel(
+                                        5, context),
+                                    left: ResponsivePixelHandler.toPixel(
+                                        10, context),
+                                    right: ResponsivePixelHandler.toPixel(
+                                        10, context)),
+                                child: hide == true
+                                    ? Container()
+                                    : CircleAvatar(
+                                        backgroundImage:
+                                            user.data[0].foto == null
+                                                ? AssetImage(
+                                                    'assets/logo_drawer.png')
+                                                : CachedNetworkImageProvider(
+                                                    user.data[0].foto),
+                                        radius: 40),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    top: ResponsivePixelHandler.toPixel(
+                                        15, context),
+                                    bottom: ResponsivePixelHandler.toPixel(
+                                        5, context),
+                                    left: ResponsivePixelHandler.toPixel(
+                                        10, context),
+                                    right: ResponsivePixelHandler.toPixel(
+                                        10, context)),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: <Widget>[
+                                    Row(
+                                      children: <Widget>[
+                                        hTextMal(requisicaoController.user_nome,
+                                            context,
+                                            size: 20,
+                                            weight: FontWeight.bold,
+                                            color: hide == true
+                                                ? Colors.transparent
+                                                    .withOpacity(0.0)
+                                                : Colors.black),
+                                        sb,
+                                        hide == true
+                                            ? Container()
+                                            : Image.asset('assets/estrela.png'),
+                                        sb,
+                                        hTextAbel('5,0', context,
+                                            size: 20,
+                                            color: hide == true
+                                                ? Colors.transparent
+                                                    .withOpacity(0.0)
+                                                : Colors.black),
+                                        sb,
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        user.data[0].isMale == true
+                                            ? hTextMal('Masculino', context,
+                                                size: 20,
+                                                color: hide == true
+                                                    ? Colors.transparent
+                                                        .withOpacity(0.0)
+                                                    : Colors.black)
+                                            : hTextMal('Feminino', context,
+                                                size: 20,
+                                                color: hide == true
+                                                    ? Colors.transparent
+                                                        .withOpacity(0.0)
+                                                    : Colors.black),
+                                        sb,
+                                        hide == true
+                                            ? Container()
+                                            : Icon(
+                                                MdiIcons
+                                                    .transitConnectionVariant,
+                                                size: 30,
+                                                color: Colors.blue,
+                                              ),
 
-                            //cronometro(context)
-                          /* StreamBuilder<bool>(
+                                        sb,
+
+                                        //hTextMal('${passageiro.viagens} viagens', context,                                     size: 50)
+                                      ],
+                                    ),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: <Widget>[
+                                        hTextMal(
+                                            '${requisicaoController.forma_de_pagamento.toLowerCase()}',
+                                            context,
+                                            size: 20,
+                                            weight: FontWeight.bold,
+                                            color: hide == true
+                                                ? Colors.transparent
+                                                    .withOpacity(0.0)
+                                                : Colors.black),
+                                        hide = true
+                                            ? Container()
+                                            : Icon(
+                                                Icons.memory,
+                                                size: 25,
+                                              ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              ),
+                              cronometro(context, cf.hide, requisicaoController)
+                              /* StreamBuilder<bool>(
                                       stream: cf.outHide,
                                       builder: (context, snapshot) {
                                         return Padding(
@@ -756,397 +737,549 @@ class _CorridaPageState extends State<CorridaPage> {
                                       );
                                     }
                                   )*/
-                        ],
-                      ),
-                      sb,
-                      Container(
-                        width: getLargura(context),
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            left: ResponsivePixelHandler.toPixel(5, context),
-                          ),
-                          child: Row(
-                            children: <Widget>[
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                      decoration: BoxDecoration(
-                                          border: Border(
-                                        right: BorderSide(color: Colors.black),
-                                        bottom: BorderSide(color: Colors.black),
-                                      )),
-                                      width: getLargura(context) * .30,
-                                      height: getAltura(context) * .130,
-                                      child: Column(
-                                        children: <Widget>[
-                                          hTextMal('Mercado', context,
-                                              size: 20,
-                                              weight: FontWeight.bold),
-                                          sb,
-                                          hTextMal(
-                                              'R\$ ${preco_mercado.toStringAsFixed(2)}',
-                                              context,
-                                              size: 20),
-                                          sb,
-                                          sb,
-                                        ],
-                                      )),
-                                ],
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                      decoration: BoxDecoration(
-                                          border: Border(
-                                        right: BorderSide(color: Colors.black),
-                                        bottom: BorderSide(color: Colors.black),
-                                      )),
-                                      width: getLargura(context) * .30,
-                                      height: getAltura(context) * .130,
-                                      child: Column(
-                                        children: <Widget>[
-                                          hTextMal('Mínimo', context,
-                                              size: 20,
-                                              weight: FontWeight.bold),
-                                          sb,
-                                          hTextMal(
-                                              'R\$ ${preco_minimo.toStringAsFixed(2)}',
-                                              context,
-                                              size: 20),
-                                          sb,
-                                          sb,
-                                        ],
-                                      )),
-                                ],
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                      decoration: BoxDecoration(
-                                          border: Border(
-                                        bottom: BorderSide(color: Colors.black),
-                                      )),
-                                      width: getLargura(context) * .35,
-                                      height: getAltura(context) * .130,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          hTextMal('Passageiro', context,
-                                              size: 20,
-                                              weight: FontWeight.bold),
-                                          sb,
-                                          Container(
-                                            width: getLargura(context) * .32,
-                                            height: getAltura(context) * .060,
-                                            child: TextFormField(
-                                              controller: controllerPreco,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                              ),
-                                              expands: false,
-                                              decoration: InputDecoration(
-                                                fillColor: Colors.black,
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                ),
-                                                labelText: 'Preço',
-                                                hintText: 'R\$ ',
-                                                contentPadding:
-                                                    EdgeInsets.fromLTRB(
-                                                        ResponsivePixelHandler
-                                                            .toPixel(
-                                                                15, context),
-                                                        ResponsivePixelHandler
-                                                            .toPixel(
-                                                                5, context),
-                                                        ResponsivePixelHandler
-                                                            .toPixel(
-                                                                15, context),
-                                                        ResponsivePixelHandler
-                                                            .toPixel(
-                                                                5, context)),
-                                              ),
-                                            ),
-                                          ),
-                                          sb,
-                                        ],
-                                      )),
-                                ],
-                              ),
                             ],
                           ),
-                        ),
-                      ),
-                      Container(
-                        width: getLargura(context),
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            left: ResponsivePixelHandler.toPixel(5, context),
-                          ),
-                          child: Row(
-                            children: <Widget>[
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      top: ResponsivePixelHandler.toPixel(
-                                          5, context),
-                                    ),
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                            border: Border(
-                                          right:
-                                              BorderSide(color: Colors.black),
-                                        )),
-                                        width: getLargura(context) * .30,
-                                        height: getAltura(context) * .130,
-                                        child: Column(
-                                          children: <Widget>[
-                                            hTextMal('Líquido', context,
-                                                size: 20,
-                                                weight: FontWeight.bold),
-                                            hTextMal('(-25%)', context,
-                                                size: 20),
-                                            hTextMal(
-                                                'R\$ ${preco_mercado_liquido.toStringAsFixed(2)}',
-                                                context,
-                                                size: 20),
-                                          ],
-                                        )),
-                                  ),
-                                ],
+                          sb,
+                          Container(
+                            width: getLargura(context),
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                left:
+                                    ResponsivePixelHandler.toPixel(5, context),
                               ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
                                 children: <Widget>[
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      top: ResponsivePixelHandler.toPixel(
-                                          5, context),
-                                    ),
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                            border: Border(
-                                          right:
-                                              BorderSide(color: Colors.black),
-                                        )),
-                                        width: getLargura(context) * .30,
-                                        height: getAltura(context) * .130,
-                                        child: Column(
-                                          children: <Widget>[
-                                            hTextMal('Líquido', context,
-                                                size: 20,
-                                                weight: FontWeight.bold),
-                                            hTextMal('(-10%)', context,
-                                                size: 20),
-                                            hTextMal(
-                                                'R\$${preco_minimo_liquido.toStringAsFixed(2)}',
-                                                context,
-                                                size: 20),
-                                          ],
-                                        )),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Container(
+                                          decoration: BoxDecoration(
+                                              border: Border(
+                                            right: BorderSide(
+                                                color: cf.hide == true
+                                                    ? Colors.transparent
+                                                        .withOpacity(0.0)
+                                                    : Colors.black),
+                                            bottom: BorderSide(
+                                                color: cf.hide == true
+                                                    ? Colors.transparent
+                                                        .withOpacity(0.0)
+                                                    : Colors.black),
+                                          )),
+                                          width: getLargura(context) * .30,
+                                          height: getAltura(context) * .130,
+                                          child: Column(
+                                            children: <Widget>[
+                                              cf.hide == true
+                                                  ? Container()
+                                                  : hTextMal('Mercado', context,
+                                                      size: 20,
+                                                      weight: FontWeight.bold,
+                                                      color: Colors.black),
+                                              sb,
+                                              cf.hide == true
+                                                  ? Container()
+                                                  : hTextMal(
+                                                      'R\$ ${preco_mercado.toStringAsFixed(2)}',
+                                                      context,
+                                                      size: 20,
+                                                      color: cf.hide == true
+                                                          ? Colors.transparent
+                                                              .withOpacity(0.0)
+                                                          : Colors.black),
+                                              sb,
+                                              sb,
+                                            ],
+                                          )),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      top: ResponsivePixelHandler.toPixel(
-                                          5, context),
-                                    ),
-                                    child: Container(
-                                        decoration:
-                                            BoxDecoration(border: Border()),
-                                        width: getLargura(context) * .35,
-                                        height: getAltura(context) * .130,
-                                        child: Column(
+                                  cf.hide == true
+                                      ? Container()
+                                      : Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: <Widget>[
-                                            hTextMal('Recebo', context,
-                                                size: 20,
-                                                weight: FontWeight.bold),
-                                            SizedBox(
-                                              height: 6,
-                                            ),
                                             Container(
+                                                decoration: BoxDecoration(
+                                                    border: Border(
+                                                  right: BorderSide(
+                                                      color: Colors.black),
+                                                  bottom: BorderSide(
+                                                      color: Colors.black),
+                                                )),
                                                 width:
                                                     getLargura(context) * .30,
                                                 height:
-                                                    getAltura(context) * .040,
-                                                decoration: BoxDecoration(
-                                                    border: Border.all()),
-                                                child: Center(
-                                                    child: hTextMal(
-                                                        'R\$ ${preco_recebo.toStringAsFixed(2)}',
+                                                    getAltura(context) * .130,
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    hTextMal(
+                                                      'Mínimo',
+                                                      context,
+                                                      size: 20,
+                                                      weight: FontWeight.bold,
+                                                    ),
+                                                    sb,
+                                                    hTextMal(
+                                                        'R\$ ${preco_minimo.toStringAsFixed(2)}',
                                                         context,
                                                         size: 20,
-                                                        textaling:
-                                                            TextAlign.center))),
-                                            sb,
+                                                        color: Colors.black),
+                                                    sb,
+                                                    sb,
+                                                  ],
+                                                )),
                                           ],
-                                        )),
-                                  ),
+                                        ),
+                                  cf.hide == true
+                                      ? Container()
+                                      : Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Container(
+                                                decoration: BoxDecoration(
+                                                    border: Border(
+                                                  bottom: BorderSide(
+                                                      color: hide == true
+                                                          ? Colors.transparent
+                                                              .withOpacity(0.0)
+                                                          : Colors.black),
+                                                )),
+                                                width:
+                                                    getLargura(context) * .35,
+                                                height:
+                                                    getAltura(context) * .130,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    hTextMal(
+                                                        'Passageiro', context,
+                                                        size: 20,
+                                                        weight: FontWeight.bold,
+                                                        color: Colors.black),
+                                                    sb,
+                                                    hide == true
+                                                        ? Container()
+                                                        : Container(
+                                                            width: getLargura(
+                                                                    context) *
+                                                                .32,
+                                                            height: getAltura(
+                                                                    context) *
+                                                                .060,
+                                                            child:
+                                                                TextFormField(
+                                                              controller:
+                                                                  controllerPreco,
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .number,
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .black,
+                                                              ),
+                                                              expands: false,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                fillColor:
+                                                                    Colors
+                                                                        .black,
+                                                                border:
+                                                                    OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10.0),
+                                                                ),
+                                                                labelText:
+                                                                    'Preço',
+                                                                hintText:
+                                                                    'R\$ ',
+                                                                contentPadding: EdgeInsets.fromLTRB(
+                                                                    ResponsivePixelHandler
+                                                                        .toPixel(
+                                                                            15,
+                                                                            context),
+                                                                    ResponsivePixelHandler
+                                                                        .toPixel(5,
+                                                                            context),
+                                                                    ResponsivePixelHandler
+                                                                        .toPixel(
+                                                                            15,
+                                                                            context),
+                                                                    ResponsivePixelHandler
+                                                                        .toPixel(
+                                                                            5,
+                                                                            context)),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                    sb,
+                                                  ],
+                                                )),
+                                          ],
+                                        ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      sb,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () async {
-                              try {
-                                await requisicaoRef
-                                    .doc(requisicaoController.id)
-                                    .update({
-                                  'motoristas_chamados': FieldValue.arrayRemove(
-                                      ['${Helper.localUser.id}'])
-                                }).then((v) {
-                                  print('sucesso ao tirar motorista da lista');
-                                });
-                              } catch (e) {
-                                print(e);
-                              }
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Container(
-                                  height: getAltura(context) * .110,
-                                  width: getLargura(context) * .355,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Color.fromRGBO(218, 218, 218, 100),
-                                  ),
-                                  child: Center(
-                                      child: hTextAbel('Rejeitar', context,
-                                          size: 30, weight: FontWeight.bold))),
                             ),
                           ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () async {
-                              print('aqui botão ');
-                              double precofinal = double.parse(controllerPreco
-                                  .text
-                                  .replaceAll(',', '')
-                                  .replaceAll('R\$', '')
-                                  .replaceAll('.', ''));
-                              print(
-                                  'aqui botão ${precofinal.toStringAsFixed(2)}');
-                              if (precofinal != 0.0) {
-                                List<OfertaCorrida> ofertaList = List();
-                                OfertaCorrida oferta = OfertaCorrida(
-                                    requisicao: requisicaoController.id,
-                                    id_usuario: requisicaoController.user,
-                                    data: requisicaoController.created_at,
-                                    motorista: Helper.localUser.id,
-                                    preco: double.parse(controllerPreco.text
-                                        .replaceAll(',', '.')
-                                        .replaceAll('R\$', '')));
-                                ofertaList.add(oferta);
-                                await ofertacorridaRef
-                                    .add(oferta.toJson())
-                                    .then((v) {
-                                  oferta.id = v.id;
-                                  List jumento = new List();
-                                  jumento.add(v.id);
-                                  requisicaoController.ofertas = jumento;
-                                  ofertacorridaRef
-                                      .doc(oferta.id)
-                                      .update(oferta.toJson());
-
-                                  Requisicao req = Requisicao(
-                                    ofertas: jumento,
-                                    motoristas_chamados: requisicaoController
-                                        .motoristas_chamados,
-                                    valid_until:
-                                        requisicaoController.valid_until,
-                                    tempo_estimado:
-                                        requisicaoController.tempo_estimado,
-                                    rota: requisicaoController.rota,
-                                    distancia: requisicaoController.distancia,
-                                    destino: requisicaoController.destino,
-                                    created_at: requisicaoController.created_at,
-                                    id: requisicaoController.id,
-                                    aceito: requisicaoController.aceito,
-                                    deleted_at: requisicaoController.deleted_at,
-                                    isViagem: requisicaoController.isViagem,
-                                    origem: requisicaoController.origem,
-                                    updated_at: requisicaoController.updated_at,
-                                    user: requisicaoController.user,
-                                    user_nome: requisicaoController.user_nome,
-                                  );
-
-                                  print(
-                                      'aqui o for ${req.ofertas} e ${req.toJson()} e 213235423432 ');
-
-                                  return requisicaoRef
-                                      .doc(req.id)
-                                      .update(req.toJson())
-                                      .then((v) {
-                                    print('aqui oferta atualizada');
-                                    dToast('Você aceitou a viagem');
-
-                                    requisicaoRef.doc(req.id).update({
-                                      'motoristas_chamados':
-                                          FieldValue.arrayRemove(
-                                              ['${Helper.localUser.id}'])
-                                    }).then((v) {
-                                      print(
-                                          'sucesso ao tirar motorista da lista');
-                                    });
-                                  });
-                                });
-                              } else {
-                                print('aqui campo vazio');
-                                dToast('Preencha o campo preço');
-                              }
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.all(
-                                  ResponsivePixelHandler.toPixel(8, context)),
-                              child: Container(
-                                  height: getAltura(context) * .110,
-                                  width: getLargura(context) * .355,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Color.fromRGBO(255, 184, 0, 30),
+                          cf.hide == true
+                              ? Container()
+                              : Container(
+                                  width: getLargura(context),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      left: ResponsivePixelHandler.toPixel(
+                                          5, context),
+                                    ),
+                                    child: Row(
+                                      children: <Widget>[
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: ResponsivePixelHandler
+                                                    .toPixel(5, context),
+                                              ),
+                                              child: Container(
+                                                  decoration: BoxDecoration(
+                                                      border: Border(
+                                                    right: BorderSide(
+                                                        color: hide == true
+                                                            ? Colors.transparent
+                                                                .withOpacity(
+                                                                    0.0)
+                                                            : Colors.black),
+                                                  )),
+                                                  width:
+                                                      getLargura(context) * .30,
+                                                  height:
+                                                      getAltura(context) * .130,
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      hide == true
+                                                          ? Container()
+                                                          : hTextMal('Líquido',
+                                                              context,
+                                                              size: 20,
+                                                              weight: FontWeight
+                                                                  .bold,
+                                                              color: hide ==
+                                                                      true
+                                                                  ? Colors
+                                                                      .transparent
+                                                                      .withOpacity(
+                                                                          0.0)
+                                                                  : Colors
+                                                                      .black),
+                                                      hTextMal(
+                                                          '(-25%)', context,
+                                                          size: 20),
+                                                      hTextMal(
+                                                          'R\$ ${preco_mercado_liquido.toStringAsFixed(2)}',
+                                                          context,
+                                                          size: 20,
+                                                          color: hide == true
+                                                              ? Colors
+                                                                  .transparent
+                                                                  .withOpacity(
+                                                                      0.0)
+                                                              : Colors.black),
+                                                    ],
+                                                  )),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: ResponsivePixelHandler
+                                                    .toPixel(5, context),
+                                              ),
+                                              child: Container(
+                                                  decoration: BoxDecoration(
+                                                      border: Border(
+                                                    right: BorderSide(
+                                                        color: hide == true
+                                                            ? Colors.transparent
+                                                                .withOpacity(
+                                                                    0.0)
+                                                            : Colors.black),
+                                                  )),
+                                                  width:
+                                                      getLargura(context) * .30,
+                                                  height:
+                                                      getAltura(context) * .130,
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      hTextMal(
+                                                          'Líquido', context,
+                                                          size: 20,
+                                                          weight:
+                                                              FontWeight.bold),
+                                                      hTextMal(
+                                                          '(-10%)', context,
+                                                          size: 20),
+                                                      hTextMal(
+                                                          'R\$${preco_minimo_liquido.toStringAsFixed(2)}',
+                                                          context,
+                                                          size: 20),
+                                                    ],
+                                                  )),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: ResponsivePixelHandler
+                                                    .toPixel(5, context),
+                                              ),
+                                              child: Container(
+                                                  decoration: BoxDecoration(
+                                                      border: Border()),
+                                                  width:
+                                                      getLargura(context) * .35,
+                                                  height:
+                                                      getAltura(context) * .130,
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      hTextMal(
+                                                          'Recebo', context,
+                                                          size: 20,
+                                                          weight:
+                                                              FontWeight.bold),
+                                                      SizedBox(
+                                                        height: 6,
+                                                      ),
+                                                      Container(
+                                                          width: getLargura(
+                                                                  context) *
+                                                              .30,
+                                                          height: getAltura(
+                                                                  context) *
+                                                              .040,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                  border: Border
+                                                                      .all()),
+                                                          child: Center(
+                                                              child: hTextMal(
+                                                                  'R\$ ${preco_recebo.toStringAsFixed(2)}',
+                                                                  context,
+                                                                  size: 20,
+                                                                  textaling:
+                                                                      TextAlign
+                                                                          .center))),
+                                                      sb,
+                                                    ],
+                                                  )),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  child: Center(
-                                      child: hTextAbel('Aceitar', context,
-                                          size: 30, weight: FontWeight.bold))),
-                            ),
-                          ),
+                                ),
+                          sb,
+                          cf.hide == true
+                              ? Container()
+                              : Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: () async {
+                                        try {
+                                          await requisicaoRef
+                                              .doc(requisicaoController.id)
+                                              .update({
+                                            'motoristas_chamados':
+                                                FieldValue.arrayRemove(
+                                                    ['${Helper.localUser.id}'])
+                                          }).then((v) {
+                                            print(
+                                                'sucesso ao tirar motorista da lista');
+                                          });
+                                        } catch (e) {
+                                          print(e);
+                                        }
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Container(
+                                            height: getAltura(context) * .110,
+                                            width: getLargura(context) * .355,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: hide == true
+                                                  ? Colors.transparent
+                                                      .withOpacity(0.0)
+                                                  : Color.fromRGBO(
+                                                      218, 218, 218, 100),
+                                            ),
+                                            child: Center(
+                                                child: hTextAbel(
+                                                    'Rejeitar', context,
+                                                    size: 30,
+                                                    weight: FontWeight.bold))),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: () async {
+                                        print('aqui botão ');
+                                        double precofinal = double.parse(
+                                            controllerPreco.text
+                                                .replaceAll(',', '')
+                                                .replaceAll('R\$', '')
+                                                .replaceAll('.', ''));
+                                        print(
+                                            'aqui botão ${precofinal.toStringAsFixed(2)}');
+                                        if (precofinal != 0.0) {
+                                          List<OfertaCorrida> ofertaList =
+                                              List();
+                                          OfertaCorrida oferta = OfertaCorrida(
+                                              requisicao:
+                                                  requisicaoController.id,
+                                              id_usuario:
+                                                  requisicaoController.user,
+                                              data: requisicaoController
+                                                  .created_at,
+                                              motorista: Helper.localUser.id,
+                                              preco: double.parse(
+                                                  controllerPreco.text
+                                                      .replaceAll(',', '.')
+                                                      .replaceAll('R\$', '')));
+                                          ofertaList.add(oferta);
+                                          await ofertacorridaRef
+                                              .add(oferta.toJson())
+                                              .then((v) {
+                                            oferta.id = v.id;
+                                            List jumento = new List();
+                                            jumento.add(v.id);
+                                            requisicaoController.ofertas =
+                                                jumento;
+                                            ofertacorridaRef
+                                                .doc(oferta.id)
+                                                .update(oferta.toJson());
+
+                                            Requisicao req = Requisicao(
+                                              ofertas: jumento,
+                                              motoristas_chamados:
+                                                  requisicaoController
+                                                      .motoristas_chamados,
+                                              valid_until: requisicaoController
+                                                  .valid_until,
+                                              tempo_estimado:
+                                                  requisicaoController
+                                                      .tempo_estimado,
+                                              rota: requisicaoController.rota,
+                                              distancia: requisicaoController
+                                                  .distancia,
+                                              destino:
+                                                  requisicaoController.destino,
+                                              created_at: requisicaoController
+                                                  .created_at,
+                                              id: requisicaoController.id,
+                                              aceito:
+                                                  requisicaoController.aceito,
+                                              deleted_at: requisicaoController
+                                                  .deleted_at,
+                                              isViagem:
+                                                  requisicaoController.isViagem,
+                                              origem:
+                                                  requisicaoController.origem,
+                                              updated_at: requisicaoController
+                                                  .updated_at,
+                                              user: requisicaoController.user,
+                                              user_nome: requisicaoController
+                                                  .user_nome,
+                                            );
+
+                                            print(
+                                                'aqui o for ${req.ofertas} e ${req.toJson()} e 213235423432 ');
+
+                                            return requisicaoRef
+                                                .doc(req.id)
+                                                .update(req.toJson())
+                                                .then((v) {
+                                              print('aqui oferta atualizada');
+                                              dToast('Você aceitou a viagem');
+
+                                              requisicaoRef.doc(req.id).update({
+                                                'motoristas_chamados':
+                                                    FieldValue.arrayRemove([
+                                                  '${Helper.localUser.id}'
+                                                ])
+                                              }).then((v) {
+                                                print(
+                                                    'sucesso ao tirar motorista da lista');
+                                              });
+                                            });
+                                          });
+                                        } else {
+                                          print('aqui campo vazio');
+                                          dToast('Preencha o campo preço');
+                                        }
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.all(
+                                            ResponsivePixelHandler.toPixel(
+                                                8, context)),
+                                        child: Container(
+                                            height: getAltura(context) * .110,
+                                            width: getLargura(context) * .355,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: hide == true
+                                                  ? Colors.transparent
+                                                      .withOpacity(0.0)
+                                                  : Color.fromRGBO(
+                                                      255, 184, 0, 30),
+                                            ),
+                                            child: Center(
+                                                child: hTextAbel(
+                                                    'Aceitar', context,
+                                                    size: 30,
+                                                    weight: FontWeight.bold))),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            )),
+                    ),
+                  ],
+                )),
           );
         });
   }
@@ -1177,16 +1310,48 @@ class _CorridaPageState extends State<CorridaPage> {
         target: LatLng(position.latitude, position.longitude),
         zoom: Helper.localUser.zoom)));
   }
+   rotaPassageiro(requisicaoController){
+             print('aqui routes ${requisicaoController.rota.routes.length}');
+     List<List<LatLng>> polylineCoordinates = [];
+             Rota r = Rota.fromJson(json.decode(requisicaoController));
+     for (int i = 0;
+     i < r.routes.length;
+     i++) {
+       List<LatLng> rotas = [];
 
-  List<Polyline> getPolys(data, motorista) {
+       if (i == 0) {
+         rotas.add(LatLng(
+             requisicaoController.origem.lat,
+             requisicaoController.origem.lng));
+         passageiro_latlng = LatLng(requisicaoController.origem.lat,
+             requisicaoController.origem.lng);
+         print('aqui passageiro ${passageiro_latlng}');
+       }
+       for (var l
+       in r.routes[0].legs) {
+         for (var s in l.steps) {
+           for (var i in s.intersections) {
+             rotas.add(LatLng(i.location[1], i.location[0]));
+           }
+         }
+       }
+       polylineCoordinates.add(rotas);
+     }
+         destino=    LatLng(requisicaoController.destino.lat,
+                 requisicaoController.destino.lng);
+     polylineCoordinates.last.add(LatLng(
+         polylineCoordinates.last.last.latitude,
+         polylineCoordinates.last.last.longitude));
+     rc.inPoly.add(polylineCoordinates);
+     return polylineCoordinates;
+   }
+  List<Polyline> getPolys(data, {motorista}) {
     List<Polyline> poly = new List();
 
     if (data == null) {
       return poly;
     }
-    if (motorista == null) {
-      return poly;
-    }
+
     PolylineId id = PolylineId("poly");
     PolylineId id2 = PolylineId("poly2");
     print('aqui a data ${data.toString()}');
@@ -1215,7 +1380,7 @@ class _CorridaPageState extends State<CorridaPage> {
     Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((v) async {
-          print('aqui porra da localização ${v.latitude}');
+      print('aqui porra da localização ${v.latitude}');
       telaCentralizada(v);
       rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
       _initialPosition = LatLng(v.latitude, v.longitude);

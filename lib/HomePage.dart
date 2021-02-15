@@ -115,7 +115,6 @@ class _HomePageState extends State<HomePage> {
   LatLng get initialPosition => _initialPosition;
   String _currentAddress;
   String filtro;
-
   String destinoAddress;
   String endereco_paradaUm;
   String endereco_paradaDois;

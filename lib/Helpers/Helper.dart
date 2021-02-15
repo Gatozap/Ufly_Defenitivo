@@ -25,7 +25,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:responsive_pixel/responsive_pixel.dart';
 import 'package:timer_count_down/timer_controller.dart';
 import 'package:timer_count_down/timer_count_down.dart';
-
+import 'package:ufly/Helpers/References.dart';
 import 'package:ufly/Objetos/User.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -144,11 +144,11 @@ hTextAbel(text, context,
     ),
   );
 }
- cronometro(context){
+ cronometro(context, hide, req){
    final CountdownController controller = CountdownController();
   return Container(
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: hide == true? Colors.transparent.withOpacity(0.0): Colors.white,
       shape: BoxShape.circle,
     ),
     child: Padding(
@@ -163,7 +163,7 @@ hTextAbel(text, context,
               15, context)),
       child: Column(
         children: [
-          Icon(Icons.timer,
+          hide == true? Container(): Icon(Icons.timer,
               color: Colors.black, size: 20),
           Countdown(
 
@@ -176,7 +176,7 @@ hTextAbel(text, context,
                     time.toStringAsFixed(0), context,
                     size: 35,
                     color:
-                    time > 10 ?  Colors.green : Colors.red,
+                    time > 10 ?  hide == true? Colors.transparent.withOpacity(0.0): Colors.green :hide == true? Colors.transparent.withOpacity(0.0): Colors.red,
                     weight: FontWeight.bold),
             interval: Duration(milliseconds:   100),
             onFinished: () async {
@@ -188,12 +188,12 @@ hTextAbel(text, context,
                       'motoristas_chamados': FieldValue.arrayRemove(
                               ['${Helper.localUser.id}'])
                     }).then((v) {
-                    requisicaoChegou = false;
+
                       print('sucesso ao tirar motorista da lista');
                     });
                   }catch (e) {
                     print(e);
-                  }     */
+                  } */
             },
           )
         ],
