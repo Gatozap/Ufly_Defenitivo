@@ -203,21 +203,21 @@ class CorridaController extends BlocBase {
           novaLocalizacao(
               LatLng(location.coords.latitude, location.coords.longitude));
         }, (err) {
-          print("Error: ${err.toString()}");
+          print("Error 234: ${err.toString()}");
         });
         bg.BackgroundGeolocation.playSound(util.Dialog.getSoundId("OPEN"));
         try {
           bg.BackgroundGeolocation.registerHeadlessTask(headlessTask)
               .catchError((err) {
-            print('Error: ${err.toString()}');
+            print('Error432: ${err.toString()}');
           });
         } catch (err) {
-          print('Error: ${err.toString()}');
+          print('Error324: ${err.toString()}');
         }
       };
       print("CHAMANDO?");
       bg.BackgroundGeolocation.start().then(callback).catchError((onError) {
-        print("Error: ${onError.toString()}");
+        print("Error 34: ${onError.toString()}");
       });
     } 
 
@@ -379,8 +379,6 @@ class CorridaController extends BlocBase {
     if (started == true) {
       print('Nova localização ${started}');
       Localizacao loc;
-
-
       UserLocation = new MarkerLayerOptions(
         markers: [
           new Marker(
@@ -419,7 +417,7 @@ class CorridaController extends BlocBase {
                 LastUserLocation.markers[0].point.latitude &&
             UserLocation.markers[0].point.longitude !=
                 LastUserLocation.markers[0].point.latitude) {
-
+                  print('1aqui localização do usuario ${UserLocation.toString()}');
             cfs.AdicionarLatLng(loc, distanciaPercorrida);
 
           inUserLocation.add(UserLocation);

@@ -64,12 +64,10 @@ class CorridaFirebaseSender {
 
       ca.isAtivo = false;
       print('aqui a porra do ativo ${ca.isAtivo}');
-         Motorista motorista = Motorista(isOnline: false);
+
 
       carrosAtivosRef.child(Helper.localUser.id).set(ca.toJson()).then((value) {
-        motoristaRef.doc(Helper.localUser.id).update(motorista.toJson()).then((value){
-          print('Motorista Atualizada');
-        });
+
         print('Localização Atualizada');
       });
     }).catchError((err) {
@@ -84,12 +82,47 @@ class CorridaFirebaseSender {
     if (started) {
       SharedPreferences.getInstance().then((value) {
         sp = value;
+        try {
+          corrida = Corrida.fromJson(json.decode(sp.getString('corrida')));
+        } catch (err) {
+          print('Erro ao buscar Corrida ${err.toString()}');
+        }
 
-     
+        if (corrida != null) {
+          print("AQUI A DIABA DA CORRIDA ${corrida.toString()}");
+          corridaRef = FirebaseDatabase.instance
+              .reference()
+              .child('Corridas')
+              .reference()
+              .child(corrida.id);
+          pointsRef = corridaRef.child('points');
+          corridaRef.once().then((value) {
+            corrida = Corrida.fromJson(value.value);
+            sp.setString('corrida 222', json.encode(corrida.toJson()));
+            print('INICIADA LIGAÇÂO 2 ${corrida.id}');
+          });
+        } else {
+          corrida = Corrida(
+
+            user: Helper.localUser.id,
+
+            id_carro: carroSelecionado.id,
+            dist: 0.0,
+
+            isRunning: true,);
+          corridaRef = FirebaseDatabase.instance
+              .reference()
+              .child('Corridas')
+              .reference()
+              .push();
+          corridaRef.set(corrida.toJson());
+          corrida.id = corridaRef.key;
+          corridaRef.update({'id': corrida.id});
           PrepararCarroAtivo(carroSelecionado);
-         
-          print('INICIADA LIGAÇão');
-      
+          sp.setString('corrida', json.encode(corrida));
+          pointsRef = corridaRef.child('points');
+          print('INICIADA LIGAÇÂO ${corrida.id}');
+        }
       });
     }
   }

@@ -8,10 +8,7 @@ import 'package:ufly/Objetos/Localizacao.dart';
 class Corrida {
   String id;
   bool isRunning;
-
   String user;
-
-
   String id_corrida;
   String id_carro;
   String points_path;
@@ -40,7 +37,7 @@ class Corrida {
 
   factory Corrida.fromJson(j) {
     return Corrida(
-        id: j["id"] == null ? null : j['id'],
+        id: j["id"],
 
         isRunning: j["isRunning"],
 
