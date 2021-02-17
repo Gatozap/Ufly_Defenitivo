@@ -80,7 +80,7 @@ class CorridaController extends BlocBase {
   BehaviorSubject<bool> startedController = BehaviorSubject<bool>();
   Stream<bool> get outStarted => startedController.stream;
   Sink<bool> get inStarted => startedController.sink;
-
+  bool starter;
 
 
   Corrida corrida;
@@ -162,6 +162,7 @@ class CorridaController extends BlocBase {
         inStarted.add(started);
         try {
           corrida = Corrida.fromJson(json.decode(sp.getString('corrida')));
+          print('aqui a corrida no iniciar ${corrida.toString()}');
         } catch (err) {
           print('Error ${err.toString()}');
         }
