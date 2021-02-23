@@ -869,13 +869,9 @@ class _HomePageState extends State<HomePage> {
           lng: longitude,
           cep: location[0].postalCode);
 
-      double distanciaPercorrida = 0.0;
 
-      double soma = distanciaPercorrida += calculateDistance(
-          _initialPosition.latitude,
-          _initialPosition.longitude,
-          destino.latitude,
-          destino.longitude);
+
+
 
 
     });

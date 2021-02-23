@@ -96,6 +96,9 @@ class _CorridaPageState extends State<CorridaPage> {
   static LatLng _initialPosition;
   static LatLng destino;
   static LatLng passageiro_latlng;
+  LatLng parada1;
+  LatLng parada2;
+  LatLng parada3;
   LatLng get initialPosition => _initialPosition;
   PerfilController pf = PerfilController(Helper.localUser);
   String filtro;
@@ -161,24 +164,24 @@ class _CorridaPageState extends State<CorridaPage> {
     var map = StreamBuilder(
         stream: rc.outPolyMotorista,
         builder: (context, snapMotorista) {
-          return StreamBuilder(
+          return StreamBuilder<List<LatLng>>(
             stream: rc.outPolyPassageiro,
-            builder: (context, snap) {
-              print('snap polyy ${snap.data}');
+            builder: (context,   AsyncSnapshot<List<LatLng>> snap) {
+              
               polylines =
-                  getPolys(snap.data);
+                  getPolys(snapMotorista.data,snap.data);
 
               return StreamBuilder<LatLng>(
                   stream: rc.outLocalizacao,
                   builder: (context, localizacao) {
-                    print('localizacao ${localizacao.data}');
-                    print('aqui position ${_initialPosition}');
+
+
                     if (localizacao.data == null) {
                       return StreamBuilder<Position>(
                           stream: localizacaoInicial(),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
-                              print('aqui position ${_initialPosition}');
+
                               return localizacaoInicial();
                             }
                             return GoogleMap(
@@ -207,30 +210,42 @@ class _CorridaPageState extends State<CorridaPage> {
                       StreamBuilder<fm.MarkerLayerOptions>(
                           stream: corridaController.outUserLocation,
                           builder: (context, marker) {
-                            markers = getMarkers(passageiro_latlng,
-                                destino,LatLng(marker.data.markers[0].point.latitude,marker.data.markers[0].point.longitude)  );
-                            print('aqui marker usuario ${destino}');
-                            return  GoogleMap(
-                                myLocationEnabled: true,
-                                myLocationButtonEnabled: false,
-                                trafficEnabled: true,
-                                polylines: polylines.toSet(),
-                                markers: destino !=null? markers.toSet():null,
-                                mapType: MapType.terrain,
-                                zoomGesturesEnabled: true,
-                                zoomControlsEnabled: false,
-                                rotateGesturesEnabled: false,
-                                initialCameraPosition: CameraPosition(
-                                    target: localizacao.data,
-                                    zoom: Helper.localUser.zoom),
-                                onMapCreated: (GoogleMapController controller) {
-                                  _controller.complete(controller);
-                                  destino == null ? null : centerView();
-                                  geo.getCurrentLocation().listen((position) {
-                                    telaCentralizada(position);
-                                  });
-                                },
+
+                            return  StreamBuilder(
+                              stream: rc.outMarker,
+                              builder: (context, snapshot) {
+                                print('aqui as marcas ${snapshot.data}');
+                                if(parada1 == null) {
+                                  markers = getMarkers(passageiro_latlng,
+                                      destino, _initialPosition);
+                                } else{
+                                  markers = getMarkers(passageiro_latlng,
+                                      destino, _initialPosition,ways: snapshot.data);
+                                }
+                                print('aqui marker usuario ${destino}');
+                                return GoogleMap(
+                                    myLocationEnabled: true,
+                                    myLocationButtonEnabled: false,
+                                    trafficEnabled: true,
+                                    polylines: polylines.toSet(),
+                                    markers: destino !=null? markers.toSet():null,
+                                    mapType: MapType.terrain,
+                                    zoomGesturesEnabled: true,
+                                    zoomControlsEnabled: false,
+                                    rotateGesturesEnabled: false,
+                                    initialCameraPosition: CameraPosition(
+                                        target: localizacao.data,
+                                        zoom: Helper.localUser.zoom),
+                                    onMapCreated: (GoogleMapController controller) {
+                                      _controller.complete(controller);
+                                      destino == null ? null : centerView();
+                                      geo.getCurrentLocation().listen((position) {
+                                        telaCentralizada(position);
+                                      });
+                                    },
                           );
+                              }
+                            );
                               }
                             );
 
@@ -265,7 +280,7 @@ class _CorridaPageState extends State<CorridaPage> {
           stream: cf.outFiltro,
           builder: (context, filtro) {
             FiltroMotorista f = filtro.data;
-            print('aqui f ${f.isOnline}');
+
             return Container(
               color: Colors.white,
               child: StreamBuilder<Carro>(
@@ -280,18 +295,18 @@ class _CorridaPageState extends State<CorridaPage> {
                         if (motorista.data.isOnline == null) {
                           motorista.data.isOnline = filtro.data.isOnline;
                         }
-                        print('aqui motorista ${motorista.data}');
+
                         return StreamBuilder<List<Requisicao>>(
                             stream: requisicaoController.outRequisicoes,
                             builder: (context,
                                 AsyncSnapshot<List<Requisicao>> requisicao) {
                               if (requisicao.data == null ||
                                   requisicao.data.isEmpty) {
-                                print('aqui req.data ${requisicao.data}');
+
                                 return StreamBuilder<bool>(
                                     stream: corridaController.outStarted,
                                     builder: (context, started) {
-                                      print('aqui start ${started.data}');
+
                                       return Container(
                                       width: getLargura(context),
                                       height: getAltura(context) * .060,
@@ -352,11 +367,11 @@ class _CorridaPageState extends State<CorridaPage> {
                                 );
                               } else {
                                 for (Requisicao i in requisicao.data) {
-                                  print('aqui req.data323 ${i}');
+
                                   return StreamBuilder<bool>(
                                       stream: corridaController.outStarted,
                                       builder: (context, started) {
-                                        print('aqui start ${started.data}');
+
                                         return Container(
                                           width: getLargura(context),
                                           height: getAltura(context) * .060,
@@ -443,7 +458,7 @@ class _CorridaPageState extends State<CorridaPage> {
       body: StreamBuilder<bool>(
           stream: cf.outHide,
           builder: (context, hide) {
-            print('aqui hide');
+
             if (cf.hide == null) {
               cf.hide = false;
             }
@@ -468,7 +483,7 @@ class _CorridaPageState extends State<CorridaPage> {
                         stream: requisicaoController.outRequisicoes,
                         builder:
                             (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-                          print('aqui requisicao ${requisicao.data}');
+
                           return IgnorePointer(
                             ignoring: cf.hide,
                             child: ListView.builder(
@@ -481,7 +496,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                 else if (req.aceito == null) {
                                   if (req.motoristas_chamados
                                       .contains(Helper.localUser.id)) {
-                                    print('aqui bool ${req}');
+
                                     return Padding(
                                         padding: EdgeInsets.only(
                                             bottom: getAltura(context) * .045),
@@ -506,7 +521,7 @@ class _CorridaPageState extends State<CorridaPage> {
   }
 
   Widget SolicitacaoDoPassageiro(requisicaoController, hide) {
-    print('aqui preço ${controllerPreco.text}');
+
     double preco_recebo = ((double.parse(controllerPreco.text
                 .replaceAll(',', '')
                 .replaceAll('R\$', ''))) *
@@ -520,7 +535,7 @@ class _CorridaPageState extends State<CorridaPage> {
     return StreamBuilder<List<User>>(
         stream: usc.outUsers,
         builder: (context, AsyncSnapshot<List<User>> user) {
-          print('aqui user');
+
           double preco_outros =
               requisicaoController.tempo_estimado < 2.00 ? 3 : 5;
           double preco_mercado =
@@ -528,7 +543,7 @@ class _CorridaPageState extends State<CorridaPage> {
           double preco_mercado_liquido = ((preco_mercado) * 75) / 100;
           double preco_minimo = ((preco_mercado) * 85) / 100;
           double preco_minimo_liquido = ((preco_mercado) * 90) / 100;
-          print('aqui o hiide ${hide}');
+
           return Padding(
             padding: EdgeInsets.only(top: 20.0),
             child: Container(
@@ -1145,14 +1160,13 @@ class _CorridaPageState extends State<CorridaPage> {
                                     GestureDetector(
                                       behavior: HitTestBehavior.opaque,
                                       onTap: () async {
-                                        print('aqui botão ');
+
                                         double precofinal = double.parse(
                                             controllerPreco.text
                                                 .replaceAll(',', '')
                                                 .replaceAll('R\$', '')
                                                 .replaceAll('.', ''));
-                                        print(
-                                            'aqui botão ${precofinal.toStringAsFixed(2)}');
+
                                         if (precofinal != 0.0) {
                                           List<OfertaCorrida> ofertaList =
                                               List();
@@ -1214,14 +1228,12 @@ class _CorridaPageState extends State<CorridaPage> {
                                                   .user_nome,
                                             );
 
-                                            print(
-                                                'aqui o for ${req.ofertas} e ${req.toJson()} e 213235423432 ');
 
                                             return requisicaoRef
                                                 .doc(req.id)
                                                 .update(req.toJson())
                                                 .then((v) {
-                                              print('aqui oferta atualizada');
+
                                               dToast('Você aceitou a viagem');
 
                                               requisicaoRef.doc(req.id).update({
@@ -1301,47 +1313,47 @@ class _CorridaPageState extends State<CorridaPage> {
         zoom: Helper.localUser.zoom, )));
   }
    rotaPassageiro(requisicaoController)async{
+        List<LatLng> marcasWays = [];
      passageiro_latlng = LatLng(requisicaoController.origem.lat, requisicaoController.origem.lng);
 
-     destino= LatLng(requisicaoController.destino.lat,
-         requisicaoController.destino.lng);
-     print('aqui inital ${_initialPosition} e passageiro ${destino}');
-     rc.CalcularRotaMotorista(_initialPosition, destino);
+      if(requisicaoController.primeiraParada_lat && requisicaoController.primeiraParada_lng != null){
+        parada1 =  LatLng(requisicaoController.primeiraParada_lat, requisicaoController.primeiraParada_lng);
+        marcasWays.add(parada1);
+        print('aqui requi ${marcasWays}');
+      } else if (requisicaoController.segundaParada_lat && requisicaoController.segundaParada_lng != null){
+       parada2 = LatLng(requisicaoController.segundaParada_lat, requisicaoController.segundaParada_lng);
+       marcasWays.add(parada2);
+      }  else if(requisicaoController.terceiraParada_lat && requisicaoController.terceiraParada_lng != null) {
+        parada3 = LatLng(requisicaoController.terceiraParada_lat, requisicaoController.terceiraParada_lng);
+        marcasWays.add(parada3);
+      }
+        rc.inMarker.add(marcasWays);
+
+     destino= LatLng(requisicaoController.destino.lat, requisicaoController.destino.lng);
+
+     rc.CalcularRotaMotorista(_initialPosition, passageiro_latlng);
 
      List<LatLng> rotas = [];
-
-
-    /* for (int i = 0;
+     for (int i = 0;
      i < requisicaoController.rota.routes.length;
      i++) {
-       print('aqui rotas ${requisicaoController.rota.routes.length}');
-
-
-
-            rotas.add(passageiro_latlng);
-
+       print('length ${requisicaoController.rota.routes.length}');
        for (var l
        in requisicaoController.rota.routes[0].legs) {
          for (var s in l.steps) {
            for (var i in s.intersections) {
              rotas.add(LatLng(i.location[1], i.location[0]));
-
            }
          }
        }
-
      }
-        destino= LatLng(requisicaoController.destino.lat,
-                 requisicaoController.destino.lng);
-     rotas.add(destino);
-
      rc.inPolyPassageiro.add(rotas);
-     return rotas;*/
+     return rotas;
    }
 
-  List<Polyline> getPolys(motorista, {data} ) {
+  List<Polyline> getPolys(motorista, data  ) {
     List<Polyline> poly = new List();
-
+         print('aqui data ${data.toString()}');
     if (data == null) {
       return poly;
     }
@@ -1349,13 +1361,13 @@ class _CorridaPageState extends State<CorridaPage> {
       return poly;
     }
     try {
-      for (int i = 0; i < data.length; i++) {
-        PolylineId id = PolylineId("poly${i}");
+      for (int i = 0; i < motorista.length; i++) {
+        PolylineId id2 = PolylineId("poly${i}");
         poly.add(Polyline(
-          width: 5,
-          polylineId: id,
-          color: Colors.deepPurpleAccent,
-          points: data[i],
+          width: 10,
+          polylineId: id2,
+          color: Colors.blue,
+          points: motorista[i],
           consumeTapEvents: true,
         ));
       }
@@ -1363,13 +1375,13 @@ class _CorridaPageState extends State<CorridaPage> {
       print(err.toString());
     }
     try {
-      for (int i = 0; i < motorista.length; i++) {
-        PolylineId id2 = PolylineId("poly${i}");
+      for (int i = 0; i < data.length; i++) {
+        PolylineId id = PolylineId("polypassageiro${i}");
         poly.add(Polyline(
-          width: 5,
-          polylineId: id2,
-          color: Colors.blue,
-          points: motorista[i],
+          width: 10,
+          polylineId: id,
+          color: Colors.deepPurple,
+          points: data[i],
           consumeTapEvents: true,
         ));
       }
@@ -1383,7 +1395,7 @@ class _CorridaPageState extends State<CorridaPage> {
     Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((v) async {
-      print('aqui porra da localização ${v.latitude}');
+
       telaCentralizada(v);
       rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
       _initialPosition = LatLng(v.latitude, v.longitude);
@@ -1428,7 +1440,7 @@ void onCameraMove(CameraPosition position, LatLng l) {
 }
 
 BitmapDescriptor sourceIcon;
-List<Marker> getMarkers(LatLng data, LatLng d,LatLng motorista) {
+List<Marker> getMarkers(LatLng data, LatLng d,LatLng motorista, {ways}) {
   List<Marker> markers = new List();
   MarkerId markerId = MarkerId('id');
   MarkerId markerId2 = MarkerId('id2');
@@ -1457,6 +1469,20 @@ List<Marker> getMarkers(LatLng data, LatLng d,LatLng motorista) {
         infoWindow: InfoWindow(title: 'Minha Posição'),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
         position: motorista));
+  } catch (err) {
+    print(err.toString());
+  }
+  try {
+    for (int i = 0; i < ways.length; i++) {
+      MarkerId markerWay = MarkerId("way${i}");
+      markers.add(Marker(
+        infoWindow: InfoWindow(title: 'Parada nº ${i}'),
+        markerId: markerWay,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+        position: ways[i],
+
+      ));
+    }
   } catch (err) {
     print(err.toString());
   }

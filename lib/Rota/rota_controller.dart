@@ -85,13 +85,9 @@ class RotaController extends BlocBase {
         .then((result) {
 
       localizacaoUsuario = v;
-
       if (isdestinoFinal == true) {
         destinoFinal = c;
       }
-
-
-
       Rota r = Rota.fromJson(json.decode(result.body));
       rota = r;
 
@@ -167,18 +163,19 @@ class RotaController extends BlocBase {
 
   }
   Future<List<List<LatLng>>> CalcularRotaMotorista(LatLng v, LatLng c, {bool isdestinoFinal = true}) async {
-    List<List<LatLng>> polylineCoordinates = [];
-
+    List<List<LatLng>> polylineCoordinatesMotorista = [];
+          print('aqui entrou ');
     http
         .get(
       ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude),
     )
         .then((result) {
-
+                
       localizacaoUsuario = v;
-
+      print('entrou aqui ${localizacaoUsuario}');
       if (isdestinoFinal == true) {
         destinoFinal = c;
+        print('entrou aqui ${destinoFinal}');
       }
 
 
@@ -190,9 +187,10 @@ class RotaController extends BlocBase {
         List<LatLng> rotas = [];
 
         if (i == 0) {
+
           rotas.add(LatLng(
               localizacaoUsuario.latitude, localizacaoUsuario.longitude));
-
+          print('entrou aqui ${localizacaoUsuario}');
         }
 
         for (var l in r.routes[0].legs) {
@@ -200,20 +198,20 @@ class RotaController extends BlocBase {
             for (var i in s.intersections) {
 
               rotas.add(LatLng(i.location[1], i.location[0]));
+
             }
           }
         }
 
-        polylineCoordinates.add(rotas);
+        polylineCoordinatesMotorista.add(rotas);
       }
 
-      polylineCoordinates.last.add(LatLng(
-          polylineCoordinates.last.last.latitude,
-          polylineCoordinates.last.last.longitude));
-      inPolyMotorista.add(polylineCoordinates);
+      polylineCoordinatesMotorista.last.add(LatLng(
+          polylineCoordinatesMotorista.last.last.latitude,
+          polylineCoordinatesMotorista.last.last.longitude));
+      inPolyMotorista.add(polylineCoordinatesMotorista);
 
-
-      return polylineCoordinates;
+      return polylineCoordinatesMotorista;
     });
   }
 
