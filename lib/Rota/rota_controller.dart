@@ -42,13 +42,17 @@ class RotaController extends BlocBase {
   Stream<List<String>> get outParadas => controllerParadas.stream;
   Sink<List<String>> get inParadas => controllerParadas.sink;
 
+  BehaviorSubject<List<LatLng>> controllerPolylinePassageiro =
+  new BehaviorSubject<List<LatLng>>();
+  Stream<List<LatLng>> get outPolyPassageiro =>
+      controllerPolylinePassageiro.stream;
+  Sink<List<LatLng>> get inPolyPassageiro => controllerPolylinePassageiro.sink;
 
-
-  BehaviorSubject<List<LatLng>> controllerPolylineMotorista =
-      new BehaviorSubject<List<LatLng>>();
-  Stream<List<LatLng>> get outPolyMotorista =>
+  BehaviorSubject<List<List<LatLng>>> controllerPolylineMotorista =
+      new BehaviorSubject<List<List<LatLng>>>();
+  Stream<List<List<LatLng>>> get outPolyMotorista =>
       controllerPolylineMotorista.stream;
-  Sink<List<LatLng>> get inPolyMotorista => controllerPolylineMotorista.sink;
+  Sink<List<List<LatLng>>> get inPolyMotorista => controllerPolylineMotorista.sink;
 
   BehaviorSubject<List<Waypoints>> controllerWayPoints =
       new BehaviorSubject<List<Waypoints>>();
@@ -162,33 +166,54 @@ class RotaController extends BlocBase {
     inPoly.add(rotasTemp);
 
   }
-
-  CalcularRotaMotorista(LatLng v, LatLng c) async {
-    List<LatLng> polylineCoordinates = [];
+  Future<List<List<LatLng>>> CalcularRotaMotorista(LatLng v, LatLng c, {bool isdestinoFinal = true}) async {
+    List<List<LatLng>> polylineCoordinates = [];
 
     http
         .get(
       ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude),
     )
         .then((result) {
-      polylineCoordinates.add(LatLng(v.latitude, v.longitude));
+
+      localizacaoUsuario = v;
+
+      if (isdestinoFinal == true) {
+        destinoFinal = c;
+      }
+
+
 
       Rota r = Rota.fromJson(json.decode(result.body));
       rota = r;
-      for (var i in r.routes[0].legs) {
-        double ii = (i.duration) / 3600;
 
-        for (var j in i.steps) {
-          for (var k in j.intersections) {
-            polylineCoordinates.add(LatLng(k.location[1], k.location[0]));
+      for (int i = 0; i < r.routes.length; i++) {
+        List<LatLng> rotas = [];
+
+        if (i == 0) {
+          rotas.add(LatLng(
+              localizacaoUsuario.latitude, localizacaoUsuario.longitude));
+
+        }
+
+        for (var l in r.routes[0].legs) {
+          for (var s in l.steps) {
+            for (var i in s.intersections) {
+
+              rotas.add(LatLng(i.location[1], i.location[0]));
+            }
           }
         }
+
+        polylineCoordinates.add(rotas);
       }
 
-      polylineCoordinates.add(LatLng(c.latitude, c.longitude));
-
-      Geolocator().placemarkFromCoordinates(c.latitude, c.longitude);
+      polylineCoordinates.last.add(LatLng(
+          polylineCoordinates.last.last.latitude,
+          polylineCoordinates.last.last.longitude));
       inPolyMotorista.add(polylineCoordinates);
+
+
+      return polylineCoordinates;
     });
   }
 

@@ -649,7 +649,7 @@ class _HomePageState extends State<HomePage> {
                             zoomControlsEnabled: false,
                             initialCameraPosition: CameraPosition(
                                 target: localizacao.data,
-                                zoom: Helper.localUser.zoom),
+                                zoom: Helper.localUser.zoom,),
                             onMapCreated: (GoogleMapController controller) {
                               _controller.complete(controller);
                             },
@@ -877,7 +877,7 @@ class _HomePageState extends State<HomePage> {
           destino.latitude,
           destino.longitude);
 
-      print('aqui o calculo distancia ${soma.toStringAsFixed(2)}');
+
     });
   }
 

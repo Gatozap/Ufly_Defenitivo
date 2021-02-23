@@ -45,13 +45,16 @@ import 'package:ufly/Perfil/user_list_controller.dart';
 import 'package:ufly/Rota/rota_controller.dart';
 
 import 'package:ufly/Viagens/OfertaCorrida/oferta_corrida_controller.dart';
-import 'package:ufly/Viagens/Requisicao/criar_requisicao_controller.dart';
-import 'package:ufly/Viagens/Requisicao/requisicao_controller.dart';
+
 import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:flutter_animarker/flutter_map_marker_animation.dart';
+
+import 'package:flutter_animarker/lat_lng_interpolation.dart';
 
 import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
 
 import 'package:ufly/Helpers/Helper.dart';
+
 
 class CorridaPage extends StatefulWidget {
   CorridaPage();
@@ -83,8 +86,11 @@ class _CorridaPageState extends State<CorridaPage> {
   Requisicao rr;
   String _currentAddress;
   List<Polyline> polylines;
+  LatLngInterpolationStream _latLngStream = LatLngInterpolationStream();
+  //StreamGroup<LatLngDelta> subscriptions = StreamGroup<LatLngDelta>();
+  StreamSubscription<Position> positionStream;
   String destinoAddress;
-  
+  List<Marker> markers;
   List<LatLng> polylineCoordinates = [];
   MotoristaController motoro;
   static LatLng _initialPosition;
@@ -120,7 +126,7 @@ class _CorridaPageState extends State<CorridaPage> {
         )
       ];
   
-      //layers.addAll(CriarFronteiras());
+
     }
     ResponsivePixelHandler.init(
       baseWidth: 360, //A largura usado pelo designer no modelo desenhado
@@ -156,11 +162,12 @@ class _CorridaPageState extends State<CorridaPage> {
         stream: rc.outPolyMotorista,
         builder: (context, snapMotorista) {
           return StreamBuilder(
-            stream: rc.outPoly,
+            stream: rc.outPolyPassageiro,
             builder: (context, snap) {
               print('snap polyy ${snap.data}');
               polylines =
                   getPolys(snap.data);
+
               return StreamBuilder<LatLng>(
                   stream: rc.outLocalizacao,
                   builder: (context, localizacao) {
@@ -193,31 +200,39 @@ class _CorridaPageState extends State<CorridaPage> {
                             );
                           });
                     }
-                    List<Marker> markers = getMarkers(passageiro_latlng,
-                        destino, destino == null ? null : _initialPosition);
+
+
 
                     return
-                            GoogleMap(
-                            myLocationEnabled: true,
-                            myLocationButtonEnabled: false,
-                            trafficEnabled: true,
-                            polylines: polylines.toSet(),
-                            markers: destino != null? markers.toSet(): null,
-                            mapType: MapType.terrain,
-                            zoomGesturesEnabled: true,
-                            zoomControlsEnabled: false,
-                            rotateGesturesEnabled: false,
-                            initialCameraPosition: CameraPosition(
-                                target: localizacao.data,
-                                zoom: Helper.localUser.zoom),
-                            onMapCreated: (GoogleMapController controller) {
-                              _controller.complete(controller);
-                              destino == null ? null : centerView();
-                              geo.getCurrentLocation().listen((position) {
-                                telaCentralizada(position);
-                              });
-                            },
+                      StreamBuilder<fm.MarkerLayerOptions>(
+                          stream: corridaController.outUserLocation,
+                          builder: (context, marker) {
+                            markers = getMarkers(passageiro_latlng,
+                                destino,LatLng(marker.data.markers[0].point.latitude,marker.data.markers[0].point.longitude)  );
+                            print('aqui marker usuario ${destino}');
+                            return  GoogleMap(
+                                myLocationEnabled: true,
+                                myLocationButtonEnabled: false,
+                                trafficEnabled: true,
+                                polylines: polylines.toSet(),
+                                markers: destino !=null? markers.toSet():null,
+                                mapType: MapType.terrain,
+                                zoomGesturesEnabled: true,
+                                zoomControlsEnabled: false,
+                                rotateGesturesEnabled: false,
+                                initialCameraPosition: CameraPosition(
+                                    target: localizacao.data,
+                                    zoom: Helper.localUser.zoom),
+                                onMapCreated: (GoogleMapController controller) {
+                                  _controller.complete(controller);
+                                  destino == null ? null : centerView();
+                                  geo.getCurrentLocation().listen((position) {
+                                    telaCentralizada(position);
+                                  });
+                                },
                           );
+                              }
+                            );
 
                   });
             },
@@ -286,8 +301,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                           carro.data == null
                                               ? Expanded(
                                                   child: hText(
-                                                      'Não conseguimos encontrar seu carro contate o suporte',
-                                                      context,
+                                                      'Não conseguimos encontrar seu carro contate o suporte', context,
                                                       color: Colors.white,
                                                       textaling: TextAlign.center),
                                                 )
@@ -434,11 +448,8 @@ class _CorridaPageState extends State<CorridaPage> {
               cf.hide = false;
             }
 
-            return StreamBuilder<fm.MarkerLayerOptions>(
-                stream: corridaController.outUserLocation,
-                builder: (context, marker) {
-
-                  return Stack(
+            return
+                    Stack(
                   alignment: Alignment.bottomCenter,
                   children: <Widget>[
                     map,
@@ -464,7 +475,6 @@ class _CorridaPageState extends State<CorridaPage> {
                               shrinkWrap: true,
                               itemBuilder: (context, index) {
                                 Requisicao req = requisicao.data[index];
-                                print('aqui a porra da requisicao');
                                 if(requisicao.data.length == null){
                                   return Container();
                                 }
@@ -490,8 +500,7 @@ class _CorridaPageState extends State<CorridaPage> {
                         }),
                   ],
                 );
-              }
-            );
+
           }),
     );
   }
@@ -1289,68 +1298,81 @@ class _CorridaPageState extends State<CorridaPage> {
 
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(position.latitude, position.longitude),
-        zoom: Helper.localUser.zoom)));
+        zoom: Helper.localUser.zoom, )));
   }
-   rotaPassageiro(requisicaoController){
-             print('aqui routes ${requisicaoController.rota.routes.length}');
-     List<List<LatLng>> polylineCoordinates = [];
-             Rota r = Rota.fromJson(json.decode(requisicaoController));
-     for (int i = 0;
-     i < r.routes.length;
-     i++) {
-       List<LatLng> rotas = [];
+   rotaPassageiro(requisicaoController)async{
+     passageiro_latlng = LatLng(requisicaoController.origem.lat, requisicaoController.origem.lng);
 
-       if (i == 0) {
-         rotas.add(LatLng(
-             requisicaoController.origem.lat,
-             requisicaoController.origem.lng));
-         passageiro_latlng = LatLng(requisicaoController.origem.lat,
-             requisicaoController.origem.lng);
-         print('aqui passageiro ${passageiro_latlng}');
-       }
+     destino= LatLng(requisicaoController.destino.lat,
+         requisicaoController.destino.lng);
+     print('aqui inital ${_initialPosition} e passageiro ${destino}');
+     rc.CalcularRotaMotorista(_initialPosition, destino);
+
+     List<LatLng> rotas = [];
+
+
+    /* for (int i = 0;
+     i < requisicaoController.rota.routes.length;
+     i++) {
+       print('aqui rotas ${requisicaoController.rota.routes.length}');
+
+
+
+            rotas.add(passageiro_latlng);
+
        for (var l
-       in r.routes[0].legs) {
+       in requisicaoController.rota.routes[0].legs) {
          for (var s in l.steps) {
            for (var i in s.intersections) {
              rotas.add(LatLng(i.location[1], i.location[0]));
+
            }
          }
        }
-       polylineCoordinates.add(rotas);
+
      }
-         destino=    LatLng(requisicaoController.destino.lat,
+        destino= LatLng(requisicaoController.destino.lat,
                  requisicaoController.destino.lng);
-     polylineCoordinates.last.add(LatLng(
-         polylineCoordinates.last.last.latitude,
-         polylineCoordinates.last.last.longitude));
-     rc.inPoly.add(polylineCoordinates);
-     return polylineCoordinates;
+     rotas.add(destino);
+
+     rc.inPolyPassageiro.add(rotas);
+     return rotas;*/
    }
-  List<Polyline> getPolys(data, {motorista}) {
+
+  List<Polyline> getPolys(motorista, {data} ) {
     List<Polyline> poly = new List();
 
     if (data == null) {
       return poly;
     }
-
-    PolylineId id = PolylineId("poly");
-    PolylineId id2 = PolylineId("poly2");
-    print('aqui a data ${data.toString()}');
+    if (motorista == null) {
+      return poly;
+    }
     try {
-      poly.add(Polyline(
-        polylineId: id,
-        color: Colors.red,
-        points: data,
-      ));
+      for (int i = 0; i < data.length; i++) {
+        PolylineId id = PolylineId("poly${i}");
+        poly.add(Polyline(
+          width: 5,
+          polylineId: id,
+          color: Colors.deepPurpleAccent,
+          points: data[i],
+          consumeTapEvents: true,
+        ));
+      }
     } catch (err) {
       print(err.toString());
     }
     try {
-      poly.add(Polyline(
-        polylineId: id2,
-        color: Colors.blue,
-        points: motorista,
-      ));
+      for (int i = 0; i < motorista.length; i++) {
+        PolylineId id2 = PolylineId("poly${i}");
+        poly.add(Polyline(
+          width: 5,
+          polylineId: id2,
+          color: Colors.blue,
+          points: motorista[i],
+          consumeTapEvents: true,
+        ));
+      }
     } catch (err) {
       print(err.toString());
     }
@@ -1375,27 +1397,7 @@ class _CorridaPageState extends State<CorridaPage> {
     });
   }
 
-  requisicao(requisicaoController) async {
-    LatLng inicial_posicao = LatLng(
-        requisicaoController.origem.lat, requisicaoController.origem.lng);
-    passageiro_latlng = inicial_posicao;
-    LatLng destination = LatLng(
-        requisicaoController.destino.lat, requisicaoController.destino.lng);
-    destino = destination;
 
-    getMarkers(inicial_posicao, destination, _initialPosition);
-
-    List<Placemark> mark = await Geolocator().placemarkFromCoordinates(
-        requisicaoController.destino.lat, requisicaoController.destino.lng);
-
-    Placemark place = mark[0];
-
-    destinoAddress =
-        '${place.name.isNotEmpty ? place.name + ', ' : ''}${place.thoroughfare.isNotEmpty ? place.thoroughfare + ', ' : ''}${place.subLocality.isNotEmpty ? place.subLocality + ', ' : ''}${place.locality.isNotEmpty ? place.locality + ', ' : ''}${place.subAdministrativeArea.isNotEmpty ? place.subAdministrativeArea + ', ' : ''}${place.postalCode.isNotEmpty ? place.postalCode + ', ' : ''}${place.administrativeArea.isNotEmpty ? place.administrativeArea : ''}';
-
-    rc.CalcularRota(inicial_posicao, destination);
-    rc.CalcularRotaMotorista(_initialPosition, inicial_posicao);
-  }
 }
 
 class Uuid {
@@ -1426,7 +1428,7 @@ void onCameraMove(CameraPosition position, LatLng l) {
 }
 
 BitmapDescriptor sourceIcon;
-List<Marker> getMarkers(LatLng data, LatLng d, LatLng motorista) {
+List<Marker> getMarkers(LatLng data, LatLng d,LatLng motorista) {
   List<Marker> markers = new List();
   MarkerId markerId = MarkerId('id');
   MarkerId markerId2 = MarkerId('id2');
