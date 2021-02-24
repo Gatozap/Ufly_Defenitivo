@@ -238,6 +238,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
+               locationController.text.isEmpty? Container() :
                 Padding(
                   padding: EdgeInsets.only(
                       top: getAltura(context) * .010,
@@ -490,7 +491,7 @@ class _HomePageState extends State<HomePage> {
                                             lng_parada_tres = lng;
                                             endereco_paradaTres = snapshot.data[0].reference.toString();
                                                   lat_lng_de_parada_tres = address.coords;
-                                            marcas.add(lat_lng_de_parada_dois);
+                                            marcas.add(lat_lng_de_parada_tres);
                                             rc.inMarker.add(marcas);
                                               rc.AdicionarParada(lat_lng_de_parada_tres);
 
@@ -1434,7 +1435,7 @@ List<Polyline> getPolys(data) {
       poly.add(Polyline(
         width: Helper.localUser.zoom < 10? 7: 5,
         polylineId: id,
-        color: Colors.green,
+        color: Colors.purple,
         points: data[i],
         consumeTapEvents: true,
       ));

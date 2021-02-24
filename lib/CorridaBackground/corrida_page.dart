@@ -164,12 +164,14 @@ class _CorridaPageState extends State<CorridaPage> {
     var map = StreamBuilder(
         stream: rc.outPolyMotorista,
         builder: (context, snapMotorista) {
-          return StreamBuilder<List<LatLng>>(
+          return StreamBuilder(
             stream: rc.outPolyPassageiro,
-            builder: (context,   AsyncSnapshot<List<LatLng>> snap) {
-              
-              polylines =
-                  getPolys(snapMotorista.data,snap.data);
+            builder: (context,  snap) {
+                          print('aqui passageiro ${snap.data}');
+
+                          polylines =
+                              getPolys(snapMotorista.data,snap.data);
+
 
               return StreamBuilder<LatLng>(
                   stream: rc.outLocalizacao,
@@ -214,7 +216,7 @@ class _CorridaPageState extends State<CorridaPage> {
                             return  StreamBuilder(
                               stream: rc.outMarker,
                               builder: (context, snapshot) {
-                                print('aqui as marcas ${snapshot.data}');
+
                                 if(parada1 == null) {
                                   markers = getMarkers(passageiro_latlng,
                                       destino, _initialPosition);
@@ -222,7 +224,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                   markers = getMarkers(passageiro_latlng,
                                       destino, _initialPosition,ways: snapshot.data);
                                 }
-                                print('aqui marker usuario ${destino}');
+
                                 return GoogleMap(
                                     myLocationEnabled: true,
                                     myLocationButtonEnabled: false,
@@ -490,6 +492,7 @@ class _CorridaPageState extends State<CorridaPage> {
                               shrinkWrap: true,
                               itemBuilder: (context, index) {
                                 Requisicao req = requisicao.data[index];
+                                print('aqui requisicao parada ${req.primeiraParada_lat}');
                                 if(requisicao.data.length == null){
                                   return Container();
                                 }
@@ -527,7 +530,7 @@ class _CorridaPageState extends State<CorridaPage> {
                 .replaceAll('R\$', ''))) *
             90) /
         100;
-
+          print('aqui requisicao parada111 ${requisicaoController.primeiraParada_lat}');
     if (usc == null) {
       usc = UserListController(requisicao: requisicaoController);
     }
@@ -1315,18 +1318,23 @@ class _CorridaPageState extends State<CorridaPage> {
    rotaPassageiro(requisicaoController)async{
         List<LatLng> marcasWays = [];
      passageiro_latlng = LatLng(requisicaoController.origem.lat, requisicaoController.origem.lng);
-
-      if(requisicaoController.primeiraParada_lat && requisicaoController.primeiraParada_lng != null){
+        print('aqui 123123${requisicaoController.segundaParada_lat}');
+      if(requisicaoController.primeiraParada_lat != null){
         parada1 =  LatLng(requisicaoController.primeiraParada_lat, requisicaoController.primeiraParada_lng);
+        print('aqui 123123${requisicaoController.segundaParada_lat}');
         marcasWays.add(parada1);
-        print('aqui requi ${marcasWays}');
-      } else if (requisicaoController.segundaParada_lat && requisicaoController.segundaParada_lng != null){
+      }
+      if (requisicaoController.segundaParada_lat != null){
+        print('aqui eee${requisicaoController.segundaParada_lat}');
        parada2 = LatLng(requisicaoController.segundaParada_lat, requisicaoController.segundaParada_lng);
+        print('aqui eeeqweq${parada2}');
        marcasWays.add(parada2);
-      }  else if(requisicaoController.terceiraParada_lat && requisicaoController.terceiraParada_lng != null) {
+      }  
+      if(requisicaoController.terceiraParada_lat != null) {
         parada3 = LatLng(requisicaoController.terceiraParada_lat, requisicaoController.terceiraParada_lng);
         marcasWays.add(parada3);
       }
+
         rc.inMarker.add(marcasWays);
 
      destino= LatLng(requisicaoController.destino.lat, requisicaoController.destino.lng);
@@ -1353,7 +1361,7 @@ class _CorridaPageState extends State<CorridaPage> {
 
   List<Polyline> getPolys(motorista, data  ) {
     List<Polyline> poly = new List();
-         print('aqui data ${data.toString()}');
+         print('aqui data ${data.length}');
     if (data == null) {
       return poly;
     }
@@ -1474,9 +1482,9 @@ List<Marker> getMarkers(LatLng data, LatLng d,LatLng motorista, {ways}) {
   }
   try {
     for (int i = 0; i < ways.length; i++) {
-      MarkerId markerWay = MarkerId("way${i}");
+      MarkerId markerWay = MarkerId("way${i+1}");
       markers.add(Marker(
-        infoWindow: InfoWindow(title: 'Parada nº ${i}'),
+        infoWindow: InfoWindow(title: 'Parada nº ${i+1}'),
         markerId: markerWay,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
         position: ways[i],
