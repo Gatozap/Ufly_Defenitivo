@@ -164,13 +164,19 @@ class _CorridaPageState extends State<CorridaPage> {
     var map = StreamBuilder(
         stream: rc.outPolyMotorista,
         builder: (context, snapMotorista) {
-          return StreamBuilder(
+          return StreamBuilder<List<LatLng>>(
             stream: rc.outPolyPassageiro,
-            builder: (context,  snap) {
-                          print('aqui passageiro ${snap.data}');
-
+            builder: (context,  AsyncSnapshot<List<LatLng>> snap) {
+              List<LatLng> lnglatPassageiro = [];
+              List<List<LatLng>> latlngPassageiroTemp = [];
+                             for(var i in snap.data){
+                               
+                               lnglatPassageiro.add(LatLng(i.longitude, i.latitude));
+                             }
+                               print('aqui o lat ${lnglatPassageiro}');
+              latlngPassageiroTemp.add(lnglatPassageiro);
                           polylines =
-                              getPolys(snapMotorista.data,snap.data);
+                              getPolys(snapMotorista.data,latlngPassageiroTemp);
 
 
               return StreamBuilder<LatLng>(
@@ -182,6 +188,7 @@ class _CorridaPageState extends State<CorridaPage> {
                       return StreamBuilder<Position>(
                           stream: localizacaoInicial(),
                           builder: (context, snapshot) {
+
                             if (!snapshot.hasData) {
 
                               return localizacaoInicial();
@@ -1317,6 +1324,8 @@ class _CorridaPageState extends State<CorridaPage> {
   }
    rotaPassageiro(requisicaoController)async{
         List<LatLng> marcasWays = [];
+
+
      passageiro_latlng = LatLng(requisicaoController.origem.lat, requisicaoController.origem.lng);
         print('aqui 123123${requisicaoController.segundaParada_lat}');
       if(requisicaoController.primeiraParada_lat != null){
@@ -1345,23 +1354,25 @@ class _CorridaPageState extends State<CorridaPage> {
      for (int i = 0;
      i < requisicaoController.rota.routes.length;
      i++) {
-       print('length ${requisicaoController.rota.routes.length}');
        for (var l
        in requisicaoController.rota.routes[0].legs) {
          for (var s in l.steps) {
            for (var i in s.intersections) {
-             rotas.add(LatLng(i.location[1], i.location[0]));
+                     var  lats = LatLng(i.location[1], i.location[0]);
+                     print('aqui rotas ${i.runtimeType}');
+             rotas.add(lats);
            }
          }
        }
      }
-     rc.inPolyPassageiro.add(rotas);
-     return rotas;
+        rc.inPolyPassageiro.add(rotas);
+
    }
 
   List<Polyline> getPolys(motorista, data  ) {
     List<Polyline> poly = new List();
-         print('aqui data ${data.length}');
+
+            print('aqui a data ${poly.length}');
     if (data == null) {
       return poly;
     }
@@ -1370,6 +1381,7 @@ class _CorridaPageState extends State<CorridaPage> {
     }
     try {
       for (int i = 0; i < motorista.length; i++) {
+        print('aqui a porra da motorista ${motorista[i]}');
         PolylineId id2 = PolylineId("poly${i}");
         poly.add(Polyline(
           width: 10,
@@ -1384,6 +1396,7 @@ class _CorridaPageState extends State<CorridaPage> {
     }
     try {
       for (int i = 0; i < data.length; i++) {
+        print('aqui a porra da data ${data[i]}');
         PolylineId id = PolylineId("polypassageiro${i}");
         poly.add(Polyline(
           width: 10,
@@ -1403,17 +1416,10 @@ class _CorridaPageState extends State<CorridaPage> {
     Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((v) async {
-
+              print('aqui position ${v.toString()}');
       telaCentralizada(v);
       rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
       _initialPosition = LatLng(v.latitude, v.longitude);
-      List<Placemark> mark =
-          await Geolocator().placemarkFromCoordinates(v.latitude, v.longitude);
-
-      _currentAddress =
-          '${mark[0].name.isNotEmpty ? mark[0].name + ', ' : ''}${mark[0].thoroughfare.isNotEmpty ? mark[0].thoroughfare + ', ' : ''}${mark[0].subLocality.isNotEmpty ? mark[0].subLocality + ', ' : ''}${mark[0].locality.isNotEmpty ? mark[0].locality + ', ' : ''}${mark[0].subAdministrativeArea.isNotEmpty ? mark[0].subAdministrativeArea + ', ' : ''}${mark[0].postalCode.isNotEmpty ? mark[0].postalCode + ', ' : ''}${mark[0].administrativeArea.isNotEmpty ? mark[0].administrativeArea : ''}';
-      filtro =
-          '${mark[0].subAdministrativeArea.isNotEmpty ? mark[0].subAdministrativeArea : ''}';
     });
   }
 

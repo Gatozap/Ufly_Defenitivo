@@ -138,7 +138,7 @@ class RotaController extends BlocBase {
       if(a != localizacaoUsuario && a != destinoFinal) {
         paradas.add(a);
 
-        print('aqui letra a ${a.toString()}');
+
       }
     }
 
@@ -155,7 +155,7 @@ class RotaController extends BlocBase {
 
         var l = await CalcularRota(paradas[i], paradas[i+1],
             isdestinoFinal: false);
-        print('aqui paradas 2323${(l.toList())}');
+
         rotasTemp.addAll(l);
       }
     }
@@ -164,18 +164,18 @@ class RotaController extends BlocBase {
   }
   Future<List<List<LatLng>>> CalcularRotaMotorista(LatLng v, LatLng c, {bool isdestinoFinal = true}) async {
     List<List<LatLng>> polylineCoordinatesMotorista = [];
-          print('aqui entrou ');
+
     http
         .get(
       ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude),
     )
         .then((result) {
-                
+              print('aqui body ${result.body}');
       localizacaoUsuario = v;
-      print('entrou aqui ${localizacaoUsuario}');
+
       if (isdestinoFinal == true) {
         destinoFinal = c;
-        print('entrou aqui ${destinoFinal}');
+
       }
 
 
@@ -190,7 +190,7 @@ class RotaController extends BlocBase {
 
           rotas.add(LatLng(
               localizacaoUsuario.latitude, localizacaoUsuario.longitude));
-          print('entrou aqui ${localizacaoUsuario}');
+
         }
 
         for (var l in r.routes[0].legs) {
