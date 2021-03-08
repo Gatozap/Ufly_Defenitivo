@@ -128,10 +128,10 @@ class CorridaFirebaseSender {
             print("AQUI A DIABA DA CORRIDA  2${value.value}");
             corrida = Corrida.fromJson(value.value);
             sp.setString('corrida', json.encode(corrida.toJson()));
-            print('INICIADA LIGAÇÂO 4 ${corrida.id}');
+            print('INICIADA LIGAÇÂO 4');
           });
         } else {
-          print('INICIADA LIGAÇÂO 3 ${corrida.id}');
+          print('INICIADA LIGAÇÂO 3');
           corrida = Corrida(
             user: Helper.localUser.id,
             id_carro: carroSelecionado.id,

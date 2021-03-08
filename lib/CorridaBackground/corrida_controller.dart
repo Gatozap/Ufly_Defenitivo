@@ -38,10 +38,10 @@ void headlessTask(bg.HeadlessEvent headlessEvent) async {
 
 
       loc = Localizacao(
-          latitude: l.coords.latitude,
-          longitude: l.coords.longitude,
-          timestamp: DateTime.now(),
-          );
+        latitude: l.coords.latitude,
+        longitude: l.coords.longitude,
+        timestamp: DateTime.now(),
+      );
       try {
         add(loc);
       } catch (err) {
@@ -55,7 +55,7 @@ void headlessTask(bg.HeadlessEvent headlessEvent) async {
       print("USER ${u.id} ${u.nome}");
 
       break;
-     }
+  }
 }
 
 
@@ -80,7 +80,7 @@ class CorridaController extends BlocBase {
   BehaviorSubject<bool> startedController = BehaviorSubject<bool>();
   Stream<bool> get outStarted => startedController.stream;
   Sink<bool> get inStarted => startedController.sink;
-  bool starter;
+
 
 
   Corrida corrida;
@@ -93,16 +93,16 @@ class CorridaController extends BlocBase {
   MarkerLayerOptions UserLocation;
   MarkerLayerOptions LastUserLocation;
   BehaviorSubject<MarkerLayerOptions> userLocationController =
-      BehaviorSubject<MarkerLayerOptions>();
+  BehaviorSubject<MarkerLayerOptions>();
   Stream<MarkerLayerOptions> get outUserLocation =>
       userLocationController.stream;
   Sink<MarkerLayerOptions> get inUserLocation => userLocationController.sink;
- // final geolocator = Geolocator();
+  // final geolocator = Geolocator();
 
   SharedPreferences sp;
   double distanciaPercorrida = 0.0;
   BehaviorSubject<double> distanciaPercorridaController =
-      BehaviorSubject<double>();
+  BehaviorSubject<double>();
   Stream<double> get outDistanciaPercorrida =>
       distanciaPercorridaController.stream;
   Sink<double> get inDistanciaPercorrida => distanciaPercorridaController.sink;
@@ -162,7 +162,6 @@ class CorridaController extends BlocBase {
         inStarted.add(started);
         try {
           corrida = Corrida.fromJson(json.decode(sp.getString('corrida')));
-          print('aqui a corrida no iniciar ${corrida.toString()}');
         } catch (err) {
           print('Error ${err.toString()}');
         }
@@ -204,23 +203,23 @@ class CorridaController extends BlocBase {
           novaLocalizacao(
               LatLng(location.coords.latitude, location.coords.longitude));
         }, (err) {
-          print("Error 234: ${err.toString()}");
+          print("Error: ${err.toString()}");
         });
         bg.BackgroundGeolocation.playSound(util.Dialog.getSoundId("OPEN"));
         try {
           bg.BackgroundGeolocation.registerHeadlessTask(headlessTask)
               .catchError((err) {
-            print('Error432: ${err.toString()}');
+            print('Error: ${err.toString()}');
           });
         } catch (err) {
-          print('Error324: ${err.toString()}');
+          print('Error: ${err.toString()}');
         }
       };
       print("CHAMANDO?");
       bg.BackgroundGeolocation.start().then(callback).catchError((onError) {
-        print("Error 34: ${onError.toString()}");
+        print("Error: ${onError.toString()}");
       });
-    } 
+    }
 
     else {
       try {
@@ -296,30 +295,30 @@ class CorridaController extends BlocBase {
   setupBackground() async {
     Map deviceParams = await Config.deviceParams;
     bg.BackgroundGeolocation.ready(bg.Config(
-            desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-            forceReloadOnBoot: true,
-            enableHeadless: true,
-            preventSuspend: true,
-            stopTimeout: 1,
-            reset: false,
-            distanceFilter: 10.0,
-            url: 'http://localhost:8080/locations',
-            persistMode: Config.PERSIST_MODE_ALL,
-            params: deviceParams,
-            stopOnTerminate: false,
-            activityType: Config.ACTIVITY_TYPE_AUTOMOTIVE_NAVIGATION,
-            stopOnStationary: false,
-            notification: bg.Notification(
-                largeIcon: 'drawable/ic_launcher',
-                smallIcon: 'drawable/autooh',
-                priority: Config.NOTIFICATION_PRIORITY_MAX,
-                title: 'Você está ganhando Dinheiro',
-                //color: '#007A9A',
-                text: 'Estamos acompanhando sua localização'),
-            startOnBoot: true,
-            foregroundService: true,
-            debug: false,
-            logLevel: bg.Config.LOG_LEVEL_OFF))
+        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+        forceReloadOnBoot: true,
+        enableHeadless: true,
+        preventSuspend: true,
+        stopTimeout: 1,
+        reset: false,
+        distanceFilter: 10.0,
+        url: 'http://localhost:8080/locations',
+        persistMode: Config.PERSIST_MODE_ALL,
+        params: deviceParams,
+        stopOnTerminate: false,
+        activityType: Config.ACTIVITY_TYPE_AUTOMOTIVE_NAVIGATION,
+        stopOnStationary: false,
+        notification: bg.Notification(
+            largeIcon: 'drawable/ic_launcher',
+            smallIcon: 'drawable/autooh',
+            priority: Config.NOTIFICATION_PRIORITY_MAX,
+            title: 'Você está ganhando Dinheiro',
+            //color: '#007A9A',
+            text: 'Estamos acompanhando sua localização'),
+        startOnBoot: true,
+        foregroundService: true,
+        debug: false,
+        logLevel: bg.Config.LOG_LEVEL_OFF))
         .then((bg.State state) async {
       print("AQUI LOLOLO ${state.enabled}");
       enabled = state.enabled;
@@ -353,17 +352,17 @@ class CorridaController extends BlocBase {
       List<Carro> carros = new List<Carro>();
       for (var d in v.docs) {
         Carro c = Carro.fromJson(d.data());
-             print('aqui carro 232 ${c.toJson()}');
+        print('aqui carro 232 ${c.toJson()}');
 
-          carros.add(c);
+        carros.add(c);
       }
       carro = carros[0];
       inCarro.add(carro);
       SharedPreferences.getInstance().then((value) {
         sp = value;
-        
+
         started =
-            value.getBool('started') == null ? false : value.getBool('started');
+        value.getBool('started') == null ? false : value.getBool('started');
         if (started) {
           iniciarCorrida();
         }
@@ -380,6 +379,8 @@ class CorridaController extends BlocBase {
     if (started == true) {
       print('Nova localização ${started}');
       Localizacao loc;
+
+
       UserLocation = new MarkerLayerOptions(
         markers: [
           new Marker(
@@ -396,30 +397,30 @@ class CorridaController extends BlocBase {
       );
 
       loc = Localizacao(
-          latitude: l.latitude,
-          longitude: l.longitude,
-          timestamp: DateTime.now(),
-         );
+        latitude: l.latitude,
+        longitude: l.longitude,
+        timestamp: DateTime.now(),
+      );
       if (loc != null) {
         rota.add(loc);
         inRota.add(rota);
         if (LastLoc != null) {
 
-            distanciaPercorrida += calculateDistance(loc.latitude,
-                loc.longitude, LastLoc.latitude, LastLoc.longitude);
-            LastLoc = loc;
-            inDistanciaPercorrida.add(distanciaPercorrida);
+          distanciaPercorrida += calculateDistance(loc.latitude,
+              loc.longitude, LastLoc.latitude, LastLoc.longitude);
+          LastLoc = loc;
+          inDistanciaPercorrida.add(distanciaPercorrida);
 
         }
       }
 
       if (LastUserLocation != null) {
         if (UserLocation.markers[0].point.latitude !=
-                LastUserLocation.markers[0].point.latitude &&
+            LastUserLocation.markers[0].point.latitude &&
             UserLocation.markers[0].point.longitude !=
                 LastUserLocation.markers[0].point.latitude) {
-                  print('1aqui localização do usuario ${UserLocation.toString()}');
-            cfs.AdicionarLatLng(loc, distanciaPercorrida);
+
+          cfs.AdicionarLatLng(loc, distanciaPercorrida);
 
           inUserLocation.add(UserLocation);
           LastUserLocation = UserLocation;
@@ -447,9 +448,9 @@ class CorridaController extends BlocBase {
 }
 
 bool _checkIfValidMarker(
-  LatLng tap,
-  List<LatLng> vertices,
-) {
+    LatLng tap,
+    List<LatLng> vertices,
+    ) {
   int intersectCount = 0;
   for (int j = 0; j < vertices.length - 1; j++) {
     if (rayCastIntersect(tap, vertices[j], vertices[j + 1])) {

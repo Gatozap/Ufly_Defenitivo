@@ -42,11 +42,11 @@ class RotaController extends BlocBase {
   Stream<List<String>> get outParadas => controllerParadas.stream;
   Sink<List<String>> get inParadas => controllerParadas.sink;
 
-  BehaviorSubject<List<LatLng>> controllerPolylinePassageiro =
-  new BehaviorSubject<List<LatLng>>();
-  Stream<List<LatLng>> get outPolyPassageiro =>
+  BehaviorSubject<List<List<LatLng>>> controllerPolylinePassageiro =
+  new BehaviorSubject<List<List<LatLng>>>();
+  Stream<List<List<LatLng>>> get outPolyPassageiro =>
       controllerPolylinePassageiro.stream;
-  Sink<List<LatLng>> get inPolyPassageiro => controllerPolylinePassageiro.sink;
+  Sink<List<List<LatLng>>> get inPolyPassageiro => controllerPolylinePassageiro.sink;
 
   BehaviorSubject<List<List<LatLng>>> controllerPolylineMotorista =
       new BehaviorSubject<List<List<LatLng>>>();
@@ -162,6 +162,64 @@ class RotaController extends BlocBase {
     inPoly.add(rotasTemp);
 
   }
+  Future<List<List<LatLng>>> CalcularRotaPassageiro(LatLng passageiro_inicial, requisicaoController, {bool isdestinoFinal = true}) async {
+    List<LatLng> rotas = [];
+    List<List<LatLng>> polylineCoordinatesPassageiro = [];
+    for (int i = 0; i < requisicaoController.rota.routes.length; i++) {
+
+
+      if (i == 0) {
+        rotas.add(LatLng(
+            passageiro_inicial.latitude, passageiro_inicial.longitude));
+      }
+
+      for (var l in requisicaoController.rota.routes[0].legs) {
+        for (var s in l.steps) {
+          for (var i in s.intersections) {
+            rotas.add(LatLng(i.location[1], i.location[0]));
+          }
+        }
+      }
+
+      polylineCoordinatesPassageiro.add(rotas);
+    }
+    polylineCoordinatesPassageiro.last.add(LatLng(
+        polylineCoordinatesPassageiro.last.last.latitude,
+        polylineCoordinatesPassageiro.last.last.longitude));
+    inPolyPassageiro.add(polylineCoordinatesPassageiro);
+    return polylineCoordinatesPassageiro;
+  }
+  AdicionarParadaPassageiro(requisicaoController, way) async {
+    List<LatLng> paradasTemp = paradas;
+    paradas = [];
+    if (destinoFinal == null) {
+      destinoFinal = LatLng(
+          requisicaoController.destino.lat, requisicaoController.destino.lng);
+    }
+    paradas.add(LatLng(
+        requisicaoController.origem.lat, requisicaoController.origem.lng));
+    for(var a in paradasTemp){
+      if(a != localizacaoUsuario && a != destinoFinal) {
+        paradas.add(a);
+      }
+    }
+    paradas.add(way[0]);
+    paradas.add(way[1]);
+    paradas.add(way[2]);
+    paradas.add(destinoFinal);
+    List<List<LatLng>> rotasTemp = [];
+    for (var i = 0; i+1 < paradas.length; i++) {
+      if (paradas[i+1] != null) {
+
+        var l = await CalcularRotaPassageiro(paradas[i], requisicaoController);
+
+        rotasTemp.addAll(l);
+      }
+    }
+    inPolyPassageiro.add(rotasTemp);
+
+  }
+
   Future<List<List<LatLng>>> CalcularRotaMotorista(LatLng v, LatLng c, {bool isdestinoFinal = true}) async {
     List<List<LatLng>> polylineCoordinatesMotorista = [];
 
