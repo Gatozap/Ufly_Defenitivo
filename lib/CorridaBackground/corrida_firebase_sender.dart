@@ -54,105 +54,22 @@ class CorridaFirebaseSender {
 
   PararLigacao(Carro carro) async {
     print('INICIANDO PARAR');
-    corrida.isRunning = false;
-    corridaRef.update({
-      'isRunning': false
-    });
-
-
-
-    print('aqui corrida');
-
     SharedPreferences.getInstance().then((value) {
       CarroAtivo ca = CarroAtivo.fromJson(json.decode(value.getString('ca')));
-      gravarCorridaFirestore(ca);
       ca.isAtivo = false;
-      print('aqui a porra do ativo ${ca.isAtivo}');
+
       
       carrosAtivosRef.child(Helper.localUser.id).set(ca.toJson()).then((value) {
-
         print('Localização Atualizada');
       });
     }).catchError((err) {
       print('Erro ao atualizar ativo: ${err.toString()}');
     });
-    //TODO COMPUTAR OS DADOS PRO FIRESTORE
-    Future.delayed(Duration(seconds: 5)).then((value) => (v) {
-     sp.setString('corrida', '');
-      corridaRef = null;
-      pointsRef = null;
-      corrida = null;
-    });
-  }
-  gravarCorridaFirestore(CarroAtivo carro) {
-    print('INICIANDO GRAVAR 3232');
-    Corrida c = corrida;
 
-    c.id_carro = carro.carro_id;
-    corridasRef.add(c.toJson()).then((v) {
-      c.id = v.id;
-      print('INICIANDO GRAVAR 32332');
-      corridasRef
-          .doc(v.id)
-          .update(c.toJson())
-          .then((d) async { print('salvou a corrida');
-      }).catchError((err) {
-        print('ERRO AO SALVAR CORRIDA ${err.toString()}');
-      });
-    }).catchError((err) {
-      print('ERRO AO SALVAR CORRIDA ${err.toString()}');
-    });
   }
-  IniciarLigacao(Carro carroSelecionado) {
-    print('INICIANDO LIGAÇÂO');
-    if (started) {
-      print('INICIANDO LIGAÇÂO ${started}');
-      SharedPreferences.getInstance().then((value) {
-        sp = value;
-        try {
-          corrida = Corrida.fromJson(json.decode(sp.getString('corrida')));
-          print('INICIANDO aqui ${corrida}');
-        } catch (err) {
-          print('Erro ao buscar Corrida ${err.toString()}');
-        }
 
-        if (corrida != null && corrida.id != null) {
-          print("AQUI A DIABA DA CORRIDA ${corrida.toString()}");
-          corridaRef = FirebaseDatabase.instance
-              .reference()
-              .child('Corridas')
-              .reference()
-              .child(corrida.id);
-          pointsRef = corridaRef.child('points');
-          corridaRef.once().then((value) {
-            print("AQUI A DIABA DA CORRIDA  2${value.value}");
-            corrida = Corrida.fromJson(value.value);
-            sp.setString('corrida', json.encode(corrida.toJson()));
-            print('INICIADA LIGAÇÂO 4');
-          });
-        } else {
-          print('INICIADA LIGAÇÂO 3');
-          corrida = Corrida(
-            user: Helper.localUser.id,
-            id_carro: carroSelecionado.id,
-            dist: 0.0,
-            isRunning: true,);
-          corridaRef = FirebaseDatabase.instance
-              .reference()
-              .child('Corridas')
-              .reference()
-              .push();
-          corridaRef.set(corrida.toJson());
-          corrida.id = corridaRef.key;
-          corridaRef.update({'id': corrida.id});
-          PrepararCarroAtivo(carroSelecionado);
-          sp.setString('corrida', json.encode(corrida));
-          pointsRef = corridaRef.child('points');
-          print('INICIADA LIGAÇÂO ${corrida.id}');
-        }
-      });
-    }
-  }
+
+
 
   Future<void> ContabilizarCorrida(Carro carro, localizacoes) async {
     print('INICIANDO CONTABILIZAR');

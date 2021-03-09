@@ -34,6 +34,7 @@ import 'package:ufly/Helpers/References.dart';
 import 'package:ufly/Motorista/motorista_controller.dart';
 import 'package:ufly/Motorista/motorista_controller_edit.dart';
 import 'package:ufly/Objetos/Carro.dart';
+import 'package:ufly/Objetos/CarroAtivo.dart';
 import 'package:ufly/Objetos/FiltroMotorista.dart';
 import 'package:ufly/Objetos/OfertaCorrida.dart';
 import 'package:ufly/Objetos/User.dart';
@@ -120,17 +121,7 @@ class _CorridaPageState extends State<CorridaPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (layers == null) {
-      layers = [
-        new fm.TileLayerOptions(
-          urlTemplate:
-          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          subdomains: ['a', 'b', 'c'],
-        )
-      ];
-  
 
-    }
     ResponsivePixelHandler.init(
       baseWidth: 360, //A largura usado pelo designer no modelo desenhado
     );
@@ -168,7 +159,7 @@ class _CorridaPageState extends State<CorridaPage> {
             stream: rc.outPolyPassageiro,
             builder: (context, snapPassageiro) {
 
-
+              polylines = getPolys(snapMotorista.data, snapPassageiro.data);
               return StreamBuilder<LatLng>(
                   stream: rc.outLocalizacao,
                   builder: (context, localizacao) {
@@ -227,9 +218,8 @@ class _CorridaPageState extends State<CorridaPage> {
                                     myLocationEnabled: true,
                                     myLocationButtonEnabled: false,
                                     trafficEnabled: true,
-                                    polylines: destino != null
-                                        ? polylines.toSet()
-                                        : null,
+                                    polylines: polylines.toSet(),
+
                                     markers: destino !=null? markers.toSet():null,
                                     mapType: MapType.terrain,
                                     zoomGesturesEnabled: true,
@@ -304,151 +294,137 @@ class _CorridaPageState extends State<CorridaPage> {
                                 AsyncSnapshot<List<Requisicao>> requisicao) {
                               if (requisicao.data == null ||
                                   requisicao.data.isEmpty) {
+                                    for(CarroAtivo ca in ac.ativos) {
+                                      Container(
+                                        width: getLargura(context),
+                                        height: getAltura(context) * .060,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .center,
+                                          children: <Widget>[
+                                            carro.data == null
+                                                ? Expanded(
+                                              child: hText(
+                                                  'Não conseguimos encontrar seu carro contate o suporte',
+                                                  context,
+                                                  color: Colors.white,
+                                                  textaling: TextAlign.center),
+                                            )
+                                                : ca.isAtivo
+                                                ? GestureDetector(
+                                              onTap: () async {
+                                                corridaController
+                                                    .finalizarCorrida();
+                                              },
+                                              child: hTextAbel(
+                                                  'OFFLINE', context,
+                                                  size: 20,
+                                                  weight: FontWeight.bold,
+                                                  color:
+                                                  ca.isAtivo ==
+                                                      false
+                                                      ? Color.fromRGBO(
+                                                      255, 184, 0, 30)
+                                                      : Colors.black),
+                                            ) :
 
-                                return StreamBuilder<bool>(
-                                    stream: corridaController.outStarted,
-                                    builder: (context, started) {
-
-                                      return Container(
-                                      width: getLargura(context),
-                                      height: getAltura(context) * .060,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          carro.data == null
-                                              ? Expanded(
-                                                  child: hText(
-                                                      'Não conseguimos encontrar seu carro contate o suporte', context,
-                                                      color: Colors.white,
-                                                      textaling: TextAlign.center),
-                                                )
-                                              : started.data
-                                              ?GestureDetector(
-                                                  onTap: () async {
-                                                    layers = [
-                                                      new fm.TileLayerOptions(
-                                                          urlTemplate:
-                                                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                                          subdomains: ['a', 'b', 'c']),
-                                                    ];
-                                                    corridaController
-                                                        .finalizarCorrida();
-
-                                                  },
-                                                  child: hTextAbel(
-                                                      'OFFLINE', context,
-                                                      size: 20,
-                                                      weight: FontWeight.bold,
-                                                      color:
-                                                          motorista.data.isOnline ==
-                                                                  false
-                                                              ? Color.fromRGBO(
-                                                                  255, 184, 0, 30)
-                                                              : Colors.black),
-                                                ):
-
-                                          GestureDetector(
-                                            onTap: () async {
-
-                                              corridaController.iniciarCorrida();
-                                            },
-                                            child: hTextAbel(
-                                              'ONLINE',
-                                              context,
-                                              size: 20,
-                                              weight: FontWeight.bold,
-                                              color: motorista.data.isOnline == true
-                                                  ? Color.fromRGBO(255, 184, 0, 30)
-                                                  : Colors.black,
+                                            GestureDetector(
+                                              onTap: () async {
+                                                corridaController
+                                                    .iniciarCorrida();
+                                              },
+                                              child: hTextAbel(
+                                                'ONLINE',
+                                                context,
+                                                size: 20,
+                                                weight: FontWeight.bold,
+                                                color: ca.isAtivo == true
+                                                    ? Color.fromRGBO(
+                                                    255, 184, 0, 30)
+                                                    : Colors.black,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }
-                                );
+                                          ],
+                                        ),
+                                      );
+                                    }
                               } else {
                                 for (Requisicao i in requisicao.data) {
-
-                                  return StreamBuilder<bool>(
-                                      stream: corridaController.outStarted,
-                                      builder: (context, started) {
-
-                                        return Container(
+                                  for(CarroAtivo ca in ac.ativos) {
+                                    return
+                                      Container(
                                           width: getLargura(context),
                                           height: getAltura(context) * .060,
                                           child: Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: i.motoristas_chamados
-                                                    .contains(Helper.localUser.id)
+                                                .contains(Helper.localUser.id)
                                                 ? Container()
                                                 : Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.center,
-                                                    children: <Widget>[
-                                                      carro.data == null
-                                                          ? Expanded(
-                                                              child: hText(
-                                                                  'Não conseguimos encontrar seu carro contate o suporte',
-                                                                  context,
-                                                                  color:
-                                                                      Colors.white,
-                                                                  textaling:
-                                                                      TextAlign
-                                                                          .center),
-                                                            )
-                                                          : GestureDetector(
-                                                              onTap: () async {
-
-                                                                corridaController
-                                                                    .finalizarCorrida();
-                                                              },
-                                                              child: hTextAbel(
-                                                                  'OFFLINE',
-                                                                  context,
-                                                                  size: 20,
-                                                                  weight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: started.data ==
-                                                                          false
-                                                                      ? Color
-                                                                          .fromRGBO(
-                                                                              255,
-                                                                              184,
-                                                                              0,
-                                                                              30)
-                                                                      : Colors
-                                                                          .black),
-                                                            ),
-                                                      sb,
-                                                      sb,
-                                                      hTextAbel('|', context,
-                                                          size: 20),
-                                                      sb,
-                                                      sb,
-                                                      GestureDetector(
-                                                        onTap: () async {
-                                                          corridaController
-                                                              .iniciarCorrida();
-                                                        },
-                                                        child: hTextAbel(
-                                                          'ONLINE',
-                                                          context,
-                                                          size: 20,
-                                                          weight: FontWeight.bold,
-                                                          color:started.data ==
-                                                                  true
-                                                              ? Color.fromRGBO(
-                                                                  255, 184, 0, 30)
-                                                              : Colors.black,
-                                                        ),
-                                                      ),
-                                                    ],
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                carro.data == null
+                                                    ? Expanded(
+                                                  child: hText(
+                                                      'Não conseguimos encontrar seu carro contate o suporte',
+                                                      context,
+                                                      color:
+                                                      Colors.white,
+                                                      textaling:
+                                                      TextAlign
+                                                          .center),
+                                                )
+                                                    : GestureDetector(
+                                                  onTap: () async {
+                                                    corridaController
+                                                        .finalizarCorrida();
+                                                  },
+                                                  child: hTextAbel(
+                                                      'OFFLINE',
+                                                      context,
+                                                      size: 20,
+                                                      weight:
+                                                      FontWeight
+                                                          .bold,
+                                                      color:ca.isAtivo ==
+                                                          false
+                                                          ? Color
+                                                          .fromRGBO(
+                                                          255,
+                                                          184,
+                                                          0,
+                                                          30)
+                                                          : Colors
+                                                          .black),
+                                                ),
+                                                sb,
+                                                sb,
+                                                hTextAbel('|', context,
+                                                    size: 20),
+                                                sb,
+                                                sb,
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    corridaController
+                                                        .iniciarCorrida();
+                                                  },
+                                                  child: hTextAbel(
+                                                    'ONLINE',
+                                                    context,
+                                                    size: 20,
+                                                    weight: FontWeight.bold,
+                                                    color: ca.isAtivo ==
+                                                        true
+                                                        ? Color.fromRGBO(
+                                                        255, 184, 0, 30)
+                                                        : Colors.black,
                                                   ),
+                                                ),
+                                              ],
+                                            ),
                                           ));
-                                    }
-                                  );
+                                  }
                                 }
                               }
                             });
@@ -493,8 +469,8 @@ class _CorridaPageState extends State<CorridaPage> {
                               itemBuilder: (context, index) {
                                 Requisicao req = requisicao.data[index];
                                 print('aqui requisicao parada ${req.primeiraParada_lat}');
-                                if(requisicao.data.length == null){
-                                  return Container();
+                                if(req == null){
+                                  return map;
                                 }
                                 else if (req.aceito == null) {
                                   if (req.motoristas_chamados
@@ -559,13 +535,12 @@ class _CorridaPageState extends State<CorridaPage> {
                         ? Container()
                         : GestureDetector(
                             onTap: () {
-                                rotaPassageiro(requisicaoController);
-
+                              rotaPassageiro(requisicaoController);
                               cf.hide = true;
                               cf.inHide.add(cf.hide);
-                                Timer(Duration(seconds: 5), () {
+                              Timer(Duration(seconds: 5), () {
                                   centerView();
-                                });
+                              });
                             },
                             child: Container(
                               width: getLargura(context) * .5,
@@ -1318,26 +1293,24 @@ class _CorridaPageState extends State<CorridaPage> {
         zoom: Helper.localUser.zoom, )));
   }
    rotaPassageiro(requisicaoController)async{
-        List<LatLng> marcasWays = [];
-
-
-     passageiro_latlng = LatLng(requisicaoController.origem.lat, requisicaoController.origem.lng);
+    List<LatLng> marcasWays = [];
+    passageiro_latlng = LatLng(requisicaoController.origem.lat, requisicaoController.origem.lng);
        
-      if(requisicaoController.primeiraParada_lat != null){
+    if(requisicaoController.primeiraParada_lat != null){
         parada1 =  LatLng(requisicaoController.primeiraParada_lat, requisicaoController.primeiraParada_lng);
 
         marcasWays.add(parada1);
-      }
-      if (requisicaoController.segundaParada_lat != null){
+    }
+    if (requisicaoController.segundaParada_lat != null){
 
        parada2 = LatLng(requisicaoController.segundaParada_lat, requisicaoController.segundaParada_lng);
        
        marcasWays.add(parada2);
-      }  
-      if(requisicaoController.terceiraParada_lat != null) {
+    }
+    if(requisicaoController.terceiraParada_lat != null) {
         parada3 = LatLng(requisicaoController.terceiraParada_lat, requisicaoController.terceiraParada_lng);
         marcasWays.add(parada3);
-      }
+    }
 
         rc.inMarker.add(marcasWays);
 
@@ -1345,8 +1318,10 @@ class _CorridaPageState extends State<CorridaPage> {
 
      rc.CalcularRotaMotorista(_initialPosition, passageiro_latlng);
         if (requisicaoController.primeiraParada_lat == null) {
+          print('aqui req 32${requisicaoController.primeiraParada_lat}');
           rc.CalcularRotaPassageiro(passageiro_latlng, requisicaoController);
         } else {
+          print('aqui req 23${requisicaoController.primeiraParada_lat}');
           rc.AdicionarParadaPassageiro(requisicaoController, marcasWays);
         }
 
@@ -1364,7 +1339,7 @@ class _CorridaPageState extends State<CorridaPage> {
     }
     try {
       for (int i = 0; i < motorista.length; i++) {
-        print('aqui a porra da motorista ${motorista[i]}');
+
         PolylineId id2 = PolylineId("poly${i}");
         poly.add(Polyline(
           width: 10,

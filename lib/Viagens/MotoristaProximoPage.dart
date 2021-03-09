@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+as bg;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -60,6 +61,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
 
   @override
   Widget build(BuildContext context) {
+    bg.BackgroundGeolocation.start();
     ResponsivePixelHandler.init(
       baseWidth: 360, //The width used by the designer in the model designed
     );

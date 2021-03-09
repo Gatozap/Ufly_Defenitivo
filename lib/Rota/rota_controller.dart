@@ -142,12 +142,8 @@ class RotaController extends BlocBase {
       }
     }
 
-
-
-
     paradas.add(way);
     paradas.add(destinoFinal);
-
 
     List<List<LatLng>> rotasTemp = [];
     for (var i = 0; i+1 < paradas.length; i++) {
@@ -162,30 +158,25 @@ class RotaController extends BlocBase {
     inPoly.add(rotasTemp);
 
   }
-  Future<List<List<LatLng>>> CalcularRotaPassageiro(LatLng passageiro_inicial, requisicaoController, {bool isdestinoFinal = true}) async {
+  Future<List<List<LatLng>>> CalcularRotaPassageiro(LatLng passageiro_inicial, requisicaoController) async {
     List<LatLng> rotas = [];
     List<List<LatLng>> polylineCoordinatesPassageiro = [];
-    for (int i = 0; i < requisicaoController.rota.routes.length; i++) {
 
 
-      if (i == 0) {
-        rotas.add(LatLng(
-            passageiro_inicial.latitude, passageiro_inicial.longitude));
-      }
+
+
+
 
       for (var l in requisicaoController.rota.routes[0].legs) {
         for (var s in l.steps) {
           for (var i in s.intersections) {
+
             rotas.add(LatLng(i.location[1], i.location[0]));
           }
         }
       }
-
       polylineCoordinatesPassageiro.add(rotas);
-    }
-    polylineCoordinatesPassageiro.last.add(LatLng(
-        polylineCoordinatesPassageiro.last.last.latitude,
-        polylineCoordinatesPassageiro.last.last.longitude));
+
     inPolyPassageiro.add(polylineCoordinatesPassageiro);
     return polylineCoordinatesPassageiro;
   }
@@ -233,11 +224,7 @@ class RotaController extends BlocBase {
 
       if (isdestinoFinal == true) {
         destinoFinal = c;
-
       }
-
-
-
       Rota r = Rota.fromJson(json.decode(result.body));
       rota = r;
 

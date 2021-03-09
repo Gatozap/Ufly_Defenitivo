@@ -160,12 +160,8 @@ class CorridaController extends BlocBase {
           sp.setBool('started', started);
         }
         inStarted.add(started);
-        try {
-          corrida = Corrida.fromJson(json.decode(sp.getString('corrida')));
-        } catch (err) {
-          print('Error ${err.toString()}');
-        }
-        print("AQUI CAPETA CORRIDA");
+
+
         var LocalizacoesTemp = await getAll();
 
         rota = LocalizacoesTemp == null ? new List() : LocalizacoesTemp;
@@ -190,7 +186,7 @@ class CorridaController extends BlocBase {
 
         inDistanciaPercorrida.add(distanciaPercorrida);
         //if (started) {
-        cfs.IniciarLigacao(carro);
+
         print("CHEGOU AQUI LOLO ");
         bg.BackgroundGeolocation.changePace(true).then((bool isMoving) {
           print('[changePace] success $isMoving');
@@ -260,7 +256,7 @@ class CorridaController extends BlocBase {
 
       inDistanciaPercorrida.add(distanciaPercorrida);
       //if (started) {
-      cfs.IniciarLigacao(carro);
+  
       print("CHEGOU AQUI LOLO ");
       bg.BackgroundGeolocation.changePace(true).then((bool isMoving) {
         print('[changePace] success $isMoving');
