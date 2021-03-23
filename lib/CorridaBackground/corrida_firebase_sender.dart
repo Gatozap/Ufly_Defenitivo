@@ -60,7 +60,7 @@ class CorridaFirebaseSender {
 
       
       carrosAtivosRef.child(Helper.localUser.id).set(ca.toJson()).then((value) {
-        print('Localização Atualizada');
+        print('Localização Atualizada ${ca.isAtivo}');
       });
     }).catchError((err) {
       print('Erro ao atualizar ativo: ${err.toString()}');

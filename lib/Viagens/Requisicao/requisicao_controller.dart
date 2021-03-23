@@ -25,7 +25,7 @@ class RequisicaoController extends BlocBase {
     requisicaoRef.where('user', isEqualTo: Helper.localUser.id)
         .get()
         .then((v) {
-      List<Requisicao> requisicoes = new List<Requisicao>();
+      List<Requisicao> requisicoes = [];
       for (var d in v.docs) {
         Requisicao m = Requisicao.fromJson(d.data());
         print('aqui requisicao 232 ${m.toJson()}');

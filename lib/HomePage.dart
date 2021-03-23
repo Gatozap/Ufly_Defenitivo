@@ -961,9 +961,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget ProcurarWidget() {
-    if (requisicaoController == null) {
-      requisicaoController = RequisicaoController();
-    }
+
     return StreamBuilder<Requisicao>(
         stream: requisicaoController.outRequisicao,
         builder: (context, requisicao) {
