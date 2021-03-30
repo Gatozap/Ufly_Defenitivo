@@ -321,7 +321,7 @@ class _HomePageState extends State<HomePage> {
 
                                              lat_lng_de_parada_um = posicaoParada1;
                                             marcas.add(lat_lng_de_parada_um);
-                                              rc.inMarker.add(marcas);
+                                              rc.inWays.add(marcas);
                                         rc.AdicionarParada(lat_lng_de_parada_um);
 
                                       }
@@ -411,7 +411,7 @@ class _HomePageState extends State<HomePage> {
                                             lat_lng_de_parada_dois = address.coords;
 
                                             marcas.add(lat_lng_de_parada_dois);
-                                            rc.inMarker.add(marcas);
+                                            rc.inWays.add(marcas);
                                             rc.AdicionarParada(lat_lng_de_parada_dois);
 
                                           }
@@ -498,7 +498,7 @@ class _HomePageState extends State<HomePage> {
                                             endereco_paradaTres = snapshot.data[0].reference.toString();
                                                   lat_lng_de_parada_tres = address.coords;
                                             marcas.add(lat_lng_de_parada_tres);
-                                            rc.inMarker.add(marcas);
+                                            rc.inWays.add(marcas);
                                               rc.AdicionarParada(lat_lng_de_parada_tres);
 
                                           }
@@ -638,7 +638,7 @@ class _HomePageState extends State<HomePage> {
                   stream: pf.outUser,
                   builder: (context, user) {
                     return StreamBuilder(
-                        stream: rc.outMarker,
+                        stream: rc.outWays,
                         builder: (context,  snapshot) {
 
                              markers = getMarkers(_initialPosition, destino, snapshot.data);
@@ -735,12 +735,6 @@ class _HomePageState extends State<HomePage> {
                 child: FloatingActionButton(
                   heroTag: '2',
                   onPressed: () {
-                    polylines.clear();
-                    print('polylines ${polylines}');
-                    List<Polyline> poly = [];
-
-
-
                     centerView();
                   },
                   child: Icon(Icons.zoom_out_map, color: Colors.black),
@@ -981,7 +975,8 @@ class _HomePageState extends State<HomePage> {
                 return GestureDetector(
                   onTap: () {
                     if (requisicao.data == null ||
-                        requisicao.data.user != Helper.localUser.id) {
+                        requisicao.data.user != Helper.localUser.id)
+                    {
                       showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -1350,7 +1345,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (requiup == null || requiup.user != Helper.localUser.id) {
-      print('entrou aqui cria');
+      print('entrou aqui cria ${forma_de_pagamento}');
 
 
       Requisicao requisicao2 = Requisicao(

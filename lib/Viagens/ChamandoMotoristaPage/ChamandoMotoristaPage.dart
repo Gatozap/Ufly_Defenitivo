@@ -11,51 +11,37 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:ufly/Avaliacao/AvaliacaoPage.dart';
-import 'package:ufly/Objetos/Rota.dart';
-import 'package:flutter_map/flutter_map.dart' as fm;
+
 
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:responsive_pixel/responsive_pixel.dart';
-
-import 'package:timer_count_down/timer_controller.dart';
-import 'package:timer_count_down/timer_count_down.dart';
 import 'package:ufly/Ativos/AtivosController.dart';
 
-import 'package:ufly/Controllers/ControllerFiltros.dart';
+
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 
-import 'package:ufly/CorridaBackground/corrida_controller.dart';
+
 import 'package:ufly/CorridaBackground/requisicao_corrida_controller.dart';
 import 'package:ufly/GoogleServices/geolocator_service.dart';
 
-import 'package:ufly/Helpers/References.dart';
+
 
 import 'package:ufly/Motorista/motorista_controller.dart';
-import 'package:ufly/Motorista/motorista_controller_edit.dart';
-import 'package:ufly/Objetos/Carro.dart';
+
 import 'package:ufly/Objetos/CarroAtivo.dart';
-import 'package:ufly/Objetos/FiltroMotorista.dart';
+
 import 'package:ufly/Objetos/OfertaCorrida.dart';
-import 'package:ufly/Objetos/User.dart';
+
 
 import 'package:ufly/Objetos/Motorista.dart';
 import 'package:ufly/Objetos/Requisicao.dart';
-import 'package:ufly/Perfil/PerfilController.dart';
-import 'package:ufly/Perfil/user_list_controller.dart';
+
 import 'package:ufly/Rota/rota_controller.dart';
 
 import 'package:ufly/Viagens/OfertaCorrida/oferta_corrida_controller.dart';
 
-import 'package:flutter_masked_text/flutter_masked_text.dart';
-import 'package:flutter_animarker/flutter_map_marker_animation.dart';
-
-import 'package:flutter_animarker/lat_lng_interpolation.dart';
-
-import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
 
 import 'package:ufly/Helpers/Helper.dart';
 
@@ -173,16 +159,18 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                             }
 
                             return StreamBuilder(
-                                stream: rc.outMarker,
+                                stream: rc.outWays,
                                 builder: (context, snapshot) {
                                   if (snapshot.data != null) {
-                                    if (parada1 == null) {
-                                      markers = getMarkers(passageiro_latlng,
-                                          destino, _initialPosition);
-                                    } else {
-                                      markers = getMarkers(passageiro_latlng,
-                                          destino, _initialPosition,
-                                          ways: snapshot.data);
+                                    for(CarroAtivo ca in ac.ativos) {
+                                      if (parada1 == null) {
+                                        markers = getMarkers(passageiro_latlng,
+                                            destino, LatLng(ca.localizacao.latitude, ca.localizacao.longitude));
+                                      } else {
+                                        markers = getMarkers(passageiro_latlng,
+                                            destino, LatLng(ca.localizacao.latitude, ca.localizacao.longitude),
+                                            ways: snapshot.data);
+                                      }
                                     }
                                   }
                                   return GoogleMap(
@@ -267,7 +255,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
             ],
           ),
         ),
-        panel: FinalizarCorrida(),
+        panel: viagemWidget(),
         body: StreamBuilder<List<Requisicao>>(
             stream: requisicaoController.outRequisicoes,
             builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
@@ -279,13 +267,14 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                     alignment: Alignment.topCenter,
                     children: <Widget>[
                       map,
+
                       Positioned(
                         right: getLargura(context) * .060,
                         bottom: getAltura(context) * .350,
                         child: FloatingActionButton(
                           heroTag: '2',
                           onPressed: () {
-                            rotaPassageiro(req);
+                           rotaPassageiro(req);
 
                             Timer(Duration(seconds: 5), () {
                               centerView();
@@ -366,172 +355,103 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
     );
   }
 
-  Widget FinalizarCorrida() {
-    if (mt == null) {
-      mt = MotoristaController();
-    }
-    if(ofertaCorridaController == null){
-      ofertaCorridaController = OfertaCorridaController();
-    }
-    if(requisicaoController == null){
-      requisicaoController = RequisicaoCorridaController();
-    }
-    return Container(
+  Widget viagemWidget(){
+    return     Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Colors.white,
       ),
       height: getAltura(context) * .250,
       width: getLargura(context) * .90,
-      child:  StreamBuilder<List<Motorista>>(
-          stream: mt.outMotoristas,
-          builder: (context, AsyncSnapshot<List<Motorista>> snapshot) {
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: getAltura(context) * .030,
+                        left: getLargura(context) * .070),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.blue,
+                      radius: 30,
+                      backgroundImage:
+                      AssetImage('assets/julio.png'),
+                    ),
+                  ),
+                  sb,
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                    top: getAltura(context) * .035,
+                    left: getLargura(context) * .025),
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      hTextAbel('Júlio', context,
+                          size: 20, color: Colors.black),
+                      Row(
+                        children: <Widget>[
+                          hTextAbel('5,0', context,
+                              size: 20, color: Colors.black),
+                          Container(
+                            child: Image.asset(
+                                'assets/estrela.png'),
+                          ),
+                        ],
+                      ),
+                      Row(children: <Widget>[ hTextAbel('Da sua carteira', context, size: 20, ),sb, Image.asset('assets/carteira.png') ],)
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding:  EdgeInsets.only(left: getLargura(context)*.150, bottom: getAltura(context)*.040),
+                child: Container(child: Image.asset('assets/fechar.png')),
+              )
+            ],
+          ),
+          sb,
+          Container(
 
-            if(snapshot.data == null){
-              return Container();
-            }
-            if(snapshot.data.length == 0){
-              return Container(child: hTextMal('Sem motorista disponiveis', context,size: 20));
-            }
+            width: getLargura(context) * .70,
+            height: getAltura(context) * .080,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                hTextMal('3 min', context,
+                    size: 20,
+                    color: Colors.black,
+                    weight: FontWeight.bold),
+                sb,  sb,
+                Image.asset('assets/km.png'),
+                sb,sb,
+                hTextMal('2.1 Km', context,
+                    size: 20,
+                    color: Colors.black,
+                    weight: FontWeight.bold),
+              ],
 
+            ),
 
-             return StreamBuilder<List<Requisicao>>(
-                 stream: requisicaoController.outRequisicoes,
-                 builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-                   for (var req in requisicao.data) {
-                     return
-                       StreamBuilder<List<OfertaCorrida>>(
-                           stream: ofertaCorridaController.outOfertaCorrida,
-                           builder: (context,
-                               AsyncSnapshot<List<OfertaCorrida>> ofertaCorrida) {
-
-
-                             if (ofertaCorrida.data == null) {
-                               return Container();
-                             }
-                             if (ofertaCorrida.data.length == 0) {
-                               return Container();
-                             }
-                             for(OfertaCorrida oferta in ofertaCorrida.data) {
-                               return
-
-                                 Column(
-                                   children: <Widget>[
-                                     Row(
-                                       children: <Widget>[
-                                         Column(
-                                           mainAxisAlignment: MainAxisAlignment
-                                               .start,
-                                           crossAxisAlignment: CrossAxisAlignment
-                                               .start,
-                                           children: <Widget>[
-                                             Padding(
-                                                 padding: EdgeInsets.only(
-                                                     top: getAltura(context) *
-                                                         .050,
-                                                     left: getLargura(context) *
-                                                         .070),
-                                                 child:
-                                                 snapshot.data[0].foto == null ?
-                                                 CircleAvatar(
-                                                   radius: 30,
-                                                   backgroundImage: AssetImage(
-                                                       'assets/logo_drawer.png'),
-                                                 ) :
-                                                 CircleAvatar(
-                                                   radius: 30,
-                                                   backgroundImage: CachedNetworkImageProvider(
-                                                       snapshot.data[0].foto),
-                                                 )
-                                             ),
-                                             sb,
-                                           ],
-                                         ),
-                                         Padding(
-                                           padding: EdgeInsets.only(
-                                               top: getAltura(context) * .035,
-                                               left: getLargura(context) *
-                                                   .025),
-                                           child: Container(
-                                             child: Column(
-                                               children: <Widget>[
-                                                 hTextAbel(
-                                                     '${snapshot.data[0]
-                                                         .nome_usuario}',
-                                                     context,
-                                                     size: 25,
-                                                     color: Colors.black),
-                                                 Row(
-                                                   children: <Widget>[
-                                                     hTextAbel(
-                                                         '${snapshot.data[0]
-                                                             .rating}',
-                                                         context,
-                                                         size: 25,
-                                                         color: Colors.black),
-                                                     Container(
-                                                       child: Image.asset(
-                                                           'assets/estrela.png'),
-                                                     ),
-                                                   ],
-                                                 ),
-                                               ],
-                                             ),
-                                           ),
-                                         ),
-                                         Padding(
-                                           padding: EdgeInsets.only(
-                                               top: getAltura(context) * .035,
-                                               left: getLargura(context) *
-                                                   .150),
-                                           child: Container(
-                                               alignment: Alignment.topRight,
-                                               child: hTextAbel('R\$ ${oferta.preco.toStringAsFixed(2)}', context,
-                                                   size: 25,
-                                                   color: Colors.black)),
-                                         ),
-                                       ],
-                                     ),
-                                     sb,
-                                     GestureDetector(
-                                       onTap: () {
-                                         Navigator.of(context).push(
-                                             MaterialPageRoute(
-                                                 builder: (context) =>
-                                                     AvaliacaoPage()));
-                                       },
-                                       child: Container(
-                                         decoration: BoxDecoration(
-                                           borderRadius: BorderRadius.circular(
-                                               10),
-                                           color: Colors.red,
-                                         ),
-                                         width: getLargura(context) * .70,
-                                         height: getAltura(context) * .070,
-                                         child: Center(
-                                             child: hTextMal(
-                                                 'Finalizar Corrida', context,
-                                                 size: 20,
-                                                 color: Colors.white,
-                                                 weight: FontWeight.bold)),
-                                       ),
-                                     )
-                                   ],
-                                 );
-                             }
-                             }
-                           );
-                   }
-               }
-             );
-
-          }),
+          )
+        ],
+      ),
     );
   }
 
   Future<void> telaCentralizada(position) async {
     final GoogleMapController controller = await _controller.future;
-
+    List<LatLng> marcaInicial = [];
+    marcaInicial.add(LatLng(position.latitude, position.longitude));
+    rc.inMarkers.add(marcaInicial);
+    print('localizacao ${marcaInicial}');
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: LatLng(position.latitude, position.longitude),
       zoom: Helper.localUser.zoom,
@@ -707,7 +627,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
       marcasWays.add(parada3);
     }
 
-    rc.inMarker.add(marcasWays);
+    rc.inWays.add(marcasWays);
 
     destino = LatLng(
         requisicaoController.destino.lat, requisicaoController.destino.lng);

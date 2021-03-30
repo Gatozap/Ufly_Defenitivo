@@ -32,10 +32,15 @@ class RotaController extends BlocBase {
   Stream<List<List<LatLng>>> get outPoly => controllerPolyline.stream;
   Sink<List<List<LatLng>>> get inPoly => controllerPolyline.sink;
 
-  BehaviorSubject<List<LatLng>> controllerMarker =
+  BehaviorSubject<List<LatLng>> controllerWays =
   new BehaviorSubject<List<LatLng>>();
-  Stream<List<LatLng>> get outMarker => controllerMarker.stream;
-  Sink<List<LatLng>>get inMarker => controllerMarker.sink;
+  Stream<List<LatLng>> get outWays => controllerWays.stream;
+  Sink<List<LatLng>>get inWays => controllerWays.sink;
+
+  BehaviorSubject<List<LatLng>> controllerMarkers =
+  new BehaviorSubject<List<LatLng>>();
+  Stream<List<LatLng>> get outMarkers => controllerMarkers.stream;
+  Sink<List<LatLng>>get inMarkers => controllerMarkers.sink;
 
   BehaviorSubject<String> controllerLocalizacaoNome =
   new BehaviorSubject<String>();
@@ -267,6 +272,7 @@ class RotaController extends BlocBase {
     controllerPolyline.close();
     controllerPolylineMotorista.close();
     controllerParadas.close();
+    controllerMarkers.close();
     controllerWayPoints.close();
   }
 }

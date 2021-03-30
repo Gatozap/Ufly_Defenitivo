@@ -25,16 +25,17 @@ class Requisicao{
   var distancia;
   List ofertas;
   OfertaCorrida aceito;
-
+bool motorista_aceitou;
 
   @override
   String toString() {
-    return 'Requisicao{id: $id, user: $user, user_nome: $user_nome, foto: $foto, isViagem: $isViagem, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, primeiraParada_lat: $primeiraParada_lat, primeiraParada_lng: $primeiraParada_lng, segundaParada_lat: $segundaParada_lat, segundaParada_lng: $segundaParada_lng, terceiraParada_lat: $terceiraParada_lat, terceiraParada_lng: $terceiraParada_lng, forma_de_pagamento: $forma_de_pagamento, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
+    return 'Requisicao{id: $id, user: $user, user_nome: $user_nome,motorista_aceitou: $motorista_aceitou foto: $foto, isViagem: $isViagem, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, primeiraParada_lat: $primeiraParada_lat, primeiraParada_lng: $primeiraParada_lng, segundaParada_lat: $segundaParada_lat, segundaParada_lng: $segundaParada_lng, terceiraParada_lat: $terceiraParada_lat, terceiraParada_lng: $terceiraParada_lng, forma_de_pagamento: $forma_de_pagamento, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
   }
 
   Requisicao.fromJson(json)
       : id = json['id'] == null? null: json['id'],
         forma_de_pagamento = json['forma_de_pagamento'],
+        motorista_aceitou = json['motorista_aceitou'] == null? false :json['motorista_aceitou'],
         user_nome = json['user_nome'],
         isViagem = json['isViagem'] == null? true : json['isViagem'],
         user = json['user'],
@@ -62,6 +63,7 @@ class Requisicao{
         'id': id  == null? null: this.id,
         'user': user  == null? null: this.user,
     'user_nome': user_nome,
+    'motorista_aceitou': motorista_aceitou == null? false: this.motorista_aceitou,
     'forma_de_pagamento': forma_de_pagamento,
         'motoristas_chamados': motoristas_chamados== null ? null : this.motoristas_chamados,
         'created_at': this.created_at == null? null: this.created_at.millisecondsSinceEpoch,
@@ -94,6 +96,7 @@ class Requisicao{
       this.updated_at,
       this.deleted_at,
       this.destino,
+       this.motorista_aceitou,
        this.primeiraParada_lat, this.segundaParada_lat, this.terceiraParada_lat,
        this.primeiraParada_lng, this.segundaParada_lng, this.terceiraParada_lng,
       this.origem,

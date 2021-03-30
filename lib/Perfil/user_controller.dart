@@ -42,7 +42,6 @@ class UserController extends BlocBase {
           User p =  User.fromJson(ds.data());
           p.id = ds.id;
           users.add(p);
-
         }
         users.sort(
                 (User a, User b) => a.id.compareTo(b.id));
