@@ -592,6 +592,9 @@ class _HomePageState extends State<HomePage> {
     if (requisicaoController == null) {
       requisicaoController = RequisicaoController();
     }
+    if(reqc == null){
+      reqc = RequisicaoCorridaController();
+    }
     if (cf == null) {
       cf = ControllerFiltros();
     }
@@ -666,103 +669,118 @@ class _HomePageState extends State<HomePage> {
             });
       },
     );
-    return Scaffold(
-      key: homeScaffoldKey,
-      // drawer: CustomDrawerWidget(),
-      body: SlidingUpPanel(
-        panel: _floatingPanel(),
-        renderPanelSheet: false,
-        maxHeight: getAltura(context) * .40,
-        borderRadius: BorderRadius.circular(20),
-        collapsed: Container(
-          margin: const EdgeInsets.only(left: 24.0, right: 24),
-          child: Row(
-            children: <Widget>[
-              Stack(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(top: 25.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(24.0),
-                              topRight: Radius.circular(24.0)),
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 20.0,
-                              color: Colors.grey,
+    return StreamBuilder<List<Requisicao>>(
+        stream: reqc.outRequisicoes,
+        builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+          for(var req in requisicao.data) {
+            if(req.aceito.id_usuario != Helper.localUser.id ) {
+              return Scaffold(
+                key: homeScaffoldKey,
+                // drawer: CustomDrawerWidget(),
+                body: SlidingUpPanel(
+                  panel: _floatingPanel(),
+                  renderPanelSheet: false,
+                  maxHeight: getAltura(context) * .40,
+                  borderRadius: BorderRadius.circular(20),
+                  collapsed: Container(
+                    margin: const EdgeInsets.only(left: 24.0, right: 24),
+                    child: Row(
+                      children: <Widget>[
+                        Stack(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(top: 25.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(24.0),
+                                        topRight: Radius.circular(24.0)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        blurRadius: 20.0,
+                                        color: Colors.grey,
+                                      ),
+                                    ]),
+                                width: getLargura(context) - 48,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: <Widget>[
+                                    sb,
+                                    sb,
+                                    Container(
+                                      child: Container(
+                                          width: getLargura(context) * .4,
+                                          color: Colors.grey,
+                                          height: 3),
+                                    )
+                                  ],
+                                ),
+                              ),
                             ),
-                          ]),
-                      width: getLargura(context) - 48,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          sb,
-                          sb,
-                          Container(
-                            child: Container(
-                                width: getLargura(context) * .4,
-                                color: Colors.grey,
-                                height: 3),
-                          )
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        body: Container(
-          height: SizeConfig.safeBlockVertical,
-          width: SizeConfig.safeBlockHorizontal,
-          color: Colors.white,
-          child: Stack(
-            children: <Widget>[
-              Container(
-                height: getAltura(context),
-                width: getLargura(context),
-                child: map,
-              ),
-              textFieldParaPesquisarPontos(),
-              sb,
-              Positioned(
-                right: getLargura(context) * .060,
-                bottom: getAltura(context) * .350,
-                child: FloatingActionButton(
-                  heroTag: '2',
-                  onPressed: () {
-                    centerView();
-                  },
-                  child: Icon(Icons.zoom_out_map, color: Colors.black),
-                  backgroundColor: Colors.white,
+                  body: Container(
+                    height: SizeConfig.safeBlockVertical,
+                    width: SizeConfig.safeBlockHorizontal,
+                    color: Colors.white,
+                    child: Stack(
+                      children: <Widget>[
+                        Container(
+                          height: getAltura(context),
+                          width: getLargura(context),
+                          child: map,
+                        ),
+                        textFieldParaPesquisarPontos(),
+                        sb,
+                        Positioned(
+                          right: getLargura(context) * .060,
+                          bottom: getAltura(context) * .350,
+                          child: FloatingActionButton(
+                            heroTag: '2',
+                            onPressed: () {
+                              centerView();
+                            },
+                            child: Icon(
+                                Icons.zoom_out_map, color: Colors.black),
+                            backgroundColor: Colors.white,
+                          ),
+                        ),
+                        Positioned(
+                          right: getLargura(context) * .060,
+                          bottom: getAltura(context) * .150,
+                          child: FloatingActionButton(
+                            heroTag: '1',
+                            onPressed: () {
+                              Geolocator()
+                                  .getCurrentPosition(
+                                  desiredAccuracy: LocationAccuracy.high)
+                                  .then((v) async {
+                                telaCentralizada(v);
+                              });
+                            },
+                            child: Icon(Icons.my_location, color: Colors.black),
+                            backgroundColor: Colors.white,
+                          ),
+                        ),
+                        SideBar(),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              Positioned(
-                right: getLargura(context) * .060,
-                bottom: getAltura(context) * .150,
-                child: FloatingActionButton(
-                  heroTag: '1',
-                  onPressed: () {
-                    Geolocator()
-                        .getCurrentPosition(
-                            desiredAccuracy: LocationAccuracy.high)
-                        .then((v) async {
-                      telaCentralizada(v);
-                    });
-                  },
-                  child: Icon(Icons.my_location, color: Colors.black),
-                  backgroundColor: Colors.white,
-                ),
-              ),
-              SideBar(),
-            ],
-          ),
-        ),
-      ),
+              );
+            }else{
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ChamandoMotoristaPage()));
+            }
+          }
+
+
+      }
     );
 
   }

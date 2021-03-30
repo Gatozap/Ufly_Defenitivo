@@ -456,69 +456,24 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
     print('aqui a soma ${distancia.toStringAsFixed(2)}');
     rc.inDistancia.add(distancia);
     print('aqui bool ${segundaetapa}');
-    if (distancia < 0.4) {
+    if(distancia <0.4){
       segundaetapa = true;
-      print('aqui bool 2 ${segundaetapa}');
-      dToast('Embarque o passageiro');
 
-      distancia2 = calculateDistance(destino.latitude, destino.longitude,
-          position.latitude, position.longitude);
-      print('aqui a soma 2 ${distancia2.toStringAsFixed(2)}');
+      distancia2 = calculateDistance(
+          destino.latitude,
+          destino.longitude,
+          position.latitude,
+          position.longitude);
       rc.inDistancia.add(distancia2);
-      if (distancia2 < 0.4) {
-        return dToast('Você chegou ao seu destino');
-      }
+      return dToastPassageiro('Seu motorista chegou, não esqueça de usar mascara, cinto de seguranção e alcool em gel');
 
     }
-    if(segundaetapa == true){
-      return showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return StreamBuilder<List<Requisicao>>(
-                stream: requisicaoController.outRequisicoes,
-                builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-                  for (var req in requisicao.data) {
-                    return AlertDialog(
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Container(
-                            child: hTextAbel(
-                                'Passageiro Abordo, destino ${req.destino.endereco}',
-                                context,
-                                size: 20),
-                          ),
-                          sb,
-                          sb,
-                          GestureDetector(
-                            child: Container(
-                              height: getAltura(context) * .050,
-                              width: getLargura(context) * .5,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Color(0xFFf6aa3c),
-                              ),
-                              child: Container(
-                                  height: getAltura(context) * .125,
-                                  width: getLargura(context) * .85,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Color.fromRGBO(255, 184, 0, 30),
-                                  ),
-                                  child: Center(
-                                      child:
-                                      hTextAbel('OK', context, size: 20))),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                });
-          });
+    if(segundaetapa) {
 
+      if (distancia2 < 0.4) {
+        segundaetapa = false;
+        return dToastPassageiro('Você chegou ao seu destino');
+      }
     }
     Placemark place = mark[0];
     String nomeLocalizacao = place.thoroughfare;

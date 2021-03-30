@@ -899,6 +899,17 @@ dToast(String msg, {int timeInSecForIoss, String cor }) {
       fontSize: 16.0);
 }
 
+dToastPassageiro(String msg, {int timeInSecForIoss, String cor }) {
+  Fluttertoast.showToast(
+      msg: msg,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.TOP,
+      timeInSecForIos: timeInSecForIoss,
+      backgroundColor: Colors.blue,
+      textColor: Colors.white,
+      fontSize: 18.0);
+}
+
 myAppBar(String titulo, context,
     {actions, bool showBack = false, bool close = false, size, estiloTexto, bold, backgroundcolor, color, colorIcon}) {
   if (showBack) {

@@ -184,7 +184,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                   myLocationButtonEnabled: false,
                                   trafficEnabled: true,
                                   polylines: polylines.toSet(),
-                                  markers: markers.toSet(),
+                                  markers: destino != null? markers.toSet(): null,
                                   mapType: MapType.terrain,
                                   zoomGesturesEnabled: true,
                                   zoomControlsEnabled: false,

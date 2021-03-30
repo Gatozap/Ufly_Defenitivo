@@ -29,7 +29,7 @@ import 'package:ufly/GoogleServices/geolocator_service.dart';
 
 
 import 'package:ufly/Motorista/motorista_controller.dart';
-
+import 'package:ufly/HomePage.dart';
 import 'package:ufly/Objetos/CarroAtivo.dart';
 
 import 'package:ufly/Objetos/OfertaCorrida.dart';
@@ -64,14 +64,18 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
   LatLng passageiro_latlng;
   LatLng motorista_latlng;
   LatLng parada1;
+  List<LatLng> marcasRota = [];
   LatLng parada2;
   LatLng parada3;
+  bool segundaetapa;
   RequisicaoCorridaController requisicaoController =
       RequisicaoCorridaController();
   List<Marker> markers;
   AtivosController ac;
   MotoristaController mt;
   double distancia;
+  double distancia2;
+  BitmapDescriptor bitmapIcon;
   final GeolocatorService geo = GeolocatorService();
   @override
   void initState() {
@@ -161,44 +165,49 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                             return StreamBuilder(
                                 stream: rc.outWays,
                                 builder: (context, snapshot) {
-                                  if (snapshot.data != null) {
-                                    for(CarroAtivo ca in ac.ativos) {
-                                      if (parada1 == null) {
-                                        markers = getMarkers(passageiro_latlng,
-                                            destino, LatLng(ca.localizacao.latitude, ca.localizacao.longitude));
-                                      } else {
-                                        markers = getMarkers(passageiro_latlng,
-                                            destino, LatLng(ca.localizacao.latitude, ca.localizacao.longitude),
-                                            ways: snapshot.data);
-                                      }
-                                    }
-                                  }
-                                  return GoogleMap(
-                                    myLocationEnabled: true,
-                                    myLocationButtonEnabled: false,
-                                    trafficEnabled: true,
-                                    polylines: polylines.toSet(),
-                                    markers: destino != null
-                                        ? markers.toSet()
-                                        : null,
-                                    mapType: MapType.terrain,
-                                    zoomGesturesEnabled: true,
-                                    zoomControlsEnabled: false,
-                                    rotateGesturesEnabled: false,
-                                    initialCameraPosition: CameraPosition(
-                                        target: localizacao.data,
-                                        zoom: Helper.localUser.zoom),
-                                    onMapCreated:
-                                        (GoogleMapController controller) {
-                                      _controller.complete(controller);
-                                      destino == null ? null : centerView();
-                                      geo
-                                          .getCurrentLocation()
-                                          .listen((position) {
-                                        telaCentralizada(position);
+                                  return StreamBuilder(
+                                      stream: rc.outMarkers,
+                                      builder: (context, snap) {
+                                        if (snapshot.data != null) {
+                                          if (parada1 == null) {
+                                            markers = getMarkers(
+                                              snap.data,
+                                            );
+                                          } else {
+                                            markers = getMarkers(snap.data,
+                                                ways: snapshot.data);
+                                          }
+                                        }
+
+                                        return GoogleMap(
+                                          myLocationEnabled: true,
+                                          myLocationButtonEnabled: false,
+                                          trafficEnabled: true,
+                                          polylines: polylines.toSet(),
+                                          markers: destino != null
+                                              ? markers.toSet()
+                                              : null,
+                                          mapType: MapType.terrain,
+                                          zoomGesturesEnabled: true,
+                                          zoomControlsEnabled: false,
+                                          rotateGesturesEnabled: false,
+                                          initialCameraPosition: CameraPosition(
+                                              target: localizacao.data,
+                                              zoom: Helper.localUser.zoom),
+                                          onMapCreated:
+                                              (GoogleMapController controller) {
+                                            _controller.complete(controller);
+                                            destino == null
+                                                ? null
+                                                : centerView();
+                                            geo
+                                                .getCurrentLocation()
+                                                .listen((position) {
+                                              telaCentralizada(position);
+                                            });
+                                          },
+                                        );
                                       });
-                                    },
-                                  );
                                 });
                           });
                     },
@@ -274,11 +283,13 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                         child: FloatingActionButton(
                           heroTag: '2',
                           onPressed: () {
-                           rotaPassageiro(req);
-
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => HomePage()));
+                           /*rotaPassageiro(req);
                             Timer(Duration(seconds: 5), () {
                               centerView();
-                            });
+                            });*/
+
                           },
                           child: Icon(Icons.zoom_out_map, color: Colors.black),
                           backgroundColor: Colors.white,
@@ -432,7 +443,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                 sb,  sb,
                 Image.asset('assets/km.png'),
                 sb,sb,
-                hTextMal('2.1 Km', context,
+                hText('2.1 Km', context,
                     size: 20,
                     color: Colors.black,
                     weight: FontWeight.bold),
@@ -448,12 +459,11 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
 
   Future<void> telaCentralizada(position) async {
     final GoogleMapController controller = await _controller.future;
-    List<LatLng> marcaInicial = [];
-    marcaInicial.add(LatLng(position.latitude, position.longitude));
-    rc.inMarkers.add(marcaInicial);
-    print('localizacao ${marcaInicial}');
+    marcasRota.add(LatLng(position.localizacao.latitude, position.localizacao.longitude));
+    rc.inMarkers.add(marcasRota);
+    print('localizacao ${marcasRota}');
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-      target: LatLng(position.latitude, position.longitude),
+      target: LatLng(position.localizacao.latitude, position.localizacao.longitude),
       zoom: Helper.localUser.zoom,
     )));
     atualizarLocalizacaoNomes();
@@ -490,40 +500,39 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
     controller.animateCamera(cameraUpdate);
   }
 
-  List<Marker> getMarkers(LatLng data, LatLng d, LatLng motorista, {ways}) {
+  List<Marker> getMarkers(data, {ways}) {
+    print('aqui assests ${bitmapIcon.toString()}');
+
     List<Marker> markers = [];
-    MarkerId markerId = MarkerId('id');
-    MarkerId markerId2 = MarkerId('id2');
-    MarkerId markerId3 = MarkerId('id3');
+    if (data == null) {
+      return markers;
+    }
+
     try {
-      markers.add(Marker(
-          infoWindow: InfoWindow(title: 'Passageiro'),
-          markerId: markerId,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          position: data));
+      markers.removeWhere((m) => m.markerId.value == 'posicao');
+
+      for (int i = 0; i < data.length; i++) {
+        markers.add(Marker(
+            infoWindow: InfoWindow(
+                title: i == 0
+                    ? 'Passageiro'
+                    : i == 1
+                    ? 'Destino'
+                    : 'Minha Posição'),
+            markerId: MarkerId(i < 2 ? 'marcas${i}' : 'posicao'),
+            icon: i == 0
+                ? BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueViolet)
+                : i == 1
+                ? BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueViolet)
+                : BitmapDescriptor.fromAsset('assets/marker.png'),
+            position: data[i]));
+      }
     } catch (err) {
       print(err.toString());
     }
-    try {
-      markers.add(Marker(
-          markerId: markerId2,
-          infoWindow: InfoWindow(title: 'Destino'),
-          icon:
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-          position: LatLng(d.latitude, d.longitude)));
-    } catch (err) {
-      print(err.toString());
-    }
-    try {
-      markers.add(Marker(
-          markerId: markerId3,
-          infoWindow: InfoWindow(title: 'Motorista'),
-          icon:
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-          position: motorista));
-    } catch (err) {
-      print(err.toString());
-    }
+
     try {
       for (int i = 0; i < ways.length; i++) {
         MarkerId markerWay = MarkerId("way${i + 1}");
@@ -531,7 +540,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
           infoWindow: InfoWindow(title: 'Parada nº ${i + 1}'),
           markerId: markerWay,
           icon:
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+          BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
           position: ways[i],
         ));
       }
@@ -540,7 +549,6 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
     }
     return markers;
   }
-
   List<Polyline> getPolys(motorista, data) {
     List<Polyline> poly = [];
 
@@ -584,9 +592,16 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
 
 
   atualizarLocalizacaoNomes() async {
+    if(segundaetapa == null){
+      segundaetapa = false;
+    }
     for (CarroAtivo ca in ac.ativos) {
       List<Placemark> mark = await Geolocator().placemarkFromCoordinates(
           ca.localizacao.latitude, ca.localizacao.longitude);
+      Placemark place = mark[0];
+      String nomeLocalizacao = place.thoroughfare;
+
+      rc.inLocalizacaoNome.add(nomeLocalizacao);
       distancia = calculateDistance(
           passageiro_latlng.latitude,
           passageiro_latlng.longitude,
@@ -594,13 +609,27 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
           ca.localizacao.longitude);
       print('aqui a soma ${distancia.toStringAsFixed(2)}');
       rc.inDistancia.add(distancia);
-      if(distancia <0.2){
-        dToast('Seu motorista chegou, não esqueça de usar mascara, cinto de seguranção e alcool em gel');
-      }
-      Placemark place = mark[0];
-      String nomeLocalizacao = place.thoroughfare;
+      if(distancia <0.4){
+        segundaetapa = true;
 
-      rc.inLocalizacaoNome.add(nomeLocalizacao);
+        distancia2 = calculateDistance(
+            destino.latitude,
+            destino.longitude,
+            ca.localizacao.latitude,
+            ca.localizacao.longitude);
+        rc.inDistancia.add(distancia2);
+       return dToastPassageiro('Seu motorista chegou, não esqueça de usar mascara, cinto de seguranção e alcool em gel');
+
+      }
+      if(segundaetapa) {
+
+        if (distancia2 < 0.4) {
+          segundaetapa = false;
+          return dToastPassageiro('Você chegou ao seu destino');
+
+        }
+      }
+
     }
   }
 
@@ -631,6 +660,8 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
 
     destino = LatLng(
         requisicaoController.destino.lat, requisicaoController.destino.lng);
+    marcasRota.add(passageiro_latlng);
+    marcasRota.add(destino);
     for (CarroAtivo ca in ac.ativos) {
       motorista_latlng =
           LatLng(ca.localizacao.latitude, ca.localizacao.longitude);
@@ -642,5 +673,6 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
     } else {
       rc.AdicionarParadaPassageiro(requisicaoController, marcasWays);
     }
+    rc.inMarkers.add(marcasRota);
   }
 }
