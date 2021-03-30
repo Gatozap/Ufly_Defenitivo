@@ -4,11 +4,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ufly/CorridaBackground/corrida_page.dart';
+import 'package:ufly/CorridaBackground/requisicao_corrida_controller.dart';
 import 'package:ufly/Helpers/Styles.dart';
 import 'package:ufly/HomePage.dart';
 import 'package:ufly/Login/CadastroPage/CadastroPage.dart';
 import 'package:ufly/Login/CadastroPage/cadastro_completo.dart';
 import 'package:ufly/Login/Login.dart';
+import 'package:ufly/Objetos/Requisicao.dart';
 
 import 'Helpers/Helper.dart';
 
@@ -26,15 +28,22 @@ class SplashPage extends StatefulWidget {
   _SplashPageState createState() {
     return _SplashPageState();
   }
+
 }
 
 class _SplashPageState extends State<SplashPage> {
+  RequisicaoCorridaController requisicaoController;
   @override
   void initState() {
+    if(requisicaoController == null){
+      requisicaoController = RequisicaoCorridaController();
+    }
 
     super.initState();
     Future.delayed(Duration(seconds: 3)).then((value) {
-    VerifyUser();
+
+               VerifyUser();
+
     });
   }
 

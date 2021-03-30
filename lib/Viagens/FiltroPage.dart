@@ -54,7 +54,7 @@ class _FiltroPageState extends State<FiltroPage> {
                       return Container();
                     }
 
-                    List<Widget> itens = new List();
+                    List<Widget> itens = [];
                     if (snapshot.data.isCarro) {
                       itens.add(Padding(
                         padding:

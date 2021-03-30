@@ -392,7 +392,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin<S
     );
   }
   Future getImageCamera() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.camera);
+    final image = await ImagePicker().getImage(source: ImageSource.camera);
     pr = new ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
     pr.style(
@@ -421,7 +421,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin<S
   }
 
   Future getImage() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    final image = await ImagePicker().getImage(source: ImageSource.gallery);
     pr = new ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
     pr.style(

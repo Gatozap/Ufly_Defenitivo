@@ -46,6 +46,7 @@ import 'package:ufly/Objetos/SizeConfig.dart';
 import 'package:ufly/Perfil/PerfilController.dart';
 import 'package:ufly/Rota/rota_controller.dart';
 import 'package:ufly/Rota/addres_teste.dart';
+import 'package:ufly/Viagens/ChamandoMotoristaPage/ChamandoMotoristaPage.dart';
 import 'package:ufly/Viagens/MotoristaProximoPage.dart';
 
 import 'package:ufly/Viagens/Requisicao/criar_requisicao_controller.dart';
@@ -59,6 +60,7 @@ import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/Viagens/FiltroPage.dart';
 import 'Compartilhados/SideBar.dart';
 import 'Controllers/camera_controller.dart';
+import 'CorridaBackground/requisicao_corrida_controller.dart';
 import 'Helpers/SqliteDatabase.dart';
 import 'Objetos/FiltroMotorista.dart';
 
@@ -79,6 +81,7 @@ class _HomePageState extends State<HomePage> {
   PerfilController pf = PerfilController(Helper.localUser);
   final directionsService = ggt.DirectionsService();
   final GeolocatorService geo = GeolocatorService();
+  String a;
   TextEditingController locationController = TextEditingController();
   TextEditingController inicialController = TextEditingController();
   TextEditingController parada1Controller = TextEditingController();
@@ -104,6 +107,8 @@ class _HomePageState extends State<HomePage> {
   LatLng coord;
   Placemark placemark;
   RequisicaoController requisicaoController;
+  RequisicaoCorridaController reqc;
+
   AtivosController ac;
   List<Polyline> polylines;
   List<Marker> markers;
@@ -128,10 +133,11 @@ class _HomePageState extends State<HomePage> {
     if (ac == null) {
       ac = AtivosController();
     }
+    if(reqc == null){
+      reqc = RequisicaoCorridaController();
+    }
 
     localizacaoInicial();
-
-
       geo.getCurrentLocation().listen((position) {
         telaCentralizada(position);
       });
@@ -727,7 +733,7 @@ class _HomePageState extends State<HomePage> {
                 right: getLargura(context) * .060,
                 bottom: getAltura(context) * .350,
                 child: FloatingActionButton(
-                  heroTag: '',
+                  heroTag: '2',
                   onPressed: () {
                     polylines.clear();
                     print('polylines ${polylines}');
@@ -1327,7 +1333,7 @@ class _HomePageState extends State<HomePage> {
       tempo_estimado = duracao;
     }
 
-    List motorista = new List();
+    List motorista =[];
 
     for (CarroAtivo ca in ac.ativos) {
       print('aqui motorista ativo ${ca.user_id}');
@@ -1346,7 +1352,7 @@ class _HomePageState extends State<HomePage> {
     if (requiup == null || requiup.user != Helper.localUser.id) {
       print('entrou aqui cria');
 
-      List<Requisicao> requisicoes2 = new List();
+
       Requisicao requisicao2 = Requisicao(
         user: Helper.localUser.id,
         isViagem: filtro,
@@ -1369,14 +1375,14 @@ class _HomePageState extends State<HomePage> {
         motoristas_chamados: motorista,
       );
 
-      requisicoes2.add(requisicao2);
+
       print('requisicao2 ${requisicao2.toJson()}');
       Timer(Duration(seconds: 5), () {
         criaRc.CriarRequisicao(requisicao2);
       });
     } else {
       print('entrou aqui update ${requiup}');
-      List<Requisicao> requisicoes = new List();
+
       Requisicao requisicao = Requisicao(
         id: requiup.id,
         isViagem: filtro,
@@ -1400,8 +1406,8 @@ class _HomePageState extends State<HomePage> {
         motoristas_chamados: motorista,
       );
 
-      requisicoes.add(requisicao);
-      Timer(Duration(seconds: 5), () {
+
+      Timer(Duration(seconds: 3), () {
         criaRc.UpdateRequisicao(requisicao);
       });
     }

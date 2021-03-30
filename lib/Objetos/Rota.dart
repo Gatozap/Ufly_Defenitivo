@@ -8,13 +8,13 @@ class Rota {
 
   Rota.fromJson(Map<String, dynamic> json) {
     if (json['routes'] != null) {
-      routes = new List<Routes>();
+      routes = [];
       json['routes'].forEach((v) {
         routes.add(new Routes.fromJson(v));
       });
     }
     if (json['waypoints'] != null) {
-      waypoints = new List<Waypoints>();
+      waypoints = [];
       json['waypoints'].forEach((v) {
         waypoints.add(new Waypoints.fromJson(v));
       });
@@ -56,7 +56,7 @@ class Routes {
   Routes.fromJson(json) {
     geometry =  json['geometry'] == null? null: json['geometry'].toString();
     if (json['legs'] != null) {
-      legs = new List<Legs>();
+      legs = [];
       json['legs'].forEach((v) {
         legs.add(new Legs.fromJson(v));
       });
@@ -95,7 +95,7 @@ class Legs {
     weight = json['weight'] == null ? null : json['weight'].toDouble();
     duration = json['duration'] == null ? null : json['duration'].toDouble();
     if (json['steps'] != null) {
-      steps = new List<Steps>();
+      steps = [];
       json['steps'].forEach((v) {
         steps.add(new Steps.fromJson(v));
       });
@@ -146,7 +146,7 @@ class Steps {
 
   Steps.fromJson(Map<String, dynamic> json) {
     if (json['intersections'] != null) {
-      intersections = new List<Intersections>();
+      intersections = [];
       json['intersections'].forEach((v) {
         intersections.add(new Intersections.fromJson(v));
       });
@@ -163,13 +163,13 @@ class Steps {
     name = json['name'];
     distance = json['distance']== null? null:json['distance'].toDouble();
     if (json['voiceInstructions'] != null) {
-      voiceInstructions = new List<VoiceInstructions>();
+      voiceInstructions = [];
       json['voiceInstructions'].forEach((v) {
         voiceInstructions.add(new VoiceInstructions.fromJson(v));
       });
     }
     if (json['bannerInstructions'] != null) {
-      bannerInstructions = new List<BannerInstructions>();
+      bannerInstructions = [];
       json['bannerInstructions'].forEach((v) {
         bannerInstructions.add(new BannerInstructions.fromJson(v));
       });
@@ -338,7 +338,7 @@ class Primary {
   Primary.fromJson(Map<String, dynamic> json) {
     text = json['text'];
     if (json['components'] != null) {
-      components = new List<Components>();
+      components = [];
       json['components'].forEach((v) {
         components.add(new Components.fromJson(v));
       });

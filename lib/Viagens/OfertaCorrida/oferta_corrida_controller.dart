@@ -30,7 +30,7 @@ class OfertaCorridaController extends BlocBase {
     ofertacorridaRef
         .snapshots()
         .listen((QuerySnapshot snap) {
-      ofertacorridas = new List();
+      ofertacorridas = [];
       if (snap.docs.length > 0) {
         for (DocumentSnapshot ds in snap.docs) {
           OfertaCorrida p = OfertaCorrida.fromJson(ds.data());

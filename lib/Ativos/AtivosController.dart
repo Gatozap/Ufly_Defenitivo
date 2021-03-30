@@ -19,7 +19,7 @@ class AtivosController extends BlocBase {
   List<CarroAtivo> ativos;
   AtivosController() {
     carrosAtivosRef.onValue.listen((v) {
-      ativos = new List();
+      ativos = [];
       print("AQUI D ${v.snapshot.value}");
       v.snapshot.value.forEach((k,d){
         print("AQUI V${d}");
@@ -43,9 +43,9 @@ class AtivosController extends BlocBase {
       localizacoes = Map();
     }
     corridasRef.forEach((k, dr) {
-      List positions = new List();
+      List positions = [];
       dr.onValue.listen((points) {
-        positions = new List();
+        positions = [];
         if (points.snapshot.value.toString() != 'null') {
           var pts = points.snapshot.value;
           pts.forEach((k, v) {

@@ -64,7 +64,7 @@ class Corrida {
       };
 
   static getLocalizacoes(decoded) {
-    List<Localizacao> localizacoes = new List();
+    List<Localizacao> localizacoes = [];
     try {
       List points = decoded;
       if (decoded == null) {
@@ -81,7 +81,7 @@ class Corrida {
 
 
   EncodePoints(List points) {
-    List pointsJson = new List();
+    List pointsJson = [];
     if (points == null) {
       return pointsJson;
     }

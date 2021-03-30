@@ -20,9 +20,10 @@ import 'Helpers/Helper.dart';
 import 'Helpers/NotificacoesHelper.dart';
 
 final geoService = GeolocatorService();
-Future<void> main() async {
-  
+void main() async {
 
+ WidgetsFlutterBinding.ensureInitialized();
+ await Firebase.initializeApp();
   runApp(MyApp());
 
 }
@@ -39,20 +40,16 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-        final Future<FirebaseApp> fbbApp = Firebase.initializeApp();
+
     return
-      FutureBuilder(
-        future: fbbApp,
-        builder: (context, snapshot) {
-          return FutureProvider(
-            create: (context) => geoService.getPosition(),
-            child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home:SplashPage(),
-    ),
-          );
-        }
-      );
+     FutureProvider(
+              create: (context) => geoService.getPosition(),
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                home:SplashPage(),
+              ),
+            );
+
   }
 
   Future onSelectNotification() async {

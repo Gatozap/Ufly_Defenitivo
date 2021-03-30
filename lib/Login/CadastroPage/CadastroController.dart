@@ -290,7 +290,7 @@ class CadastroController implements BlocBase {
           }
           if (carro != null) {
             if (motorista.carro == null) {
-              motorista.carro = new List<Carro>();
+              motorista.carro = [];
             }
             carro.created_at = DateTime.now();
             carro.updated_at = DateTime.now();
@@ -298,7 +298,7 @@ class CadastroController implements BlocBase {
           }
           if (documentoCPF != null) {
             if (Helper.localUser.CPF == null) {
-              Helper.localUser.CPF = new List<DocumentoCPF>();
+              Helper.localUser.CPF = [];
             }
             documentoCPF.created_at = DateTime.now();
             documentoCPF.updated_at = DateTime.now();
@@ -311,7 +311,7 @@ class CadastroController implements BlocBase {
           }
           if (documentoRg != null) {
             if (Helper.localUser.rg == null) {
-              Helper.localUser.rg = new List<DocumentoRg>();
+              Helper.localUser.rg = [];
             }
             documentoRg.created_at = DateTime.now();
             documentoRg.updated_at = DateTime.now();
@@ -324,7 +324,7 @@ class CadastroController implements BlocBase {
           }
           if (documentoCNH != null) {
             if (Helper.localUser.cnh == null) {
-              Helper.localUser.cnh = new List<DocumentoCNH>();
+              Helper.localUser.cnh = [];
             }
             documentoCNH.created_at = DateTime.now();
             documentoCNH.updated_at = DateTime.now();
@@ -341,17 +341,15 @@ class CadastroController implements BlocBase {
               .update(Helper.localUser.toJson())
               .then((v) {
             dToast('Conta criada com sucesso!');
-            Navigator.of(context).pushReplacement(
+            Helper.localUser.isMotorista == true?
+            Navigator.of(context).push(
                 MaterialPageRoute(
-                    builder: (context) => Helper.localUser.isMotorista == true? Consumer<Position>(
-                        builder: (context, position, widget) {
-                          return CorridaPage();
-                        }
-                    ): Consumer<Position>(
-                        builder: (context, position, widget) {
-                          return HomePage();
-                        }
-                    )));
+                    builder: (context) =>
+                        CorridaPage())): Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (context) =>
+                        HomePage()));
+            
           }).catchError((err) {
             return null;
           });
@@ -389,6 +387,25 @@ class CadastroController implements BlocBase {
    controllerDocumentoCPF.close();
    controllerDocumentoCNH.close();
    controllerisMoto.close();
+  }
+
+  @override
+  void addListener(listener) {
+    // TODO: implement addListener
+  }
+
+  @override
+  // TODO: implement hasListeners
+  bool get hasListeners => throw UnimplementedError();
+
+  @override
+  void notifyListeners() {
+    // TODO: implement notifyListeners
+  }
+
+  @override
+  void removeListener(listener) {
+    // TODO: implement removeListener
   }
 
 }

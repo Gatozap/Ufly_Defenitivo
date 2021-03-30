@@ -23,7 +23,7 @@ class ListRequisicaoController extends BlocBase {
     requisicaoRef
         .snapshots()
         .listen((QuerySnapshot snap) {
-      requisicoes = new List();
+      requisicoes = [];
       if (snap.docs.length > 0) {
         for (DocumentSnapshot ds in snap.docs) {
           Requisicao p =  Requisicao.fromJson(ds.data());

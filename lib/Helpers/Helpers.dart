@@ -200,22 +200,7 @@ InputDecoration DefaultInputDecoration(
           color: hintColor, fontSize: fontsize, fontStyle: fontStyle));
 }
 
-buscarEndereco(query) {
- Endereco ue = Endereco.Empty();
-  return http
-      .get('https://maps.googleapis.com/maps/api/geocode/json?address=' +
-          Uri.encodeFull(query) +
-          '&key=AIzaSyBXPo-fcyS52yyEESzOfFu0akVx1-vNVLg')
-      .then((r) {
-    ue.lng = json.decode(r.body)['results'][0]['geometry']['location']['lng']
-        as double;
-    ue.lat = json.decode(r.body)['results'][0]['geometry']['location']['lat']
-        as double;
-    return ue;
-  }).catchError((e) {
-    print('Erro na API de busca:' + e.toString());
-  });
-}
+
 
 Widget defaultActionButton(String text, context, Function onPressed,
     {var icon = Icons.add,
@@ -329,41 +314,7 @@ class Helpers {
     return s;
   }
 
-  Future<Endereco> fetchLocation(Endereco ue) async {
-    try {
-      print('ENTROU FETCH LOCATION');
-      String endereco = ue.endereco +
-          ', ' +
-          ue.numero +
-          ' - ' +
-          ue.bairro +
-          ', ' +
-          ue.cidade +
-          ', ' +
-          ue.cep;
-      print('https://maps.googleapis.com/maps/api/geocode/json?address=' +
-          Uri.encodeFull(endereco) +
-          '&key=AIzaSyBXPo-fcyS52yyEESzOfFu0akVx1-vNVLg');
-      return http
-          .get('https://maps.googleapis.com/maps/api/geocode/json?address=' +
-              Uri.encodeFull(endereco) +
-              '&key=AIzaSyBXPo-fcyS52yyEESzOfFu0akVx1-vNVLg')
-          .then((r) {
-        print('Rsposta da API: ' + r.body.toString());
 
-        ue.lng = json.decode(r.body)['results'][0]['geometry']['location']
-            ['lng'] as double;
-        ue.lat = json.decode(r.body)['results'][0]['geometry']['location']
-            ['lat'] as double;
-        print(ue.lat.toString() + '  ' + ue.lng.toString());
-        return ue;
-      }).catchError((e) {
-        print('Erro na API de busca:' + e.toString());
-      });
-    } catch (err) {
-      print('Erro ao buscar Latitude:' + err.toString());
-    }
-  }
 
   String Capitalize(String descricao) {
     try {

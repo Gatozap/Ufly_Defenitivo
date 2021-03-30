@@ -44,6 +44,7 @@ import 'package:ufly/Objetos/Requisicao.dart';
 import 'package:ufly/Perfil/PerfilController.dart';
 import 'package:ufly/Perfil/user_list_controller.dart';
 import 'package:ufly/Rota/rota_controller.dart';
+import 'package:ufly/Viagens/InicioDeViagemPage/InicioDeViagemPage.dart';
 
 import 'package:ufly/Viagens/OfertaCorrida/oferta_corrida_controller.dart';
 
@@ -108,6 +109,10 @@ class _CorridaPageState extends State<CorridaPage> {
     localizacaoInicial();
 
     geo.getCurrentLocation().listen((position) {
+      List<LatLng> marcaInicial = [];
+      marcaInicial.add(LatLng(position.latitude, position.longitude));
+      rc.inMarker.add(marcaInicial);
+      print('localizacao ${marcaInicial}');
       telaCentralizada(position);
     });
 
@@ -120,6 +125,7 @@ class _CorridaPageState extends State<CorridaPage> {
 
   @override
   Widget build(BuildContext context) {
+    chamadaMotoristaAceita();
     ResponsivePixelHandler.init(
       baseWidth: 360, //A largura usado pelo designer no modelo desenhado
     );
@@ -164,6 +170,7 @@ class _CorridaPageState extends State<CorridaPage> {
                       return StreamBuilder<Position>(
                           stream: localizacaoInicial(),
                           builder: (context, snapshot) {
+                            print('aqui position ${snapMotorista.data}');
                             if (!snapshot.hasData) {
                               return localizacaoInicial();
                             }
@@ -186,19 +193,17 @@ class _CorridaPageState extends State<CorridaPage> {
                           });
                     }
 
-                    return StreamBuilder<fm.MarkerLayerOptions>(
-                        stream: corridaController.outUserLocation,
-                        builder: (context, marker) {
-                          return StreamBuilder(
+                    return
+                            StreamBuilder(
                               stream: rc.outMarker,
                               builder: (context, snapshot) {
+                                print('aqui snap ${snapshot.data}');
+
                                 if (snapshot.data != null) {
-                                  if (parada1 == null) {
-                                    markers = getMarkers(passageiro_latlng,
-                                        destino, _initialPosition);
+                                   if (parada1 == null) {
+                                    markers = getMarkers(snapshot.data);
                                   } else {
-                                    markers = getMarkers(passageiro_latlng,
-                                        destino, _initialPosition,
+                                    markers = getMarkers(snapshot.data,
                                         ways: snapshot.data);
                                   }
                                 }
@@ -207,8 +212,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                   myLocationButtonEnabled: false,
                                   trafficEnabled: true,
                                   polylines: polylines.toSet(),
-                                  markers:
-                                      destino != null ? markers.toSet() : null,
+                                  markers: markers.toSet(),
                                   mapType: MapType.terrain,
                                   zoomGesturesEnabled: true,
                                   zoomControlsEnabled: false,
@@ -226,7 +230,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                   },
                                 );
                               });
-                        });
+
                   });
             },
           );
@@ -254,104 +258,144 @@ class _CorridaPageState extends State<CorridaPage> {
               );
             }),
       ]),
-      bottomSheet:
-              Container(
-              color: Colors.white,
-              child: StreamBuilder<Carro>(
-                stream: corridaController.outCarro,
-                builder: (context, carro) {
-
-                    return StreamBuilder<List<Requisicao>>(
-                        stream: requisicaoController.outRequisicoes,
-                        // ignore: missing_return
-                        builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-
-                          if(requisicao.data == null){
-                            return Container();
-                          }
-                          // ignore: missing_return
-                                   for(Requisicao req in requisicao.data) {
-                                     if (req == null) {
-                                       return Container();
-                                     }else {
-                                       for (CarroAtivo ca in ac.ativos) {
-
-                                         return Container(
-                                             width: getLargura(context),
-                                             height: getAltura(context) * .060,
-                                             child: Padding(
-                                               // ignore: missing_return
-                                               padding: const EdgeInsets.all(
-                                                   8.0),
-                                               child: Row(
-                                                 mainAxisAlignment:
-                                                 MainAxisAlignment.center,
-                                                 children: <Widget>[
-                                                   carro.data == null
-                                                       ? Expanded(
-                                                     child: hText(
-                                                         'Não conseguimos encontrar seu carro contate o suporte',
-                                                         context,
-                                                         color: Colors.white,
-                                                         textaling: TextAlign
-                                                             .center),
-                                                   )
-                                                       : GestureDetector(
-                                                     onTap: () async {
-                                                       corridaController
-                                                           .finalizarCorrida();
-                                                     },
-                                                     child: hTextAbel(
-                                                         'OFFLINE', context,
-                                                         size: 20,
-                                                         weight:
-                                                         FontWeight.bold,
-                                                         color: ca.isAtivo ==
-                                                             false
-                                                             ? Color
-                                                             .fromRGBO(
-                                                             255,
-                                                             184,
-                                                             0,
-                                                             30)
-                                                             : Colors.black),
-                                                   ),
-                                                   sb,
-                                                   sb,
-                                                   hTextAbel('|', context,
-                                                       size: 20),
-                                                   sb,
-                                                   sb,
-                                                   GestureDetector(
-                                                     onTap: () async {
-                                                       corridaController
-                                                           .iniciarCorrida();
-                                                     },
-                                                     child: hTextAbel(
-                                                       'ONLINE',
-                                                       context,
-                                                       size: 20,
-                                                       weight: FontWeight.bold,
-                                                       color: ca.isAtivo == true
-                                                           ? Color.fromRGBO(
-                                                           255, 184, 0, 30)
-                                                           : Colors.black,
-                                                     ),
-                                                   ),
-                                                 ],
-                                               ),
-                                             ));
-                                       }
-                                     }
-                                   }
-
-
+      bottomSheet: Container(
+        color: Colors.white,
+        child: StreamBuilder<Carro>(
+          stream: corridaController.outCarro,
+          builder: (context, carro) {
+            return StreamBuilder<List<Requisicao>>(
+                stream: requisicaoController.outRequisicoes,
+                builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+                  if (requisicao.data == null || requisicao.data.isEmpty) {
+                    return StreamBuilder<bool>(
+                        stream: corridaController.outStarted,
+                        builder: (context, started) {
+                          return Container(
+                            width: getLargura(context),
+                            height: getAltura(context) * .060,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                carro.data == null
+                                    ? Expanded(
+                                        child: hText(
+                                            'Não conseguimos encontrar seu carro contate o suporte',
+                                            context,
+                                            color: Colors.white,
+                                            textaling: TextAlign.center),
+                                      )
+                                    : GestureDetector(
+                                  onTap: () async {
+                                    corridaController
+                                        .finalizarCorrida();
+                                  },
+                                  child: hTextAbel(
+                                      'OFFLINE', context,
+                                      size: 20,
+                                      weight: FontWeight.bold,
+                                      color: started.data ==
+                                          false
+                                          ? Color.fromRGBO(
+                                          255, 184, 0, 30)
+                                          : Colors.black),
+                                ),
+                                sb,
+                                sb,
+                                hTextAbel('|', context, size: 20),
+                                sb,
+                                sb,
+                                GestureDetector(
+                                  onTap: () async {
+                                    corridaController
+                                        .iniciarCorrida();
+                                  },
+                                  child: hTextAbel(
+                                    'ONLINE',
+                                    context,
+                                    size: 20,
+                                    weight: FontWeight.bold,
+                                    color: started.data == true
+                                        ? Color.fromRGBO(
+                                        255, 184, 0, 30)
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
                         });
-
-                },
-              ),
-            ),
-
+                  } else {
+                    for (Requisicao i in requisicao.data) {
+                      return StreamBuilder<bool>(
+                          stream: corridaController.outStarted,
+                          builder: (context, started) {
+                            return Container(
+                                width: getLargura(context),
+                                height: getAltura(context) * .060,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: i.motoristas_chamados
+                                          .contains(Helper.localUser.id)
+                                      ? Container()
+                                      : Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            carro.data == null
+                                                ? Expanded(
+                                                    child: hText(
+                                                        'Não conseguimos encontrar seu carro contate o suporte',
+                                                        context,
+                                                        color: Colors.white,
+                                                        textaling:
+                                                            TextAlign.center),
+                                                  )
+                                                : GestureDetector(
+                                                    onTap: () async {
+                                                      corridaController
+                                                          .finalizarCorrida();
+                                                    },
+                                                    child: hTextAbel(
+                                                        'OFFLINE', context,
+                                                        size: 20,
+                                                        weight: FontWeight.bold,
+                                                        color: started.data ==
+                                                                false
+                                                            ? Color.fromRGBO(
+                                                                255, 184, 0, 30)
+                                                            : Colors.black),
+                                                  ),
+                                            sb,
+                                            sb,
+                                            hTextAbel('|', context, size: 20),
+                                            sb,
+                                            sb,
+                                            GestureDetector(
+                                              onTap: () async {
+                                                corridaController
+                                                    .iniciarCorrida();
+                                              },
+                                              child: hTextAbel(
+                                                'ONLINE',
+                                                context,
+                                                size: 20,
+                                                weight: FontWeight.bold,
+                                                color: started.data == true
+                                                    ? Color.fromRGBO(
+                                                        255, 184, 0, 30)
+                                                    : Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                ));
+                          });
+                    }
+                  }
+                });
+          },
+        ),
+      ),
       body: StreamBuilder<bool>(
           stream: cf.outHide,
           builder: (context, hide) {
@@ -1058,8 +1102,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                                 .replaceAll('.', ''));
 
                                         if (precofinal != 0.0) {
-                                          List<OfertaCorrida> ofertaList =
-                                              List();
+                                          List<OfertaCorrida> ofertaList = [];
                                           OfertaCorrida oferta = OfertaCorrida(
                                               requisicao:
                                                   requisicaoController.id,
@@ -1077,7 +1120,7 @@ class _CorridaPageState extends State<CorridaPage> {
                                               .add(oferta.toJson())
                                               .then((v) {
                                             oferta.id = v.id;
-                                            List jumento = new List();
+                                            List jumento = [];
                                             jumento.add(v.id);
                                             requisicaoController.ofertas =
                                                 jumento;
@@ -1087,6 +1130,7 @@ class _CorridaPageState extends State<CorridaPage> {
 
                                             Requisicao req = Requisicao(
                                               ofertas: jumento,
+
                                               motoristas_chamados:
                                                   requisicaoController
                                                       .motoristas_chamados,
@@ -1103,8 +1147,6 @@ class _CorridaPageState extends State<CorridaPage> {
                                               created_at: requisicaoController
                                                   .created_at,
                                               id: requisicaoController.id,
-                                              aceito:
-                                                  requisicaoController.aceito,
                                               deleted_at: requisicaoController
                                                   .deleted_at,
                                               isViagem:
@@ -1136,7 +1178,6 @@ class _CorridaPageState extends State<CorridaPage> {
                                             });
                                           });
                                         } else {
-
                                           dToast('Preencha o campo preço');
                                         }
                                       },
@@ -1193,9 +1234,24 @@ class _CorridaPageState extends State<CorridaPage> {
     controller.animateCamera(cameraUpdate);
   }
 
-  Future<void> telaCentralizada(Position position) async {
-    final GoogleMapController controller = await _controller.future;
 
+ void chamadaMotoristaAceita() {
+     StreamBuilder<List<Requisicao>>(
+        stream: requisicaoController.outRequisicoes,
+        builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+
+          for(var req in requisicao.data){
+            if(req.aceito.motorista == Helper.localUser.id){
+              print('aqui 231321312543');
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => InicioDeViagemPage()));
+            }
+          }
+    });
+  }
+
+  Future<void> telaCentralizada(Position position) async {
+    chamadaMotoristaAceita();
+    final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: LatLng(position.latitude, position.longitude),
       zoom: Helper.localUser.zoom,
@@ -1232,17 +1288,14 @@ class _CorridaPageState extends State<CorridaPage> {
 
     rc.CalcularRotaMotorista(_initialPosition, passageiro_latlng);
     if (requisicaoController.primeiraParada_lat == null) {
-
       rc.CalcularRotaPassageiro(passageiro_latlng, requisicaoController);
     } else {
-
       rc.AdicionarParadaPassageiro(requisicaoController, marcasWays);
     }
   }
 
   List<Polyline> getPolys(motorista, data) {
-    List<Polyline> poly = new List();
-
+    List<Polyline> poly = [];
 
     if (data == null) {
       return poly;
@@ -1266,7 +1319,6 @@ class _CorridaPageState extends State<CorridaPage> {
     }
     try {
       for (int i = 0; i < data.length; i++) {
-
         PolylineId id = PolylineId("polypassageiro${i}");
         poly.add(Polyline(
           width: 10,
@@ -1286,11 +1338,28 @@ class _CorridaPageState extends State<CorridaPage> {
     Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((v) async {
-
+      print('localizacao ${v.latitude}');
       telaCentralizada(v);
+
       rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
       _initialPosition = LatLng(v.latitude, v.longitude);
+
+     /* showDialog(
+          context: context,
+          builder: (BuildContext context) {
+                      return AlertDialog(content: GestureDetector(
+                        onTap:(){
+                          Navigator.of(context)
+                              .push(MaterialPageRoute(builder: (context) => InicioDeViagemPage()));
+                        },
+                        child: Container(
+                            child: hTextAbel('chamada', context)),
+                      ),);
+
+      });*/
+
     });
+
   }
 }
 
@@ -1322,38 +1391,25 @@ void onCameraMove(CameraPosition position, LatLng l) {
 }
 
 BitmapDescriptor sourceIcon;
-List<Marker> getMarkers(LatLng data, LatLng d, LatLng motorista, {ways}) {
-  List<Marker> markers = new List();
-  MarkerId markerId = MarkerId('id');
-  MarkerId markerId2 = MarkerId('id2');
-  MarkerId markerId3 = MarkerId('id3');
+List<Marker> getMarkers(data, {ways}) {
+  print('aqui a data ${data}');
+  List<Marker> markers = [];
+  if(data == null){
+    return markers;
+  }
+
   try {
-    markers.add(Marker(
-        infoWindow: InfoWindow(title: 'Passageiro'),
-        markerId: markerId,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-        position: data));
+    for (int i = 0; i < data.length; i++) {
+      markers.add(Marker(
+          infoWindow: InfoWindow(title: i == 0? 'Minha Posição':i == 1 ?'Passageiro': i==2? 'Destino':'' ),
+          markerId: MarkerId('marcas${i}'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(i == 0? BitmapDescriptor.hueViolet:i == 1? BitmapDescriptor.hueCyan: i ==2? BitmapDescriptor.hueGreen: BitmapDescriptor.hueAzure),
+          position: data[i]));
+    }
   } catch (err) {
     print(err.toString());
   }
-  try {
-    markers.add(Marker(
-        markerId: markerId2,
-        infoWindow: InfoWindow(title: 'Destino do Passageiro'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-        position: LatLng(d.latitude, d.longitude)));
-  } catch (err) {
-    print(err.toString());
-  }
-  try {
-    markers.add(Marker(
-        markerId: markerId3,
-        infoWindow: InfoWindow(title: 'Minha Posição'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        position: motorista));
-  } catch (err) {
-    print(err.toString());
-  }
+
   try {
     for (int i = 0; i < ways.length; i++) {
       MarkerId markerWay = MarkerId("way${i + 1}");

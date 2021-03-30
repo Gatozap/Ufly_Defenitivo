@@ -197,7 +197,7 @@ class User {
 
   static getDocumentosCPF(decoded) {
     print('AQUI DECODED ${decoded}');
-    List<DocumentoCPF> talentos = new List();
+    List<DocumentoCPF> talentos = [];
     if (decoded == null) {
       return null;
     }
@@ -208,7 +208,7 @@ class User {
   }
   static getDocumentosCNH(decoded) {
     print('AQUI DECODED ${decoded}');
-    List<DocumentoCNH> talentos = new List();
+    List<DocumentoCNH> talentos =[];
     if (decoded == null) {
       return null;
     }
@@ -219,7 +219,7 @@ class User {
   }
   static getDocumentosRg(decoded) {
     print('AQUI DECODED ${decoded}');
-    List<DocumentoRg> talentos = new List();
+    List<DocumentoRg> talentos = [];
     if (decoded == null) {
       return null;
     }

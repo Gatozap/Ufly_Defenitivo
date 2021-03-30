@@ -45,6 +45,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
   PageController pageController;
   PagesController pg;
   AtivosController alc;
+  AtivosController ac;
   OfertaCorridaController ofertacorridaController;
   MotoristaController mt;
   RequisicaoCorridaController requisicaoController;
@@ -70,6 +71,9 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
     }
     if (ofertacorridaController == null) {
       ofertacorridaController = OfertaCorridaController();
+    }
+    if (ac == null) {
+      ac = AtivosController();
     }
     if (requisicaoController == null) {
       requisicaoController = RequisicaoCorridaController();
@@ -102,18 +106,17 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                       actions: <Widget>[
                         MaterialButton(
                           child: hTextAbel('Cancelar', context, size: 20),
-                          onPressed: () {
+                          onPressed: () {return
                             Navigator.pop(context);
                           },
                         ),
                         MaterialButton(
                           child: hTextAbel('Sim', context, size: 20),
                           onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
+                            return Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) =>
-                                    Consumer<Position>(builder: (context, position, widget) {
-                                      return HomePage();
-                                    })));
+                                     HomePage()
+                                    ));
                           },
                         )
                       ],
@@ -161,17 +164,8 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                           return Container(
                             width: getLargura(context),
                             height: getAltura(context),
-                            child: StreamBuilder<List<CarroAtivo>>(
-                                stream: alc.outAtivos,
-                                builder: (context,
-                                    AsyncSnapshot<List<CarroAtivo>> snap) {
-                                  if (snap.data == null) {
-                                    return Container();
-                                  }
-                                  if (snap.data.length == 0) {
-                                    return Container();
-                                  }
-                                  return ListView.builder(
+                            child:
+                                    ListView.builder(
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
                                       Motorista motorista =
@@ -185,9 +179,10 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                                               requisicao.id) {
                                             if (requisicao.user.contains(
                                                 Helper.localUser.id)) {
-                                              for (CarroAtivo a in snap.data) {
-                                                return a.isAtivo ==
-                                                        motorista.isOnline
+                                              for (CarroAtivo a in ac.ativos) {
+
+                                                return a.user_id ==
+                                                    motorista.id_usuario
                                                     ? MotoristasListItem(
                                                         motorista)
                                                     : Container();
@@ -202,8 +197,8 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                                       }
                                     },
                                     itemCount: snapshot.data.length,
-                                  );
-                                }),
+                                  )
+
                           );
                         });
                   }),

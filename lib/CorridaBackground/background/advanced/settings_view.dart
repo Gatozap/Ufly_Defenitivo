@@ -282,7 +282,7 @@ class _SettingsViewState extends State<SettingsView> {
       value = value.round();
     }
 
-    List<DropdownMenuItem<String>> menuItems = new List();
+    List<DropdownMenuItem<String>> menuItems =[];
     bool foundCurrentValue = false;
     values.forEach((dynamic item) {
       if (item == value) { foundCurrentValue = true; }
@@ -372,7 +372,7 @@ class _SettingsViewState extends State<SettingsView> {
   ///
   Widget _buildGeofenceTestPanel() {
 
-    List<DropdownMenuItem<String>> radiusItems = new List();
+    List<DropdownMenuItem<String>> radiusItems = [];
     radiusItems.add(new DropdownMenuItem(child: Text('100 meters'), value: '100'));
     radiusItems.add(new DropdownMenuItem(child: Text('150 meters'), value: '150'));
     radiusItems.add(new DropdownMenuItem(child: Text('200 meters'), value: '200'));
@@ -381,7 +381,7 @@ class _SettingsViewState extends State<SettingsView> {
     radiusItems.add(new DropdownMenuItem(child: Text('5000 meters'), value: '5000'));
     radiusItems.add(new DropdownMenuItem(child: Text('10000 meters'), value: '10000'));
 
-    List<DropdownMenuItem<String>> loiteringDelayItems = new List();
+    List<DropdownMenuItem<String>> loiteringDelayItems = [];
     loiteringDelayItems.add(new DropdownMenuItem(child: Text('1000 ms'), value: '1000'));
     loiteringDelayItems.add(new DropdownMenuItem(child: Text('5000 ms'), value: '5000'));
     loiteringDelayItems.add(new DropdownMenuItem(child: Text('10000 ms'), value: '10000'));

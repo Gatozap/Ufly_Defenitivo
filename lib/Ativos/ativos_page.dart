@@ -59,7 +59,7 @@ class _AtivosPageState extends State<AtivosPage> {
       ImageConfiguration(devicePixelRatio: 4.5),
       "assets/marker.png",
     );
-    markers = new List();
+    markers = [];
 
     for(CarroAtivo ca in ativos){
       try {

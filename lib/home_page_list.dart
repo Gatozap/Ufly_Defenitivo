@@ -228,7 +228,7 @@ class FrotaListItem extends StatelessWidget {
                          Center(
                            child: GestureDetector( onTap:(){
                              if(motorista.favoritos == null){
-                               motorista.favoritos = new List();
+                               motorista.favoritos =[];
                              }
                              motorista.favoritos.add(Helper.localUser.id);
                              updateMotorista(motorista);
@@ -236,7 +236,7 @@ class FrotaListItem extends StatelessWidget {
                          ):
                          Center(
                            child: GestureDetector(onTap:(){
-                             List favoritos = new List();
+                             List favoritos = [];
                                for(var f in motorista.favoritos){
                                   if(f != Helper.localUser.id){
                                     favoritos.add(f);

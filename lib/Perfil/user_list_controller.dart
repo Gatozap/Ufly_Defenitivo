@@ -37,7 +37,7 @@ class UserListController extends BlocBase {
         .where("id", isEqualTo: requisicao.user)
         .snapshots()
         .listen((QuerySnapshot snap) {
-      users = new List();
+      users = [];
 
       if (snap.docs.length > 0) {
         for (DocumentSnapshot ds in snap.docs) {

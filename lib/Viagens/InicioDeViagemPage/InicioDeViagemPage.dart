@@ -16,19 +16,7 @@ class InicioDeViagemPage extends StatefulWidget {
 }
 
 class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
-  final PagesController pc = new PagesController(0);
-  PageController pageController;
-  PagesController pg;
-  void onTap(int index) {
-    pc.inPageController.add(index);
-  }
 
-  var page0;
-  var page1;
-  var page2;
-  var page3;
-  var page4;
-  int page = 0;
   @override
   void initState() {
     super.initState();
@@ -42,10 +30,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return StreamBuilder<int>(
-        stream: pc.outPageController,
-        builder: (context, snapshot) {
-          return Scaffold(
+    return  Scaffold(
 
             body: SlidingUpPanel(
               renderPanelSheet: false,
@@ -166,7 +151,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
               ),
             ),
           );
-        });
+
   }
 
   Widget viagemWidget(){
@@ -208,18 +193,18 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       hTextAbel('Júlio', context,
-                          size: 70, color: Colors.black),
+                          size: 20, color: Colors.black),
                       Row(
                         children: <Widget>[
                           hTextAbel('5,0', context,
-                              size: 50, color: Colors.black),
+                              size: 20, color: Colors.black),
                           Container(
                             child: Image.asset(
                                 'assets/estrela.png'),
                           ),
                         ],
                       ),
-                      Row(children: <Widget>[ hTextAbel('Da sua carteira', context, size: 50, ),sb, Image.asset('assets/carteira.png') ],)
+                      Row(children: <Widget>[ hTextAbel('Da sua carteira', context, size: 20, ),sb, Image.asset('assets/carteira.png') ],)
                     ],
                   ),
                 ),
@@ -240,14 +225,14 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 hTextMal('3 min', context,
-                    size: 70,
+                    size: 20,
                     color: Colors.black,
                     weight: FontWeight.bold),
                 sb,  sb,
                 Image.asset('assets/km.png'),
                 sb,sb,
                 hTextMal('2.1 Km', context,
-                    size: 70,
+                    size: 20,
                     color: Colors.black,
                     weight: FontWeight.bold),
               ],

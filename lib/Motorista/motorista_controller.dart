@@ -41,7 +41,7 @@ class MotoristaController extends BlocBase {
     motoristaRef
         .snapshots()
         .listen((QuerySnapshot snap) {
-      motoristas = new List();
+      motoristas = [];
       if (snap.docs.length > 0) {
         for (DocumentSnapshot ds in snap.docs) {
           Motorista p =  Motorista.fromJson(ds.data());
@@ -74,7 +74,7 @@ class MotoristaController extends BlocBase {
 
       if (motorista != null) {
         if (motorista.carro == null) {
-          motorista.carro = new List<Carro>();
+          motorista.carro = [];
         }
 
         motorista.carro.add(carro);

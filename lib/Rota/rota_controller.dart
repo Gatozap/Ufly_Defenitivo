@@ -37,10 +37,19 @@ class RotaController extends BlocBase {
   Stream<List<LatLng>> get outMarker => controllerMarker.stream;
   Sink<List<LatLng>>get inMarker => controllerMarker.sink;
 
+  BehaviorSubject<String> controllerLocalizacaoNome =
+  new BehaviorSubject<String>();
+  Stream<String> get outLocalizacaoNome => controllerLocalizacaoNome.stream;
+  Sink<String> get inLocalizacaoNome => controllerLocalizacaoNome.sink;
+
   BehaviorSubject<List<String>> controllerParadas =
   new BehaviorSubject<List<String>>();
   Stream<List<String>> get outParadas => controllerParadas.stream;
   Sink<List<String>> get inParadas => controllerParadas.sink;
+
+  BehaviorSubject<double> controllerDistancia = new BehaviorSubject<double>();
+  Stream<double> get outDistancia => controllerDistancia.stream;
+  Sink<double> get inDistancia => controllerDistancia.sink;
 
   BehaviorSubject<List<List<LatLng>>> controllerPolylinePassageiro =
   new BehaviorSubject<List<List<LatLng>>>();
@@ -161,22 +170,14 @@ class RotaController extends BlocBase {
   Future<List<List<LatLng>>> CalcularRotaPassageiro(LatLng passageiro_inicial, requisicaoController) async {
     List<LatLng> rotas = [];
     List<List<LatLng>> polylineCoordinatesPassageiro = [];
-
-
-
-
-
-
       for (var l in requisicaoController.rota.routes[0].legs) {
         for (var s in l.steps) {
           for (var i in s.intersections) {
-
             rotas.add(LatLng(i.location[1], i.location[0]));
           }
         }
       }
       polylineCoordinatesPassageiro.add(rotas);
-
     inPolyPassageiro.add(polylineCoordinatesPassageiro);
     return polylineCoordinatesPassageiro;
   }

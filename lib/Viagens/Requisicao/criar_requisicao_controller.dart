@@ -27,7 +27,7 @@ class CriarRequisicaoController extends BlocBase {
         .snapshots()
         .listen((QuerySnapshot snap) {
       print('aqui 2 ');
-      requisicoes = new List();
+      requisicoes = [];
       if (snap.docs.length > 0) {
         for (DocumentSnapshot ds in snap.docs) {
           print('aqui3 ${ds.id} ');

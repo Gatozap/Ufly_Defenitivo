@@ -26,13 +26,13 @@ class RequisicaoCorridaController extends BlocBase {
 
 
 
-  RequisicaoCorridaController() {
+ RequisicaoCorridaController()  {
     print('aqui essa porra 1 ${requisicoes}');
     requisicaoRef
         .snapshots()
         .listen((QuerySnapshot snap) {
       print('aqui essa porra 2 ${snap.docs.toString()}');
-      requisicoes = new List();
+      List<Requisicao> requisicoes =  [];
       if (snap.docs.length > 0) {
         for (DocumentSnapshot ds in snap.docs) {
 
@@ -43,14 +43,14 @@ class RequisicaoCorridaController extends BlocBase {
           print('aqui essa porra 4 ${requisicoes}');
         }
         requisicoes.sort(
-                (Requisicao a, Requisicao b) => a.id.compareTo(b.id));
+                (Requisicao a, Requisicao b)  => a.id.compareTo(b.id));
         requisicoesmain = requisicoes;
         inRequisicoes.add(requisicoes);
       } else {
         inRequisicoes.add(requisicoes);
       }
     }).onError((err) {
-      print('Erro: ${err.toString()}');
+      print('Erro das Requisicao: ${err.toString()}');
     });
 
   }

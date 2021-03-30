@@ -22,7 +22,7 @@ class MotoristaControllerEdit extends BlocBase {
         .get()
         .then((v) {
       print('aqui carro 232');
-      List<Motorista> motoristas = new List<Motorista>();
+      List<Motorista> motoristas = [];
       for (var d in v.docs) {
         print('aqui carro 232');
         Motorista m = Motorista.fromJson(d.data());

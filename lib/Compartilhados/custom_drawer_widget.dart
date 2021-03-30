@@ -424,7 +424,7 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
         ));
   }
   Future getImageCamera() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.camera);
+    final image = await ImagePicker().getImage(source: ImageSource.camera);
     pr = new ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
     pr.style(
@@ -453,7 +453,7 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
   }
 
   Future getImage() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    final image = await ImagePicker().getImage(source: ImageSource.gallery);
     pr = new ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
     pr.style(

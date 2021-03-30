@@ -246,46 +246,9 @@ hText(text, context,
   );
 }
 
-void developing(context) {
-  showDialog(
-      barrierDismissible: true,
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-            content: Container(
-                color: Colors.white,
-                width: getLargura(context) * .8,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    hText('Em desenvolvimento', context, size: 42),
-                    Container(
-                      width: getLargura(context) * .6,
-                      height: getAltura(context) * .3,
-                      child: new FlareActor("assets/coding.flr",
-                          alignment: Alignment.center,
-                          fit: BoxFit.contain,
-                          animation: "coding"),
-                    ),
-                    hText('Gostaria de Ajudar?', context, size: 44),
-                    defaultActionButton('Entrar em contato', context, () {
-                      whatsAppOpen();
-                    }),
-                  ],
-                )));
-      });
-}
 
-void whatsAppOpen() async {
-  //print('ENTROU AQUI');
-  var whatsappUrl = "whatsapp://send?phone=5542999319375&text=Ola";
-  if (await canLaunch(whatsappUrl)) {
-    await launch(whatsappUrl, forceSafariVC: false, forceWebView: false);
-  } else {
-    throw 'Could not launch $whatsappUrl';
-  }
-}
+
+
 
 Widget defaultCheckBox(bool isChecked, text, context, onTap, {color: corPrimaria }) {
 
@@ -356,7 +319,7 @@ double getLargura(context) {
 rollValues(dado, valor, descricao, bool isMultiple) {
   List<String> resultado = ['', ''];
   Random r = new Random();
-  List<int> resultados = new List();
+  List<int> resultados = [];
   int rolagem = 0;
   for (int i = 0; i < dado[0]; i++) {
     int parcial = r.nextInt(dado[1] - 1) + 1;
@@ -387,7 +350,7 @@ List<int> isDice(String comando) {
     try {
       int quantidade = int.parse(c.split('d')[0].replaceAll('d', ''));
       int de = int.parse(c.split('d')[1].replaceAll('d', ''));
-      dado = new List();
+      dado = [];
       dado.add(quantidade);
       dado.add(de);
       return dado;
@@ -1161,7 +1124,7 @@ class Helper {
   }
 
   jsonToList(j) {
-    List l = new List();
+    List l =[];
     for (int i = 0; i < j.length; i++) {
       l.add(j[i]);
     }

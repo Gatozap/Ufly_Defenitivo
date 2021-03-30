@@ -19,8 +19,8 @@ class CorridaFirebaseSender {
   DatabaseReference pointsRef;
   SharedPreferences sp;
 
-  Corrida corrida;
-  CorridaFirebaseSender() {}
+
+
 
   AdicionarLatLng(Localizacao l, double distancia) {
     try {
@@ -39,7 +39,7 @@ class CorridaFirebaseSender {
         print('Erro ao atualizar ativo: ${err.toString()}');
       });
 
-      
+
 
       // carrosAtivosRef.child(Helper.localUser.id).set(value)
 
@@ -54,39 +54,43 @@ class CorridaFirebaseSender {
 
   PararLigacao(Carro carro) async {
     print('INICIANDO PARAR');
+
+
+
+
+
     SharedPreferences.getInstance().then((value) {
       CarroAtivo ca = CarroAtivo.fromJson(json.decode(value.getString('ca')));
-      ca.isAtivo = false;
 
-      
+      ca.isAtivo = false;
+      print('aqui a porra do ativo ${ca.isAtivo}');
+
       carrosAtivosRef.child(Helper.localUser.id).set(ca.toJson()).then((value) {
-        print('Localização Atualizada ${ca.isAtivo}');
+
+        print('Localização Atualizada');
       });
     }).catchError((err) {
       print('Erro ao atualizar ativo: ${err.toString()}');
     });
+    //TODO COMPUTAR OS DADOS PRO FIRESTORE
 
   }
 
-
-
-
-  Future<void> ContabilizarCorrida(Carro carro, localizacoes) async {
-    print('INICIANDO CONTABILIZAR');
-    List localizacoesTemp = new List();
-    for (var l1 in localizacoes) {
-      if (l1.corrida == corrida.id) {
-        localizacoesTemp.add(l1);
-      }
+  IniciarLigacao(Carro carroSelecionado) {
+    print('INICIANDO LIGAÇÂO');
+    if (started) {
+      print('INICIANDO LIGAÇÂO ${started}');
+      SharedPreferences.getInstance().then((value) {
+        sp = value;
+        PrepararCarroAtivo(carroSelecionado);
+      });
     }
-    localizacoes = localizacoesTemp;
-
-    DeletarPontos();
   }
+
 
   Future uploadFile(File file, Corrida corrida) async {
     Reference storageReference =
-        FirebaseStorage.instance.ref().child('localizacoes/${corrida.id}.json');
+    FirebaseStorage.instance.ref().child('localizacoes/${corrida.id}.json');
     UploadTask  uploadTask = storageReference.putFile(file);
     await uploadTask.then((TaskSnapshot snapshot) {
       print('Upload complete!');
@@ -101,7 +105,7 @@ class CorridaFirebaseSender {
       corridasRef.doc(corrida.id).update({
         'points_path': corrida.points_path,
         'points': corrida.points,
-       // 'id': corrida.id.toString(),
+        // 'id': corrida.id.toString(),
         'id_corrida': corrida.id,
       }).then((value) {
         print("LALA ${corrida.points_path} e ${corrida.points}");

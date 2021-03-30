@@ -2815,7 +2815,7 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                                             String foto_d =
                                                                 carro.foto_documento;
                                                             List<Carro> carros =
-                                                                new List();
+                                                                [];
                                                             Carro cccc = Carro(
                                                               id_usuario: Helper.localUser.id,
                                                               cor: controllerCor.text,
@@ -2835,7 +2835,7 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
 
                                                             List<Motorista>
                                                                 motoristas =
-                                                                new List();
+                                                                [];
                                                             Motorista motorista =
                                                                 Motorista(
                                                                   isOnline: false,

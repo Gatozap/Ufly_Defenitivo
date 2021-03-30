@@ -17,4 +17,23 @@ class PagesController implements BlocBase {
   PagesController(int page) {
     inPageController.add(page);
   }
+
+  @override
+  void addListener(listener) {
+    // TODO: implement addListener
+  }
+
+  @override
+  // TODO: implement hasListeners
+  bool get hasListeners => throw UnimplementedError();
+
+  @override
+  void notifyListeners() {
+    // TODO: implement notifyListeners
+  }
+
+  @override
+  void removeListener(listener) {
+    // TODO: implement removeListener
+  }
 }

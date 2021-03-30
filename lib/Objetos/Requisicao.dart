@@ -105,7 +105,7 @@ class Requisicao{
       this.aceito});
 
   encodeOfertas(){
-    List perg = new List();
+    List perg = [];
     for(OfertaCorrida p in ofertas){
       perg.add(p.toJson());
     }
@@ -115,7 +115,7 @@ class Requisicao{
     if(j == null){
       return null;
     }
-    List<OfertaCorrida> ofertas= new List();
+    List<OfertaCorrida> ofertas=[];
     for(var v in j){
       ofertas.add(OfertaCorrida.fromJson(v));
     }

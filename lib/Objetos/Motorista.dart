@@ -100,7 +100,7 @@ class Motorista{
   'carro' : this.carro == null ? null : json.encode(this.carro),
       };
   static getCarros(decoded) {
-    List<Carro> carros = new List();
+    List<Carro> carros = [];
     if (decoded == null) {
       return null;
     }

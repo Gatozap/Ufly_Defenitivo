@@ -5,7 +5,7 @@ class ColorGenerator {
 // Listen to keyup
   Color getRandomColor(String s) {
     var value = s,
-        result = List();
+        result =[];
 
     try {
       var v = value.split('');

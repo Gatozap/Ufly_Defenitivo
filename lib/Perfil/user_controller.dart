@@ -36,7 +36,7 @@ class UserController extends BlocBase {
     userRef
         .snapshots()
         .listen((QuerySnapshot snap) {
-      users = new List();
+      users = [];
       if (snap.docs.length > 0) {
         for (DocumentSnapshot ds in snap.docs) {
           User p =  User.fromJson(ds.data());

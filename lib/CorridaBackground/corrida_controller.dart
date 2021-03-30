@@ -83,10 +83,7 @@ class CorridaController extends BlocBase {
 
 
 
-  Corrida corrida;
-  BehaviorSubject<Corrida> corridaController = BehaviorSubject<Corrida>();
-  Stream<Corrida> get outCorrida => corridaController.stream;
-  Sink<Corrida> get inCorrida => corridaController.sink;
+
 
 
 
@@ -116,7 +113,7 @@ class CorridaController extends BlocBase {
           .where('id_usuario', isEqualTo: Helper.localUser.id)
           .get()
           .then((v) {
-        List<Carro> carros = new List<Carro>();
+        List<Carro> carros = [];
         for (var d in v.docs) {
           Carro c = Carro.fromJson(d.data());
           carros.add(c);
@@ -133,7 +130,7 @@ class CorridaController extends BlocBase {
     bg.BackgroundGeolocation.changePace(false).then((bool isMoving) {
       print('[changePace] success $isMoving');
     }).catchError((e) {
-      print('[changePace] ERROR: ' + e.code.toString());
+      print('[changePace] ERROR 22: ' + e.code.toString());
     });
     bg.BackgroundGeolocation.removeListeners();
 
@@ -164,7 +161,7 @@ class CorridaController extends BlocBase {
 
         var LocalizacoesTemp = await getAll();
 
-        rota = LocalizacoesTemp == null ? new List() : LocalizacoesTemp;
+        rota = LocalizacoesTemp == null ? [] : LocalizacoesTemp;
         inRota.add(rota);
         distanciaPercorrida = 0.0;
         if (rota.length != 0) {
@@ -182,16 +179,16 @@ class CorridaController extends BlocBase {
             lastPoint = l;
           }
         }
-        print("CHEGOU AQUI LOLO2 ${started} ");
+
 
         inDistanciaPercorrida.add(distanciaPercorrida);
         //if (started) {
-
+        cfs.IniciarLigacao(carro);
         print("CHEGOU AQUI LOLO ");
         bg.BackgroundGeolocation.changePace(true).then((bool isMoving) {
           print('[changePace] success $isMoving');
         }).catchError((e) {
-          print('[changePace] ERROR: ' + e.toString());
+          print('[changePace] ERROR 33: ' + e.toString());
           //setupBackground();
         });
         print("CHEGOU AQUI ");
@@ -225,11 +222,7 @@ class CorridaController extends BlocBase {
         sp.setBool('started', started);
       }
       inStarted.add(started);
-      try {
-        corrida = Corrida.fromJson(json.decode(sp.getString('corrida')));
-      } catch (err) {
-        print('Error ${err.toString()}');
-      }
+
 
       print("AQUI CAPETA CORRIDA");
       var LocalizacoesTemp = await getAll();
@@ -256,7 +249,7 @@ class CorridaController extends BlocBase {
 
       inDistanciaPercorrida.add(distanciaPercorrida);
       //if (started) {
-  
+      cfs.IniciarLigacao(carro);
       print("CHEGOU AQUI LOLO ");
       bg.BackgroundGeolocation.changePace(true).then((bool isMoving) {
         print('[changePace] success $isMoving');
