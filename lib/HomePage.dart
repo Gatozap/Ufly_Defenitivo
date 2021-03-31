@@ -244,7 +244,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-               locationController.text.isEmpty? Container() :
+               /* parada2Controller.text.isEmpty? Container() :
                 Padding(
                   padding: EdgeInsets.only(
                       top: getAltura(context) * .010,
@@ -513,7 +513,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                //ParadasListItem(filtro: filtro),
+                //ParadasListItem(filtro: filtro),*/
                 Padding(
                   padding: EdgeInsets.only(
                       top: getAltura(context) * .010,
@@ -672,10 +672,111 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder<List<Requisicao>>(
         stream: reqc.outRequisicoes,
         builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-          for(var req in requisicao.data) {
-            if(req.aceito.id_usuario != Helper.localUser.id ) {
+          print('aqui reqqqqqq${requisicao.data}');
+          if(requisicao.data == null){
+            return Scaffold(
+
+              // drawer: CustomDrawerWidget(),
+              body: SlidingUpPanel(
+                panel: _floatingPanel(),
+                renderPanelSheet: false,
+                maxHeight: getAltura(context) * .40,
+                borderRadius: BorderRadius.circular(20),
+                collapsed: Container(
+                  margin: const EdgeInsets.only(left: 24.0, right: 24),
+                  child: Row(
+                    children: <Widget>[
+                      Stack(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(top: 25.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(24.0),
+                                      topRight: Radius.circular(24.0)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 20.0,
+                                      color: Colors.grey,
+                                    ),
+                                  ]),
+                              width: getLargura(context) - 48,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  sb,
+                                  sb,
+                                  Container(
+                                    child: Container(
+                                        width: getLargura(context) * .4,
+                                        color: Colors.grey,
+                                        height: 3),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                body: Container(
+                  height: SizeConfig.safeBlockVertical,
+                  width: SizeConfig.safeBlockHorizontal,
+                  color: Colors.white,
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        height: getAltura(context),
+                        width: getLargura(context),
+                        child: map,
+                      ),
+                      textFieldParaPesquisarPontos(),
+                      sb,
+                      Positioned(
+                        right: getLargura(context) * .060,
+                        bottom: getAltura(context) * .350,
+                        child: FloatingActionButton(
+                          heroTag: '2',
+                          onPressed: () {
+                            centerView();
+                          },
+                          child: Icon(
+                              Icons.zoom_out_map, color: Colors.black),
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                      Positioned(
+                        right: getLargura(context) * .060,
+                        bottom: getAltura(context) * .150,
+                        child: FloatingActionButton(
+                          heroTag: '1',
+                          onPressed: () {
+                            Geolocator()
+                                .getCurrentPosition(
+                                desiredAccuracy: LocationAccuracy.high)
+                                .then((v) async {
+                              telaCentralizada(v);
+                            });
+                          },
+                          child: Icon(Icons.my_location, color: Colors.black),
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                      SideBar(),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }else   for(var req in requisicao.data) {
+            if(req.aceito == null){
               return Scaffold(
-                key: homeScaffoldKey,
+
                 // drawer: CustomDrawerWidget(),
                 body: SlidingUpPanel(
                   panel: _floatingPanel(),
@@ -773,10 +874,112 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               );
-            }else{
+            }
+            if(req.aceito.id_usuario == Helper.localUser.id) {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ChamandoMotoristaPage()));
             }
+          }
+          {
+            return Scaffold(
+
+              // drawer: CustomDrawerWidget(),
+              body: SlidingUpPanel(
+                panel: _floatingPanel(),
+                renderPanelSheet: false,
+                maxHeight: getAltura(context) * .40,
+                borderRadius: BorderRadius.circular(20),
+                collapsed: Container(
+                  margin: const EdgeInsets.only(left: 24.0, right: 24),
+                  child: Row(
+                    children: <Widget>[
+                      Stack(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(top: 25.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(24.0),
+                                      topRight: Radius.circular(24.0)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 20.0,
+                                      color: Colors.grey,
+                                    ),
+                                  ]),
+                              width: getLargura(context) - 48,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  sb,
+                                  sb,
+                                  Container(
+                                    child: Container(
+                                        width: getLargura(context) * .4,
+                                        color: Colors.grey,
+                                        height: 3),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                body: Container(
+                  height: SizeConfig.safeBlockVertical,
+                  width: SizeConfig.safeBlockHorizontal,
+                  color: Colors.white,
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        height: getAltura(context),
+                        width: getLargura(context),
+                        child: map,
+                      ),
+                      textFieldParaPesquisarPontos(),
+                      sb,
+                      Positioned(
+                        right: getLargura(context) * .060,
+                        bottom: getAltura(context) * .350,
+                        child: FloatingActionButton(
+                          heroTag: '2',
+                          onPressed: () {
+                            centerView();
+                          },
+                          child: Icon(
+                              Icons.zoom_out_map, color: Colors.black),
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                      Positioned(
+                        right: getLargura(context) * .060,
+                        bottom: getAltura(context) * .150,
+                        child: FloatingActionButton(
+                          heroTag: '1',
+                          onPressed: () {
+                            Geolocator()
+                                .getCurrentPosition(
+                                desiredAccuracy: LocationAccuracy.high)
+                                .then((v) async {
+                              telaCentralizada(v);
+                            });
+                          },
+                          child: Icon(Icons.my_location, color: Colors.black),
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                      SideBar(),
+                    ],
+                  ),
+                ),
+              ),
+            );
           }
 
 
@@ -1349,16 +1552,19 @@ class _HomePageState extends State<HomePage> {
     List motorista =[];
 
     for (CarroAtivo ca in ac.ativos) {
-      print('aqui motorista ativo ${ca.user_id}');
-      double distancia = calculateDistance(
-          ca.localizacao.latitude,
-          ca.localizacao.longitude,
-          _initialPosition.latitude,
-          _initialPosition.longitude);
-      print('aqui motorista ativo ${distancia}');
-      if (isInAlcance(ca, _initialPosition)) {
-        motorista.add(ca.user_id);
-        print('aqui motorista ativo2 ${motorista}');
+      if(ca.isAtivo == true) {
+        print('aqui motorista ativo ${ca.user_id}');
+        double distancia = calculateDistance(
+            ca.localizacao.latitude,
+            ca.localizacao.longitude,
+            _initialPosition.latitude,
+            _initialPosition.longitude);
+        print('aqui motorista ativo ${distancia}');
+
+        if (isInAlcance(ca, _initialPosition)) {
+          motorista.add(ca.user_id);
+          print('aqui motorista ativo2 ${motorista}');
+        }
       }
     }
 
@@ -1434,7 +1640,7 @@ class _HomePageState extends State<HomePage> {
         ca.localizacao.longitude, origem.latitude, origem.longitude);
     print('aqui distancia ${distancia}');
 
-    return 50 > distancia;
+    return 50 > distancia || ca.isAtivo == true;
   }
 }
 
