@@ -20,6 +20,7 @@ import 'package:ufly/Helpers/References.dart';
 import 'package:ufly/Motorista/motorista_controller.dart';
 import 'package:ufly/Motorista/motorista_controller_edit.dart';
 import 'package:ufly/Objetos/Carro.dart';
+import 'package:ufly/Objetos/CarroAtivo.dart';
 import 'package:ufly/Objetos/OfertaCorrida.dart';
 import 'package:ufly/Objetos/User.dart';
 import 'package:ufly/Objetos/Requisicao.dart';
@@ -64,7 +65,7 @@ class _CorridaPageState extends State<CorridaPage> {
   List<LatLng> marcasRota = [];
   String _currentAddress;
   List<Polyline> polylines;
-
+  LatLng motorista_latlng;
   String destinoAddress;
   List<Marker> markers;
   List<LatLng> polylineCoordinates = [];
@@ -81,6 +82,7 @@ class _CorridaPageState extends State<CorridaPage> {
   @override
   void initState() {
     bg.BackgroundGeolocation.start();
+
     localizacaoInicial();
 
     geo.getCurrentLocation().listen((position) {
@@ -169,37 +171,43 @@ class _CorridaPageState extends State<CorridaPage> {
                             StreamBuilder(
                               stream: rc.outWays,
                               builder: (context, snapshot) {
-                                print('aqui snap ${snapshot.data}');
-
-                                if (snapshot.data != null) {
-                                   if (parada1 == null) {
-                                    markers = getMarkers(snapshot.data);
-                                  } else {
-                                    markers = getMarkers(snapshot.data,
-                                        ways: snapshot.data);
+                                return StreamBuilder(
+                                    stream: rc.outMarkers,
+                                    builder: (context, snap) {
+                                      print('aqui snap 232 ${snap.data}');
+                                    if (snapshot.data != null) {
+                                      if (parada1 == null) {
+                                        markers = getMarkers(
+                                          snap.data,
+                                        );
+                                      } else {
+                                        markers = getMarkers(snap.data,
+                                            ways: snapshot.data);
+                                      }
+                                    }
+                                    return GoogleMap(
+                                      myLocationEnabled: true,
+                                      myLocationButtonEnabled: false,
+                                      trafficEnabled: true,
+                                      polylines: polylines.toSet(),
+                                      markers: destino != null? markers.toSet(): null,
+                                      mapType: MapType.terrain,
+                                      zoomGesturesEnabled: true,
+                                      zoomControlsEnabled: false,
+                                      rotateGesturesEnabled: false,
+                                      initialCameraPosition: CameraPosition(
+                                          target: localizacao.data,
+                                          zoom: Helper.localUser.zoom),
+                                      onMapCreated:
+                                          (GoogleMapController controller) {
+                                        _controller.complete(controller);
+                                        destino == null ? null : centerView();
+                                        geo.getCurrentLocation().listen((position) {
+                                          telaCentralizada(position);
+                                        });
+                                      },
+                                    );
                                   }
-                                }
-                                return GoogleMap(
-                                  myLocationEnabled: true,
-                                  myLocationButtonEnabled: false,
-                                  trafficEnabled: true,
-                                  polylines: polylines.toSet(),
-                                  markers: destino != null? markers.toSet(): null,
-                                  mapType: MapType.terrain,
-                                  zoomGesturesEnabled: true,
-                                  zoomControlsEnabled: false,
-                                  rotateGesturesEnabled: false,
-                                  initialCameraPosition: CameraPosition(
-                                      target: localizacao.data,
-                                      zoom: Helper.localUser.zoom),
-                                  onMapCreated:
-                                      (GoogleMapController controller) {
-                                    _controller.complete(controller);
-                                    destino == null ? null : centerView();
-                                    geo.getCurrentLocation().listen((position) {
-                                      telaCentralizada(position);
-                                    });
-                                  },
                                 );
                               });
 
@@ -212,7 +220,11 @@ class _CorridaPageState extends State<CorridaPage> {
       StreamBuilder<List<Requisicao>>(
           stream: requisicaoController.outRequisicoes,
           builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-            print('aqui reqqqqqq${requisicao.data}');
+
+            for(var req in requisicao.data) {
+
+
+
             if(requisicao.data == null){
               return  Scaffold(
                 drawer: CustomDrawerWidget(),
@@ -441,7 +453,53 @@ class _CorridaPageState extends State<CorridaPage> {
                       );
                     }),
               );
-            }else   for(var req in requisicao.data) {
+            }else
+            if(req.envioPassageiro.contains(Helper.localUser.id)){
+              print('aqui no alert');
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            child: hTextAbel(
+                                'Deseja finalizar essa corrida?',
+                                context,
+                                size: 20),
+                          ),
+                          sb,
+                          sb,
+                          GestureDetector(
+
+                            child: Container(
+                              height: getAltura(context) * .050,
+                              width: getLargura(context) * .5,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Color(0xFFf6aa3c),
+                              ),
+                              child: Container(
+                                  height: getAltura(context) * .125,
+                                  width: getLargura(context) * .85,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Color.fromRGBO(255, 184, 0, 30),
+                                  ),
+                                  child: Center(
+                                      child:
+                                      hTextAbel('OK', context, size: 20))),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+
+                  });
+            }else
              if(req.aceito == null){
             return Scaffold(
               drawer: CustomDrawerWidget(),
@@ -670,13 +728,12 @@ class _CorridaPageState extends State<CorridaPage> {
                     );
                   }),
             );
+            }else
+
+            if(req.aceito.motorista == Helper.localUser.id){
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => InicioDeViagemPage()));
             }
-
-              if(req.aceito.motorista == Helper.localUser.id ) {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => InicioDeViagemPage()));
-              }
-
             }
             {
               return  Scaffold(
@@ -1588,6 +1645,7 @@ class _CorridaPageState extends State<CorridaPage> {
 
                                             Requisicao req = Requisicao(
                                               ofertas: jumento,
+envioPassageiro: requisicaoController.envioPassageiro,
 
                                               motoristas_chamados:
                                                   requisicaoController
@@ -1709,10 +1767,10 @@ class _CorridaPageState extends State<CorridaPage> {
 
   Future<void> telaCentralizada(Position position) async {
     chamadaMotoristaAceita();
+    motorista_latlng = LatLng(position.latitude, position.longitude);
 
-    marcasRota.add(LatLng(position.latitude, position.longitude));
-    rc.inMarkers.add(marcasRota);
-    print('localizacao ${marcasRota}');
+
+
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: LatLng(position.latitude, position.longitude),
@@ -1722,7 +1780,6 @@ class _CorridaPageState extends State<CorridaPage> {
 
   rotaPassageiro(requisicaoController) async {
     List<LatLng> marcasWays = [];
-    List<LatLng> marcasRota = [];
     passageiro_latlng = LatLng(
         requisicaoController.origem.lat, requisicaoController.origem.lng);
 
@@ -1750,15 +1807,15 @@ class _CorridaPageState extends State<CorridaPage> {
         requisicaoController.destino.lat, requisicaoController.destino.lng);
     marcasRota.add(passageiro_latlng);
     marcasRota.add(destino);
-    rc.CalcularRotaMotorista(_initialPosition, passageiro_latlng);
+    marcasRota.add(motorista_latlng);
+    print('aqui as rotas ${marcasRota}');
+    rc.CalcularRotaMotorista(motorista_latlng, passageiro_latlng);
     if (requisicaoController.primeiraParada_lat == null) {
       rc.CalcularRotaPassageiro(passageiro_latlng, requisicaoController);
     } else {
       rc.AdicionarParadaPassageiro(requisicaoController, marcasWays);
     }
-
     rc.inMarkers.add(marcasRota);
-
   }
 
   List<Polyline> getPolys(motorista, data) {
@@ -1811,19 +1868,7 @@ class _CorridaPageState extends State<CorridaPage> {
       rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
       _initialPosition = LatLng(v.latitude, v.longitude);
 
-     /* showDialog(
-          context: context,
-          builder: (BuildContext context) {
-                      return AlertDialog(content: GestureDetector(
-                        onTap:(){
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (context) => InicioDeViagemPage()));
-                        },
-                        child: Container(
-                            child: hTextAbel('chamada', context)),
-                      ),);
 
-      });*/
 
     });
 
@@ -1859,18 +1904,32 @@ void onCameraMove(CameraPosition position, LatLng l) {
 
 BitmapDescriptor sourceIcon;
 List<Marker> getMarkers(data, {ways}) {
-  print('aqui a data ${data}');
+
+
   List<Marker> markers = [];
-  if(data == null){
+  if (data == null) {
     return markers;
   }
 
   try {
+    markers.removeWhere((m) => m.markerId.value == 'posicao');
+
     for (int i = 0; i < data.length; i++) {
       markers.add(Marker(
-          infoWindow: InfoWindow(title: i == 0? 'Minha Posição':i == 1 ?'Passageiro': i==2? 'Destino':'' ),
-          markerId: MarkerId('marcas${i}'),
-          icon: BitmapDescriptor.defaultMarkerWithHue(i == 0? BitmapDescriptor.hueViolet:i == 1? BitmapDescriptor.hueCyan: i ==2? BitmapDescriptor.hueGreen: BitmapDescriptor.hueAzure),
+          infoWindow: InfoWindow(
+              title: i == 0
+                  ? 'Passageiro'
+                  : i == 1
+                  ? 'Destino'
+                  : 'Minha Posição'),
+          markerId: MarkerId(i < 2 ? 'marcas${i}' : 'posicao'),
+          icon: i == 0
+              ? BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueViolet)
+              : i == 1
+              ? BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueGreen)
+              : BitmapDescriptor.fromAsset('assets/marker.png'),
           position: data[i]));
     }
   } catch (err) {
@@ -1883,7 +1942,8 @@ List<Marker> getMarkers(data, {ways}) {
       markers.add(Marker(
         infoWindow: InfoWindow(title: 'Parada nº ${i + 1}'),
         markerId: markerWay,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+        icon:
+        BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
         position: ways[i],
       ));
     }

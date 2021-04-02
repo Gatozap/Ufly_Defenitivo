@@ -25,17 +25,19 @@ class Requisicao{
   var distancia;
   List ofertas;
   OfertaCorrida aceito;
-bool motorista_aceitou;
+  List motorista_aceitou;
+  List envioPassageiro;
 
   @override
   String toString() {
-    return 'Requisicao{id: $id, user: $user, user_nome: $user_nome,motorista_aceitou: $motorista_aceitou foto: $foto, isViagem: $isViagem, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, primeiraParada_lat: $primeiraParada_lat, primeiraParada_lng: $primeiraParada_lng, segundaParada_lat: $segundaParada_lat, segundaParada_lng: $segundaParada_lng, terceiraParada_lat: $terceiraParada_lat, terceiraParada_lng: $terceiraParada_lng, forma_de_pagamento: $forma_de_pagamento, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
+    return 'Requisicao{id: $id, user: $user, user_nome: $user_nome,envioPassageiro: $envioPassageiro,motorista_aceitou: $motorista_aceitou foto: $foto, isViagem: $isViagem, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, primeiraParada_lat: $primeiraParada_lat, primeiraParada_lng: $primeiraParada_lng, segundaParada_lat: $segundaParada_lat, segundaParada_lng: $segundaParada_lng, terceiraParada_lat: $terceiraParada_lat, terceiraParada_lng: $terceiraParada_lng, forma_de_pagamento: $forma_de_pagamento, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
   }
 
   Requisicao.fromJson(json)
       : id = json['id'] == null? null: json['id'],
+        envioPassageiro = json['envioPassageiro'] == null? null: json['envioPassageiro'],
         forma_de_pagamento = json['forma_de_pagamento'],
-        motorista_aceitou = json['motorista_aceitou'] == null? false :json['motorista_aceitou'],
+        motorista_aceitou = json['motorista_aceitou'] == null? null :json['motorista_aceitou'],
         user_nome = json['user_nome'],
         isViagem = json['isViagem'] == null? true : json['isViagem'],
         user = json['user'],
@@ -62,8 +64,9 @@ bool motorista_aceitou;
     'isViagem': isViagem == null? true: this.isViagem,
         'id': id  == null? null: this.id,
         'user': user  == null? null: this.user,
+    'envioPassageiro': envioPassageiro == null? null: this.envioPassageiro,
     'user_nome': user_nome,
-    'motorista_aceitou': motorista_aceitou == null? false: this.motorista_aceitou,
+    'motorista_aceitou': motorista_aceitou == null? null: this.motorista_aceitou,
     'forma_de_pagamento': forma_de_pagamento,
         'motoristas_chamados': motoristas_chamados== null ? null : this.motoristas_chamados,
         'created_at': this.created_at == null? null: this.created_at.millisecondsSinceEpoch,
@@ -93,6 +96,7 @@ bool motorista_aceitou;
       this.motoristas_chamados,
       this.created_at,
       this.valid_until,
+       this.envioPassageiro,
       this.updated_at,
       this.deleted_at,
       this.destino,

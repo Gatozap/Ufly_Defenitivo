@@ -21,6 +21,7 @@ import 'package:ufly/Ativos/AtivosController.dart';
 
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
+import 'package:ufly/Controllers/ControllerFiltros.dart';
 
 
 import 'package:ufly/CorridaBackground/requisicao_corrida_controller.dart';
@@ -58,6 +59,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
   Completer<GoogleMapController> _controller = Completer();
   List<Polyline> polylines;
   RotaController rc;
+  ControllerFiltros cf;
   OfertaCorridaController ofertaCorridaController;
   LatLng _initialPosition;
   LatLng destino;
@@ -84,6 +86,9 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
     }
     if(ofertaCorridaController == null){
       ofertaCorridaController = OfertaCorridaController();
+    }
+    if(cf == null){
+      cf = ControllerFiltros();
     }
     if (rc == null) {
       rc = RotaController();
@@ -337,20 +342,26 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                                 StreamBuilder<String>(
                                   stream: rc.outLocalizacaoNome,
                                   builder: (context, snapshot) {
-                                    return Expanded(
-                                      child: Container(
-                                        width: getLargura(context) * .52,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              left: getLargura(context) * .050),
-                                          child: hTextMal(
-                                              '${snapshot.data}',
-                                              context,
-                                              size: 15,
-                                              color: Colors.white,
-                                              weight: FontWeight.bold),
-                                        ),
-                                      ),
+
+                                    return StreamBuilder<bool>(
+                                      stream: cf.outDesembarque,
+                                      builder: (context, desembarque) {
+                                        return Expanded(
+                                          child: Container(
+                                            width: getLargura(context) * .52,
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: getLargura(context) * .050),
+                                              child: hTextMal(
+                                                  desembarque == false? '${req.origem.endereco}': '${req.destino.endereco}',
+                                                  context,
+                                                  size: 15,
+                                                  color: Colors.white,
+                                                  weight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        );
+                                      }
                                     );
                                   }
                                 )
@@ -501,7 +512,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
   }
 
   List<Marker> getMarkers(data, {ways}) {
-    print('aqui assests ${bitmapIcon.toString()}');
+
 
     List<Marker> markers = [];
     if (data == null) {
@@ -525,7 +536,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                 BitmapDescriptor.hueViolet)
                 : i == 1
                 ? BitmapDescriptor.defaultMarkerWithHue(
-                BitmapDescriptor.hueViolet)
+                BitmapDescriptor.hueGreen)
                 : BitmapDescriptor.fromAsset('assets/marker.png'),
             position: data[i]));
       }
@@ -595,13 +606,14 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
     if(segundaetapa == null){
       segundaetapa = false;
     }
+cf.inDesembarque.add(segundaetapa);
     for (CarroAtivo ca in ac.ativos) {
       List<Placemark> mark = await Geolocator().placemarkFromCoordinates(
           ca.localizacao.latitude, ca.localizacao.longitude);
       Placemark place = mark[0];
-      String nomeLocalizacao = place.thoroughfare;
 
-      rc.inLocalizacaoNome.add(nomeLocalizacao);
+
+
       distancia = calculateDistance(
           passageiro_latlng.latitude,
           passageiro_latlng.longitude,
@@ -611,14 +623,16 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
       rc.inDistancia.add(distancia);
       if(distancia <0.4){
         segundaetapa = true;
-
+        cf.inDesembarque.add(segundaetapa);
         distancia2 = calculateDistance(
             destino.latitude,
             destino.longitude,
             ca.localizacao.latitude,
             ca.localizacao.longitude);
         rc.inDistancia.add(distancia2);
-       return dToastPassageiro('Seu motorista chegou, não esqueça de usar mascara, cinto de seguranção e alcool em gel');
+
+
+       return dToastPassageiro('Seu motorista chegou');
 
       }
       if(segundaetapa) {
@@ -637,7 +651,13 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
     List<LatLng> marcasWays = [];
     passageiro_latlng = LatLng(
         requisicaoController.origem.lat, requisicaoController.origem.lng);
-
+    String embarque = requisicaoController.origem.endereco;
+    String desembarque = requisicaoController.destino.endereco;
+    if(segundaetapa == false) {
+      rc.inLocalizacaoNome.add(embarque);
+    } else{
+      rc.inLocalizacaoNome.add(desembarque);
+    }
     if (requisicaoController.primeiraParada_lat != null) {
       parada1 = LatLng(requisicaoController.primeiraParada_lat,
           requisicaoController.primeiraParada_lng);
@@ -666,8 +686,9 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
       motorista_latlng =
           LatLng(ca.localizacao.latitude, ca.localizacao.longitude);
       rc.CalcularRotaMotorista(motorista_latlng, passageiro_latlng);
-      atualizarLocalizacaoNomes();
+
     }
+
     if (requisicaoController.primeiraParada_lat == null) {
       rc.CalcularRotaPassageiro(passageiro_latlng, requisicaoController);
     } else {

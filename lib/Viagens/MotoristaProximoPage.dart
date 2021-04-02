@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-as bg;
+    as bg;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -100,91 +100,91 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                   builder: (BuildContext context) {
                     // return object of type Dialog
                     return AlertDialog(
-
-                      title: hTextAbel('Deseja voltar a tela de principal?', context,
+                      title: hTextAbel(
+                          'Deseja voltar a tela de principal?', context,
                           size: 20, weight: FontWeight.bold),
                       actions: <Widget>[
                         MaterialButton(
                           child: hTextAbel('Cancelar', context, size: 20),
-                          onPressed: () {return
-                            Navigator.pop(context);
+                          onPressed: () {
+                            return Navigator.pop(context);
                           },
                         ),
                         MaterialButton(
                           child: hTextAbel('Sim', context, size: 20),
                           onPressed: () {
                             return Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                     HomePage()
-                                    ));
+                                builder: (context) => HomePage()));
                           },
                         )
                       ],
                     );
                   });
             },
-
-            child: Scaffold(
-              appBar: myAppBar(
-                'Motoristas',
-                context,
-                size: 50,
-                backgroundcolor: Color.fromRGBO(255, 184, 0, 30),
-              ),
-              drawer: CustomDrawerWidget(),
-              body: StreamBuilder<List<OfertaCorrida>>(
-                  stream: ofertacorridaController.outOfertaCorrida,
-                  builder: (context,
-                      AsyncSnapshot<List<OfertaCorrida>> ofertaCorrida) {
-                    if (ofertaCorrida.data == null) {
-                      return Center(
-                          child: Container(
-                              child: hTextAbel(
-                                  'Nenhum motorista disponível', context,
-                                  size: 30)));
-                    }
-                    if (ofertaCorrida.data.length == 0) {
-                      return Center(
-                          child: Container(
-                              child: hTextAbel(
-                                  'Nenhum motorista disponível', context,
-                                  size: 30)));
-                    }
-                    return StreamBuilder<List<Requisicao>>(
-                        stream: requisicaoController.outRequisicoes,
-                        builder: (context,
-                            AsyncSnapshot<List<Requisicao>> requisicao) {
-                          if (requisicao.data == null) {
-                            return Container();
-                          }
-                          if (requisicao.data.length == 0) {
-                            return Container();
-                          }
-                          print('aqui req ${requisicao.data}');
-                          return Container(
-                            width: getLargura(context),
-                            height: getAltura(context),
-                            child:
-                                    ListView.builder(
+            child: StreamBuilder<List<Requisicao>>(
+                stream: requisicaoController.outRequisicoes,
+                builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+                  if (requisicao.data == null) {
+                    return Container();
+                  }
+                  if (requisicao.data.length == 0) {
+                    return Container();
+                  }
+                  print('aqui req ${requisicao.data}');
+                  for (var requi in requisicao.data) {
+                    if(requi.aceito == null){
+                      return Scaffold(
+                        appBar: myAppBar(
+                          'Motoristas',
+                          context,
+                          size: 50,
+                          backgroundcolor: Color.fromRGBO(255, 184, 0, 30),
+                        ),
+                        drawer: CustomDrawerWidget(),
+                        body: StreamBuilder<List<OfertaCorrida>>(
+                            stream: ofertacorridaController.outOfertaCorrida,
+                            builder: (context,
+                                AsyncSnapshot<List<OfertaCorrida>>
+                                ofertaCorrida) {
+                              if (ofertaCorrida.data == null) {
+                                return Center(
+                                    child: Container(
+                                        child: hTextAbel(
+                                            'Nenhum motorista disponível',
+                                            context,
+                                            size: 30)));
+                              }
+                              if (ofertaCorrida.data.length == 0) {
+                                return Center(
+                                    child: Container(
+                                        child: hTextAbel(
+                                            'Nenhum motorista disponível',
+                                            context,
+                                            size: 30)));
+                              }
+                              return Container(
+                                  width: getLargura(context),
+                                  height: getAltura(context),
+                                  child: ListView.builder(
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
                                       Motorista motorista =
-                                          snapshot.data[index];
+                                      snapshot.data[index];
 
                                       for (OfertaCorrida oferta
-                                          in ofertaCorrida.data) {
+                                      in ofertaCorrida.data) {
                                         for (Requisicao requisicao
-                                            in requisicao.data) {
+                                        in requisicao.data) {
                                           if (oferta.requisicao ==
                                               requisicao.id) {
                                             if (requisicao.user.contains(
                                                 Helper.localUser.id)) {
-                                              for (CarroAtivo a in ac.ativos) {
-
+                                              for (CarroAtivo a in ac
+                                                  .ativos) {
                                                 return a.user_id ==
                                                     motorista.id_usuario
                                                     ? MotoristasListItem(
-                                                        motorista)
+                                                    motorista)
                                                     : Container();
                                               }
                                             } else {
@@ -197,13 +197,91 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                                       }
                                     },
                                     itemCount: snapshot.data.length,
-                                  )
+                                  ));
+                            }),
+                        backgroundColor: Color.fromRGBO(255, 190, 0, 10),
+                      );
+                    }else
+                    if(requi.aceito.id_usuario == Helper.localUser.id) {
+                      if (requi.motorista_aceitou == true) {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => ChamandoMotoristaPage()));
+                      }
+                      else{
+                        return Scaffold(
+                          appBar: myAppBar(
+                            'Motoristas',
+                            context,
+                            size: 50,
+                            backgroundcolor: Color.fromRGBO(255, 184, 0, 30),
+                          ),
+                          drawer: CustomDrawerWidget(),
+                          body: StreamBuilder<List<OfertaCorrida>>(
+                              stream: ofertacorridaController.outOfertaCorrida,
+                              builder: (context,
+                                  AsyncSnapshot<List<OfertaCorrida>>
+                                  ofertaCorrida) {
+                                if (ofertaCorrida.data == null) {
+                                  return Center(
+                                      child: Container(
+                                          child: hTextAbel(
+                                              'Nenhum motorista disponível',
+                                              context,
+                                              size: 30)));
+                                }
+                                if (ofertaCorrida.data.length == 0) {
+                                  return Center(
+                                      child: Container(
+                                          child: hTextAbel(
+                                              'Nenhum motorista disponível',
+                                              context,
+                                              size: 30)));
+                                }
+                                return Container(
+                                    width: getLargura(context),
+                                    height: getAltura(context),
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        Motorista motorista =
+                                        snapshot.data[index];
 
-                          );
-                        });
-                  }),
-              backgroundColor: Color.fromRGBO(255, 190, 0, 10),
-            ),
+                                        for (OfertaCorrida oferta
+                                        in ofertaCorrida.data) {
+                                          for (Requisicao requisicao
+                                          in requisicao.data) {
+                                            if (oferta.requisicao ==
+                                                requisicao.id) {
+                                              if (requisicao.user.contains(
+                                                  Helper.localUser.id)) {
+                                                for (CarroAtivo a in ac
+                                                    .ativos) {
+                                                      if(a.isAtivo == true) {
+                                                        return a.user_id ==
+                                                            motorista.id_usuario
+                                                            ? MotoristasListItem(
+                                                            motorista)
+                                                            : Container();
+                                                      }
+                                                }
+                                              } else {
+                                                return Container();
+                                              }
+                                            } else {
+                                              return Container();
+                                            }
+                                          }
+                                        }
+                                      },
+                                      itemCount: snapshot.data.length,
+                                    ));
+                              }),
+                          backgroundColor: Color.fromRGBO(255, 190, 0, 10),
+                        );
+                      }
+                    }
+                  }
+                }),
           );
         });
   }

@@ -363,7 +363,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                     BitmapDescriptor.hueViolet)
                 : i == 1
                     ? BitmapDescriptor.defaultMarkerWithHue(
-                        BitmapDescriptor.hueViolet)
+                        BitmapDescriptor.hueGreen)
                     : BitmapDescriptor.fromAsset('assets/marker.png'),
             position: data[i]));
       }

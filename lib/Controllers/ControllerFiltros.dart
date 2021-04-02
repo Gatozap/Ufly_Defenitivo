@@ -25,6 +25,11 @@ class ControllerFiltros extends BlocBase{
   Sink<bool> get inPreenchimento => controllerPreenchimento.sink;
   bool Preenchimento;
 
+  BehaviorSubject<bool> controllerDesembarque = new BehaviorSubject<bool>();
+  Stream<bool> get outDesembarque => controllerDesembarque.stream;
+  Sink<bool> get inDesembarque => controllerDesembarque.sink;
+
+
   BehaviorSubject<bool> controllerRequisicaoChegou = new BehaviorSubject<bool>();
   Stream<bool> get outRequisicaoChegou=> controllerRequisicaoChegou.stream;
   Sink<bool> get inRequisicaoChegou => controllerRequisicaoChegou.sink;
@@ -36,7 +41,6 @@ class ControllerFiltros extends BlocBase{
     inPreenchimento.add(false);
     FiltroMotorista filtro = FiltroMotorista(
       documento_veiculo: false,
-
         viagem: true,
         favorito: Helper.localUser.id,
         entregas: false,
@@ -70,6 +74,7 @@ class ControllerFiltros extends BlocBase{
     controllerHide.close();
     controllerRequisicaoChegou.close();
     controllerPreenchimento.close();
+    controllerDesembarque.close();
   }
 
 }
