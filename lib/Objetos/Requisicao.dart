@@ -35,6 +35,7 @@ class Requisicao{
 
   Requisicao.fromJson(json)
       : id = json['id'] == null? null: json['id'],
+        foto = json['foto'] == null? null: json['foto'],
         envioPassageiro = json['envioPassageiro'] == null? null: json['envioPassageiro'],
         forma_de_pagamento = json['forma_de_pagamento'],
         motorista_aceitou = json['motorista_aceitou'] == null? null :json['motorista_aceitou'],
@@ -64,6 +65,7 @@ class Requisicao{
     'isViagem': isViagem == null? true: this.isViagem,
         'id': id  == null? null: this.id,
         'user': user  == null? null: this.user,
+    'foto': foto,
     'envioPassageiro': envioPassageiro == null? null: this.envioPassageiro,
     'user_nome': user_nome,
     'motorista_aceitou': motorista_aceitou == null? null: this.motorista_aceitou,
@@ -100,6 +102,7 @@ class Requisicao{
       this.updated_at,
       this.deleted_at,
       this.destino,
+this.foto,
        this.motorista_aceitou,
        this.primeiraParada_lat, this.segundaParada_lat, this.terceiraParada_lat,
        this.primeiraParada_lng, this.segundaParada_lng, this.terceiraParada_lng,

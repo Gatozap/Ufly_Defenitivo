@@ -134,7 +134,7 @@ hTextAbel(text, context,
   return Text(
 
     text,
-    overflow: TextOverflow.ellipsis,
+
     textAlign: textaling,
     style: GoogleFonts.abel(
       fontSize: ResponsivePixelHandler.toPixel(size, context),

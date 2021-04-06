@@ -1616,6 +1616,7 @@ class _HomePageState extends State<HomePage> {
       Requisicao requisicao2 = Requisicao(
         user: Helper.localUser.id,
         isViagem: filtro,
+        foto: Helper.localUser.foto,
         created_at: DateTime.now(),
         updated_at: DateTime.now(),
         primeiraParada_lat: lat_parada_um,
@@ -1646,6 +1647,7 @@ class _HomePageState extends State<HomePage> {
       Requisicao requisicao = Requisicao(
         id: requiup.id,
         isViagem: filtro,
+        foto: Helper.localUser.foto,
         forma_de_pagamento: forma_de_pagamento,
         user: Helper.localUser.id,
         created_at: DateTime.now(),
