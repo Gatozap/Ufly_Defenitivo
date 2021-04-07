@@ -33,6 +33,7 @@ import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
 
 import 'package:ufly/Helpers/Helper.dart';
+import 'package:ufly/Viagens/Requisicao/criar_requisicao_controller.dart';
 
 class CorridaPage extends StatefulWidget {
   CorridaPage();
@@ -55,7 +56,7 @@ class _CorridaPageState extends State<CorridaPage> {
       RequisicaoCorridaController();
   var color_green = Colors.green;
   var color_red = Colors.red;
-
+  CriarRequisicaoController criaRc;
   ControllerFiltros cf;
   MotoristaControllerEdit mt;
   Placemark placemark;
@@ -94,7 +95,6 @@ class _CorridaPageState extends State<CorridaPage> {
     localizacaoInicial();
 
     geo.getCurrentLocation().listen((position) {
-
       telaCentralizada(position);
     });
 
@@ -104,16 +104,18 @@ class _CorridaPageState extends State<CorridaPage> {
   AtivosController ac;
   var lastRota;
 
-
   @override
   Widget build(BuildContext context) {
-    if(possuiChamadaViagem == null){
+    if (criaRc == null) {
+      criaRc = CriarRequisicaoController();
+    }
+    if (possuiChamadaViagem == null) {
       possuiChamadaViagem = false;
     }
-    if(viagemRecusada == null){
+    if (viagemRecusada == null) {
       viagemRecusada = false;
     }
-    if(viagemAceita == null){
+    if (viagemAceita == null) {
       viagemAceita = false;
     }
     chamadaMotoristaAceita();
@@ -146,8 +148,6 @@ class _CorridaPageState extends State<CorridaPage> {
     if (cf == null) {
       cf = ControllerFiltros();
     }
-
-
 
     var map = StreamBuilder(
         stream: rc.outPolyMotorista,
@@ -186,598 +186,58 @@ class _CorridaPageState extends State<CorridaPage> {
                           });
                     }
 
-                    return
-                            StreamBuilder(
-                              stream: rc.outWays,
-                              builder: (context, snapshot) {
-                                return StreamBuilder(
-                                    stream: rc.outMarkers,
-                                    builder: (context, snap) {
-                                      print('aqui snap 232 ${snap.data}');
-                                    if (snapshot.data != null) {
-                                      if (parada1 == null) {
-                                        markers = getMarkers(
-                                          snap.data,
-                                        );
-                                      } else {
-                                        markers = getMarkers(snap.data,
-                                            ways: snapshot.data);
-                                      }
-                                    }
-                                    return GoogleMap(
-                                      myLocationEnabled: true,
-                                      myLocationButtonEnabled: false,
-                                      trafficEnabled: true,
-                                      polylines: polylines.toSet(),
-                                      markers: destino != null? markers.toSet(): null,
-                                      mapType: MapType.terrain,
-                                      zoomGesturesEnabled: true,
-                                      zoomControlsEnabled: false,
-                                      rotateGesturesEnabled: false,
-                                      initialCameraPosition: CameraPosition(
-                                          target: localizacao.data,
-                                          zoom: Helper.localUser.zoom),
-                                      onMapCreated:
-                                          (GoogleMapController controller) {
-                                        _controller.complete(controller);
-                                        destino == null ? null : centerView();
-                                        geo.getCurrentLocation().listen((position) {
-                                          telaCentralizada(position);
-                                        });
-                                      },
+                    return StreamBuilder(
+                        stream: rc.outWays,
+                        builder: (context, snapshot) {
+                          return StreamBuilder(
+                              stream: rc.outMarkers,
+                              builder: (context, snap) {
+                                print('aqui snap 232 ${snap.data}');
+                                if (snapshot.data != null) {
+                                  if (parada1 == null) {
+                                    markers = getMarkers(
+                                      snap.data,
                                     );
+                                  } else {
+                                    markers = getMarkers(snap.data,
+                                        ways: snapshot.data);
                                   }
+                                }
+                                return GoogleMap(
+                                  myLocationEnabled: true,
+                                  myLocationButtonEnabled: false,
+                                  trafficEnabled: true,
+                                  polylines: polylines.toSet(),
+                                  markers:
+                                      destino != null ? markers.toSet() : null,
+                                  mapType: MapType.terrain,
+                                  zoomGesturesEnabled: true,
+                                  zoomControlsEnabled: false,
+                                  rotateGesturesEnabled: false,
+                                  initialCameraPosition: CameraPosition(
+                                      target: localizacao.data,
+                                      zoom: Helper.localUser.zoom),
+                                  onMapCreated:
+                                      (GoogleMapController controller) {
+                                    _controller.complete(controller);
+                                    destino == null ? null : centerView();
+                                    geo.getCurrentLocation().listen((position) {
+                                      telaCentralizada(position);
+                                    });
+                                  },
                                 );
                               });
-
+                        });
                   });
             },
           );
         });
 
-    return
-      StreamBuilder<List<Requisicao>>(
-          stream: requisicaoController.outRequisicoes,
-          builder: (context, AsyncSnapshot<List<Requisicao>> requisicao)
-    {
-      for (var req in requisicao.data) {
-
-        if (usc == null) {
-          usc = UserListController(requisicao: req);
-        }
-
-
-
-
-            if (req.envioPassageiro.contains(Helper.localUser.id)) {
-
-              print('chegou aqui 2${nome}');
-              possuiChamadaViagem = true;
-              print('chegou aqui 3${nome}');
-
-              print('chegou aqui4 ${nome}');
-             return StreamBuilder<List<User>>(
-                  stream: usc.outUsers,
-                  builder: (context, AsyncSnapshot<List<User>> user) {
-
-                    for(var us in user.data){
-                      nome = us.nome;
-                      if(req.user == us.id){
-                        print('aquiididsisadisadisad');
-
-                              return AlertDialog(
-                                content:
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      child: hTextAbel(
-                                          'Forma de pagamento',
-                                          context,
-                                          size: 20),
-                                    ),sb,
-
-
-                                    sb, GestureDetector(
-                                      onTap: () async {
-                                        try {
-                                          await requisicaoRef
-                                              .doc(req.id)
-                                              .update({
-                                            'envioPassageiro':
-                                            FieldValue.arrayRemove(
-                                                ['${Helper.localUser.id}'])
-                                          }).then((v) {
-                                            print(
-                                                'sucesso ao tirar motorista da lista');
-                                          });
-                                        } catch (e) {
-                                          print(e);
-                                        }
-
-
-                                      },
-                                      child: Container(
-                                        height: getAltura(context) * .050,
-                                        width: getLargura(context) * .5,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          color: Color(0xFFf6aa3c),
-                                        ),
-                                        child: Container(
-                                            height: getAltura(context) * .125,
-                                            width: getLargura(context) * .85,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                              BorderRadius.circular(10),
-                                              color:
-                                              Color.fromRGBO(255, 184, 0, 30),
-                                            ),
-                                            child: Center(
-                                                child: hTextAbel(
-                                                    'Solicitar Motorista', context,
-                                                    size: 20))),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-
-
-                      }
-                      print('aqui usuario 3213 ${nome}');
-                      print('aqui usuario 3213 ');
-                    }
-                  });
-
-            }
-            if (requisicao.data == null) {
-              return Scaffold(
-                drawer: CustomDrawerWidget(),
-                appBar: myAppBar('', context, actions: [
-                  StreamBuilder<bool>(
-                      stream: cf.outHide,
-                      builder: (context, snapshot) {
-                        if (cf.hide == null) {
-                          cf.hide = false;
-                        }
-                        return IconButton(
-                          icon: Icon(
-                            cf.hide == true ? MdiIcons.eyeOff : MdiIcons
-                                .eye,
-                            color: Colors.blue,
-                          ),
-                          onPressed: () {
-                            cf.hide = !cf.hide;
-                            cf.inHide.add(snapshot.data);
-                          },
-                        );
-                      }),
-                ]),
-                bottomSheet: Container(
-                  color: Colors.white,
-                  child: StreamBuilder<Carro>(
-                    stream: corridaController.outCarro,
-                    builder: (context, carro) {
-                      if (requisicao.data == null ||
-                          requisicao.data.isEmpty) {
-                        return StreamBuilder<bool>(
-                            stream: corridaController.outStarted,
-                            builder: (context, started) {
-                              return Container(
-                                width: getLargura(context),
-                                height: getAltura(context) * .060,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment
-                                      .center,
-                                  children: <Widget>[
-                                    carro.data == null
-                                        ? Expanded(
-                                      child: hText(
-                                          'Não conseguimos encontrar seu carro contate o suporte',
-                                          context,
-                                          color: Colors.white,
-                                          textaling: TextAlign.center),
-                                    )
-                                        : GestureDetector(
-                                      onTap: () async {
-                                        corridaController
-                                            .finalizarCorrida();
-                                      },
-                                      child: hTextAbel(
-                                          'OFFLINE', context,
-                                          size: 20,
-                                          weight: FontWeight.bold,
-                                          color: started.data ==
-                                              false
-                                              ? Color.fromRGBO(
-                                              255, 184, 0, 30)
-                                              : Colors.black),
-                                    ),
-                                    sb,
-                                    sb,
-                                    hTextAbel('|', context, size: 20),
-                                    sb,
-                                    sb,
-                                    GestureDetector(
-                                      onTap: () async {
-                                        corridaController
-                                            .iniciarCorrida();
-                                      },
-                                      child: hTextAbel(
-                                        'ONLINE',
-                                        context,
-                                        size: 20,
-                                        weight: FontWeight.bold,
-                                        color: started.data == true
-                                            ? Color.fromRGBO(
-                                            255, 184, 0, 30)
-                                            : Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            });
-                      } else {
-                        return StreamBuilder<bool>(
-                            stream: corridaController.outStarted,
-                            builder: (context, started) {
-                              return Container(
-                                  width: getLargura(context),
-                                  height: getAltura(context) * .060,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(
-                                        8.0),
-                                    child: req.motoristas_chamados
-                                        .contains(Helper.localUser.id)
-                                        ? Container()
-                                        : Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        carro.data == null
-                                            ? Expanded(
-                                          child: hText(
-                                              'Não conseguimos encontrar seu carro contate o suporte',
-                                              context,
-                                              color: Colors.white,
-                                              textaling:
-                                              TextAlign.center),
-                                        )
-                                            : GestureDetector(
-                                          onTap: () async {
-                                            corridaController
-                                                .finalizarCorrida();
-                                          },
-                                          child: hTextAbel(
-                                              'OFFLINE', context,
-                                              size: 20,
-                                              weight: FontWeight.bold,
-                                              color: started.data ==
-                                                  false
-                                                  ? Color.fromRGBO(
-                                                  255, 184, 0, 30)
-                                                  : Colors.black),
-                                        ),
-                                        sb,
-                                        sb,
-                                        hTextAbel(
-                                            '|', context, size: 20),
-                                        sb,
-                                        sb,
-                                        GestureDetector(
-                                          onTap: () async {
-                                            corridaController
-                                                .iniciarCorrida();
-                                          },
-                                          child: hTextAbel(
-                                            'ONLINE',
-                                            context,
-                                            size: 20,
-                                            weight: FontWeight.bold,
-                                            color: started.data ==
-                                                true
-                                                ? Color.fromRGBO(
-                                                255, 184, 0, 30)
-                                                : Colors.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ));
-                            });
-                      }
-                    },
-                  ),
-                ),
-                body: StreamBuilder<bool>(
-                    stream: cf.outHide,
-                    builder: (context, hide) {
-                      if (cf.hide == null) {
-                        cf.hide = false;
-                      }
-
-                      return Stack(
-                        alignment: Alignment.bottomCenter,
-                        children: <Widget>[
-                          map,
-                          Positioned(
-                            bottom: getLargura(context) * .250,
-                            right: getAltura(context) * .025,
-                            child: FloatingActionButton(
-                              onPressed: () {
-                                localizacaoInicial();
-                              },
-                              child: Icon(
-                                  Icons.my_location, color: Colors.black),
-                              backgroundColor: Colors.white,
-                            ),
-                          ),
-
-                          IgnorePointer(
-                            ignoring: cf.hide,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                Requisicao req = requisicao.data[index];
-
-                                if (req == null) {
-                                  return map;
-                                } else if (req.aceito == null) {
-                                  if (req.motoristas_chamados
-                                      .contains(Helper.localUser.id)) {
-                                    return Padding(
-                                        padding: EdgeInsets.only(
-                                            bottom: getAltura(context) *
-                                                .045),
-                                        child:
-                                        SolicitacaoDoPassageiro(
-                                            req, cf.hide));
-                                  } else {
-                                    return Container();
-                                  }
-                                } else {
-                                  return Container();
-                                }
-                              },
-                              itemCount: requisicao.data.length,
-                            ),
-                          ),
-
-                        ],
-                      );
-                    }),
-              );
-            } else
-
-            if (req.aceito == null) {
-              return Scaffold(
-                drawer: CustomDrawerWidget(),
-                appBar: myAppBar('', context, actions: [
-                  StreamBuilder<bool>(
-                      stream: cf.outHide,
-                      builder: (context, snapshot) {
-                        if (cf.hide == null) {
-                          cf.hide = false;
-                        }
-                        return IconButton(
-                          icon: Icon(
-                            cf.hide == true ? MdiIcons.eyeOff : MdiIcons
-                                .eye,
-                            color: Colors.blue,
-                          ),
-                          onPressed: () {
-                            cf.hide = !cf.hide;
-                            cf.inHide.add(snapshot.data);
-                          },
-                        );
-                      }),
-                ]),
-                bottomSheet: Container(
-                  color: Colors.white,
-                  child: StreamBuilder<Carro>(
-                    stream: corridaController.outCarro,
-                    builder: (context, carro) {
-                      if (requisicao.data == null ||
-                          requisicao.data.isEmpty) {
-                        return StreamBuilder<bool>(
-                            stream: corridaController.outStarted,
-                            builder: (context, started) {
-                              return Container(
-                                width: getLargura(context),
-                                height: getAltura(context) * .060,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment
-                                      .center,
-                                  children: <Widget>[
-                                    carro.data == null
-                                        ? Expanded(
-                                      child: hText(
-                                          'Não conseguimos encontrar seu carro contate o suporte',
-                                          context,
-                                          color: Colors.white,
-                                          textaling: TextAlign.center),
-                                    )
-                                        : GestureDetector(
-                                      onTap: () async {
-                                        corridaController
-                                            .finalizarCorrida();
-                                      },
-                                      child: hTextAbel(
-                                          'OFFLINE', context,
-                                          size: 20,
-                                          weight: FontWeight.bold,
-                                          color: started.data ==
-                                              false
-                                              ? Color.fromRGBO(
-                                              255, 184, 0, 30)
-                                              : Colors.black),
-                                    ),
-                                    sb,
-                                    sb,
-                                    hTextAbel('|', context, size: 20),
-                                    sb,
-                                    sb,
-                                    GestureDetector(
-                                      onTap: () async {
-                                        corridaController
-                                            .iniciarCorrida();
-                                      },
-                                      child: hTextAbel(
-                                        'ONLINE',
-                                        context,
-                                        size: 20,
-                                        weight: FontWeight.bold,
-                                        color: started.data == true
-                                            ? Color.fromRGBO(
-                                            255, 184, 0, 30)
-                                            : Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            });
-                      } else {
-                        return StreamBuilder<bool>(
-                            stream: corridaController.outStarted,
-                            builder: (context, started) {
-                              return Container(
-                                  width: getLargura(context),
-                                  height: getAltura(context) * .060,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(
-                                        8.0),
-                                    child: req.motoristas_chamados
-                                        .contains(Helper.localUser.id)
-                                        ? Container()
-                                        : Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        carro.data == null
-                                            ? Expanded(
-                                          child: hText(
-                                              'Não conseguimos encontrar seu carro contate o suporte',
-                                              context,
-                                              color: Colors.white,
-                                              textaling:
-                                              TextAlign.center),
-                                        )
-                                            : GestureDetector(
-                                          onTap: () async {
-                                            corridaController
-                                                .finalizarCorrida();
-                                          },
-                                          child: hTextAbel(
-                                              'OFFLINE', context,
-                                              size: 20,
-                                              weight: FontWeight.bold,
-                                              color: started.data ==
-                                                  false
-                                                  ? Color.fromRGBO(
-                                                  255, 184, 0, 30)
-                                                  : Colors.black),
-                                        ),
-                                        sb,
-                                        sb,
-                                        hTextAbel(
-                                            '|', context, size: 20),
-                                        sb,
-                                        sb,
-                                        GestureDetector(
-                                          onTap: () async {
-                                            corridaController
-                                                .iniciarCorrida();
-                                          },
-                                          child: hTextAbel(
-                                            'ONLINE',
-                                            context,
-                                            size: 20,
-                                            weight: FontWeight.bold,
-                                            color: started.data ==
-                                                true
-                                                ? Color.fromRGBO(
-                                                255, 184, 0, 30)
-                                                : Colors.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ));
-                            });
-                      }
-                    },
-                  ),
-                ),
-                body: StreamBuilder<bool>(
-                    stream: cf.outHide,
-                    builder: (context, hide) {
-                      if (cf.hide == null) {
-                        cf.hide = false;
-                      }
-
-                      return Stack(
-                        alignment: Alignment.bottomCenter,
-                        children: <Widget>[
-                          map,
-                          Positioned(
-                            bottom: getLargura(context) * .250,
-                            right: getAltura(context) * .025,
-                            child: FloatingActionButton(
-                              onPressed: () {
-                                localizacaoInicial();
-                              },
-                              child: Icon(
-                                  Icons.my_location, color: Colors.black),
-                              backgroundColor: Colors.white,
-                            ),
-                          ),
-
-
-                          IgnorePointer(
-                            ignoring: cf.hide,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                Requisicao req = requisicao.data[index];
-
-                                if (req == null) {
-                                  return map;
-                                } else if (req.aceito == null) {
-                                  if (req.motoristas_chamados
-                                      .contains(Helper.localUser.id)) {
-                                    return Padding(
-                                        padding: EdgeInsets.only(
-                                            bottom: getAltura(context) *
-                                                .045),
-                                        child:
-                                        SolicitacaoDoPassageiro(
-                                            req, cf.hide));
-                                  } else {
-                                    return Container();
-                                  }
-                                } else {
-                                  return Container();
-                                }
-                              },
-                              itemCount: requisicao.data.length,
-                            ),
-                          ),
-
-                        ],
-                      );
-                    }),
-              );
-            } else if (req.aceito.motorista == Helper.localUser.id) {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => InicioDeViagemPage()));
-            }
-
-            {
+    return StreamBuilder<List<Requisicao>>(
+        stream: requisicaoController.outRequisicoes,
+        builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+          if (requisicao.data == null) {
+            for (var req in requisicao.data) {
               return Scaffold(
                 drawer: CustomDrawerWidget(),
                 appBar: myAppBar('', context, actions: [
@@ -804,142 +264,130 @@ class _CorridaPageState extends State<CorridaPage> {
                   child: StreamBuilder<Carro>(
                     stream: corridaController.outCarro,
                     builder: (context, carro) {
-                      return StreamBuilder<List<Requisicao>>(
-                          stream: requisicaoController.outRequisicoes,
-                          builder: (context, AsyncSnapshot<List<
-                              Requisicao>> requisicao) {
-                            if (requisicao.data == null ||
-                                requisicao.data.isEmpty) {
-                              return StreamBuilder<bool>(
-                                  stream: corridaController.outStarted,
-                                  builder: (context, started) {
-                                    return Container(
-                                      width: getLargura(context),
-                                      height: getAltura(context) * .060,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .center,
-                                        children: <Widget>[
-                                          carro.data == null
-                                              ? Expanded(
+                      if (requisicao.data == null || requisicao.data.isEmpty) {
+                        return StreamBuilder<bool>(
+                            stream: corridaController.outStarted,
+                            builder: (context, started) {
+                              return Container(
+                                width: getLargura(context),
+                                height: getAltura(context) * .060,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    carro.data == null
+                                        ? Expanded(
                                             child: hText(
                                                 'Não conseguimos encontrar seu carro contate o suporte',
                                                 context,
                                                 color: Colors.white,
                                                 textaling: TextAlign.center),
                                           )
-                                              : GestureDetector(
+                                        : GestureDetector(
                                             onTap: () async {
                                               corridaController
                                                   .finalizarCorrida();
                                             },
-                                            child: hTextAbel(
-                                                'OFFLINE', context,
+                                            child: hTextAbel('OFFLINE', context,
                                                 size: 20,
                                                 weight: FontWeight.bold,
-                                                color: started.data ==
-                                                    false
+                                                color: started.data == false
                                                     ? Color.fromRGBO(
-                                                    255, 184, 0, 30)
+                                                        255, 184, 0, 30)
                                                     : Colors.black),
                                           ),
-                                          sb,
-                                          sb,
-                                          hTextAbel('|', context, size: 20),
-                                          sb,
-                                          sb,
-                                          GestureDetector(
-                                            onTap: () async {
-                                              corridaController
-                                                  .iniciarCorrida();
-                                            },
-                                            child: hTextAbel(
-                                              'ONLINE',
-                                              context,
-                                              size: 20,
-                                              weight: FontWeight.bold,
-                                              color: started.data == true
-                                                  ? Color.fromRGBO(
-                                                  255, 184, 0, 30)
-                                                  : Colors.black,
-                                            ),
-                                          ),
-                                        ],
+                                    sb,
+                                    sb,
+                                    hTextAbel('|', context, size: 20),
+                                    sb,
+                                    sb,
+                                    GestureDetector(
+                                      onTap: () async {
+                                        corridaController.iniciarCorrida();
+                                      },
+                                      child: hTextAbel(
+                                        'ONLINE',
+                                        context,
+                                        size: 20,
+                                        weight: FontWeight.bold,
+                                        color: started.data == true
+                                            ? Color.fromRGBO(255, 184, 0, 30)
+                                            : Colors.black,
                                       ),
-                                    );
-                                  });
-                            } else {
-                              for (Requisicao i in requisicao.data) {
-                                return StreamBuilder<bool>(
-                                    stream: corridaController.outStarted,
-                                    builder: (context, started) {
-                                      return Container(
-                                          width: getLargura(context),
-                                          height: getAltura(context) * .060,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(
-                                                8.0),
-                                            child: i.motoristas_chamados
-                                                .contains(Helper.localUser.id)
-                                                ? Container()
-                                                : Row(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                              children: <Widget>[
-                                                carro.data == null
-                                                    ? Expanded(
-                                                  child: hText(
-                                                      'Não conseguimos encontrar seu carro contate o suporte',
-                                                      context,
-                                                      color: Colors.white,
-                                                      textaling:
-                                                      TextAlign.center),
-                                                )
-                                                    : GestureDetector(
-                                                  onTap: () async {
-                                                    corridaController
-                                                        .finalizarCorrida();
-                                                  },
-                                                  child: hTextAbel(
-                                                      'OFFLINE', context,
-                                                      size: 20,
-                                                      weight: FontWeight.bold,
-                                                      color: started.data ==
-                                                          false
-                                                          ? Color.fromRGBO(
+                                    ),
+                                  ],
+                                ),
+                              );
+                            });
+                      } else {
+                        return StreamBuilder<bool>(
+                            stream: corridaController.outStarted,
+                            builder: (context, started) {
+                              return Container(
+                                  width: getLargura(context),
+                                  height: getAltura(context) * .060,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: req.motoristas_chamados
+                                            .contains(Helper.localUser.id)
+                                        ? Container()
+                                        : Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              carro.data == null
+                                                  ? Expanded(
+                                                      child: hText(
+                                                          'Não conseguimos encontrar seu carro contate o suporte',
+                                                          context,
+                                                          color: Colors.white,
+                                                          textaling:
+                                                              TextAlign.center),
+                                                    )
+                                                  : GestureDetector(
+                                                      onTap: () async {
+                                                        corridaController
+                                                            .finalizarCorrida();
+                                                      },
+                                                      child: hTextAbel(
+                                                          'OFFLINE', context,
+                                                          size: 20,
+                                                          weight:
+                                                              FontWeight.bold,
+                                                          color: started.data ==
+                                                                  false
+                                                              ? Color.fromRGBO(
+                                                                  255,
+                                                                  184,
+                                                                  0,
+                                                                  30)
+                                                              : Colors.black),
+                                                    ),
+                                              sb,
+                                              sb,
+                                              hTextAbel('|', context, size: 20),
+                                              sb,
+                                              sb,
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  corridaController
+                                                      .iniciarCorrida();
+                                                },
+                                                child: hTextAbel(
+                                                  'ONLINE',
+                                                  context,
+                                                  size: 20,
+                                                  weight: FontWeight.bold,
+                                                  color: started.data == true
+                                                      ? Color.fromRGBO(
                                                           255, 184, 0, 30)
-                                                          : Colors.black),
+                                                      : Colors.black,
                                                 ),
-                                                sb,
-                                                sb,
-                                                hTextAbel(
-                                                    '|', context, size: 20),
-                                                sb,
-                                                sb,
-                                                GestureDetector(
-                                                  onTap: () async {
-                                                    corridaController
-                                                        .iniciarCorrida();
-                                                  },
-                                                  child: hTextAbel(
-                                                    'ONLINE',
-                                                    context,
-                                                    size: 20,
-                                                    weight: FontWeight.bold,
-                                                    color: started.data ==
-                                                        true
-                                                        ? Color.fromRGBO(
-                                                        255, 184, 0, 30)
-                                                        : Colors.black,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ));
-                                    });
-                              }
-                            }
-                          });
+                                              ),
+                                            ],
+                                          ),
+                                  ));
+                            });
+                      }
                     },
                   ),
                 ),
@@ -961,57 +409,670 @@ class _CorridaPageState extends State<CorridaPage> {
                               onPressed: () {
                                 localizacaoInicial();
                               },
-                              child: Icon(
-                                  Icons.my_location, color: Colors.black),
+                              child:
+                                  Icon(Icons.my_location, color: Colors.black),
                               backgroundColor: Colors.white,
                             ),
                           ),
-                          StreamBuilder<List<Requisicao>>(
-                              stream: requisicaoController.outRequisicoes,
-                              builder:
-                                  (context, AsyncSnapshot<List<
-                                  Requisicao>> requisicao) {
-                                return IgnorePointer(
-                                  ignoring: cf.hide,
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemBuilder: (context, index) {
-                                      Requisicao req = requisicao.data[index];
+                          IgnorePointer(
+                            ignoring: cf.hide,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                Requisicao req = requisicao.data[index];
 
-                                      if (req == null) {
-                                        return map;
-                                      } else if (req.aceito == null) {
-                                        if (req.motoristas_chamados
-                                            .contains(Helper.localUser.id)) {
-                                          return Padding(
-                                              padding: EdgeInsets.only(
-                                                  bottom: getAltura(context) *
-                                                      .045),
-                                              child:
-                                              SolicitacaoDoPassageiro(
-                                                  req, cf.hide));
-                                        } else {
-                                          return Container();
-                                        }
-                                      } else {
-                                        return Container();
-                                      }
-                                    },
-                                    itemCount: requisicao.data.length,
-                                  ),
-                                );
-                              }),
+                                if (req == null) {
+                                  return map;
+                                } else if (req.aceito == null) {
+                                  if (req.motoristas_chamados
+                                      .contains(Helper.localUser.id)) {
+                                    return Padding(
+                                        padding: EdgeInsets.only(
+                                            bottom: getAltura(context) * .045),
+                                        child: SolicitacaoDoPassageiro(
+                                            req, cf.hide));
+                                  } else {
+                                    return Container();
+                                  }
+                                } else {
+                                  return Container();
+                                }
+                              },
+                              itemCount: requisicao.data.length,
+                            ),
+                          ),
                         ],
                       );
                     }),
               );
             }
+          } else
+            for (var req in requisicao.data) {
+              if (req.aceito == null) {
+                if (req.envioPassageiro.contains(Helper.localUser.id)) {
+                  possuiChamadaViagem = true;
+                  if (usc == null) {
+                    usc = UserListController(requisicao: req);
+                  }
 
-    }
+                  return StreamBuilder<List<User>>(
+                      stream: usc.outUsers,
+                      builder: (context, AsyncSnapshot<List<User>> user) {
+                        for (var us in user.data) {
+                          nome = us.nome;
+                          if (req.user == us.id) {
+                            print('aquiididsisadisadisad ${nome}');
+
+                            return AlertDialog(
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Container(
+                                    alignment: Alignment.center,
+                                    child: hTextAbel(
+                                        'Solicitação de viagem', context,
+                                        size: 20),
+                                  ),
+                                  sb,
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                          backgroundImage:
+                                          user.data[0].foto == null
+                                              ? AssetImage(
+                                              'assets/logo_drawer.png')
+                                              : CachedNetworkImageProvider(
+                                              user.data[0].foto),
+                                          radius: 35),
+                                      sb,
+                                      hTextAbel('${nome}', context, size: 20),
+                                    ],
+                                  ),
+                                  sb,
+                                  sb,
+                                  Wrap(
+                                    children: [
+                                      hTextAbel(
+                                          'Embarque: ${req.origem.endereco}',
+                                          context,
+                                          size: 20),
+                                    ],
+                                  ),
+                                  sb,
+                                  Wrap(
+                                    children: [
+                                      hTextAbel(
+                                          'Desembarque: ${req.destino.endereco}',
+                                          context,
+                                          size: 20),
+                                    ],
+                                  ),
+                                  sb,
+                                  sb,
+                                  sb,
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () async {
+                                          try {
+                                            await requisicaoRef
+                                                .doc(req.id)
+                                                .update({
+                                              'envioPassageiro':
+                                              FieldValue.arrayRemove(
+                                                  ['${Helper.localUser.id}'])
+                                            }).then((v) {
+                                              print(
+                                                  'sucesso ao tirar motorista da lista');
+                                            });
+                                          } catch (e) {
+                                            print(e);
+                                          }
+                                        },
+                                        child: Container(
+                                          height: getAltura(context) * .050,
+                                          width: getLargura(context) * .3,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                            BorderRadius.circular(10),
+                                            color: Color(0xFFf6aa3c),
+                                          ),
+                                          child: Container(
+                                              height: getAltura(context) * .125,
+                                              width: getLargura(context) * .85,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius.circular(10),
+                                                color: Color.fromRGBO(
+                                                    255, 184, 0, 30),
+                                              ),
+                                              child: Center(
+                                                  child: hTextAbel(
+                                                      'Cancelar', context,
+                                                      size: 20))),
+                                        ),
+                                      ),
+                                      sb,
+                                      GestureDetector(
+                                        onTap: () async {
+                                          try {
+                                            await requisicaoRef
+                                                .doc(req.id)
+                                                .update({
+                                              'envioPassageiro':
+                                              FieldValue.arrayRemove(
+                                                  ['${Helper.localUser.id}'])
+                                            }).then((v) async {
+                                              try {
+                                                await requisicaoRef
+                                                    .doc(req.id)
+                                                    .update({
+                                                  'motorista_aceitou':
+                                                  FieldValue.arrayUnion(
+                                                      ['${us.id}'])
+                                                });
+                                              } catch (e) {
+                                                print(e);
+                                              }
+                                            });
+
+                                            print(
+                                                'aqui a porra do req ${req.envioPassageiro}');
+                                          } catch (e) {
+                                            print(e);
+                                          }
+                                        },
+                                        child: Container(
+                                          height: getAltura(context) * .050,
+                                          width: getLargura(context) * .3,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                            BorderRadius.circular(10),
+                                            color: Color(0xFFf6aa3c),
+                                          ),
+                                          child: Container(
+                                              height: getAltura(context) * .125,
+                                              width: getLargura(context) * .85,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius.circular(10),
+                                                color: Color.fromRGBO(
+                                                    255, 184, 0, 30),
+                                              ),
+                                              child: Center(
+                                                  child: hTextAbel(
+                                                      'Aceitar', context,
+                                                      size: 20))),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                          print('aqui usuario 3213 ${nome}');
+                          print('aqui usuario 3213 ');
+                        }
+                      });
+                } else
+                return Scaffold(
+                  drawer: CustomDrawerWidget(),
+                  appBar: myAppBar('', context, actions: [
+                    StreamBuilder<bool>(
+                        stream: cf.outHide,
+                        builder: (context, snapshot) {
+                          if (cf.hide == null) {
+                            cf.hide = false;
+                          }
+                          return IconButton(
+                            icon: Icon(
+                              cf.hide == true ? MdiIcons.eyeOff : MdiIcons.eye,
+                              color: Colors.blue,
+                            ),
+                            onPressed: () {
+                              cf.hide = !cf.hide;
+                              cf.inHide.add(snapshot.data);
+                            },
+                          );
+                        }),
+                  ]),
+                  bottomSheet: Container(
+                    color: Colors.white,
+                    child: StreamBuilder<Carro>(
+                      stream: corridaController.outCarro,
+                      builder: (context, carro) {
+                        if (requisicao.data == null ||
+                            requisicao.data.isEmpty) {
+                          return StreamBuilder<bool>(
+                              stream: corridaController.outStarted,
+                              builder: (context, started) {
+                                return Container(
+                                  width: getLargura(context),
+                                  height: getAltura(context) * .060,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      carro.data == null
+                                          ? Expanded(
+                                              child: hText(
+                                                  'Não conseguimos encontrar seu carro contate o suporte',
+                                                  context,
+                                                  color: Colors.white,
+                                                  textaling: TextAlign.center),
+                                            )
+                                          : GestureDetector(
+                                              onTap: () async {
+                                                corridaController
+                                                    .finalizarCorrida();
+                                              },
+                                              child: hTextAbel(
+                                                  'OFFLINE', context,
+                                                  size: 20,
+                                                  weight: FontWeight.bold,
+                                                  color: started.data == false
+                                                      ? Color.fromRGBO(
+                                                          255, 184, 0, 30)
+                                                      : Colors.black),
+                                            ),
+                                      sb,
+                                      sb,
+                                      hTextAbel('|', context, size: 20),
+                                      sb,
+                                      sb,
+                                      GestureDetector(
+                                        onTap: () async {
+                                          corridaController.iniciarCorrida();
+                                        },
+                                        child: hTextAbel(
+                                          'ONLINE',
+                                          context,
+                                          size: 20,
+                                          weight: FontWeight.bold,
+                                          color: started.data == true
+                                              ? Color.fromRGBO(255, 184, 0, 30)
+                                              : Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              });
+                        } else {
+                          return StreamBuilder<bool>(
+                              stream: corridaController.outStarted,
+                              builder: (context, started) {
+                                return Container(
+                                    width: getLargura(context),
+                                    height: getAltura(context) * .060,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: req.motoristas_chamados
+                                              .contains(Helper.localUser.id)
+                                          ? Container()
+                                          : Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                carro.data == null
+                                                    ? Expanded(
+                                                        child: hText(
+                                                            'Não conseguimos encontrar seu carro contate o suporte',
+                                                            context,
+                                                            color: Colors.white,
+                                                            textaling: TextAlign
+                                                                .center),
+                                                      )
+                                                    : GestureDetector(
+                                                        onTap: () async {
+                                                          corridaController
+                                                              .finalizarCorrida();
+                                                        },
+                                                        child: hTextAbel(
+                                                            'OFFLINE', context,
+                                                            size: 20,
+                                                            weight:
+                                                                FontWeight.bold,
+                                                            color: started
+                                                                        .data ==
+                                                                    false
+                                                                ? Color
+                                                                    .fromRGBO(
+                                                                        255,
+                                                                        184,
+                                                                        0,
+                                                                        30)
+                                                                : Colors.black),
+                                                      ),
+                                                sb,
+                                                sb,
+                                                hTextAbel('|', context,
+                                                    size: 20),
+                                                sb,
+                                                sb,
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    corridaController
+                                                        .iniciarCorrida();
+                                                  },
+                                                  child: hTextAbel(
+                                                    'ONLINE',
+                                                    context,
+                                                    size: 20,
+                                                    weight: FontWeight.bold,
+                                                    color: started.data == true
+                                                        ? Color.fromRGBO(
+                                                            255, 184, 0, 30)
+                                                        : Colors.black,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                    ));
+                              });
+                        }
+                      },
+                    ),
+                  ),
+                  body: StreamBuilder<bool>(
+                      stream: cf.outHide,
+                      builder: (context, hide) {
+                        if (cf.hide == null) {
+                          cf.hide = false;
+                        }
+
+                        return Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: <Widget>[
+                            map,
+                            Positioned(
+                              bottom: getLargura(context) * .250,
+                              right: getAltura(context) * .025,
+                              child: FloatingActionButton(
+                                onPressed: () {
+                                  localizacaoInicial();
+                                },
+                                child: Icon(Icons.my_location,
+                                    color: Colors.black),
+                                backgroundColor: Colors.white,
+                              ),
+                            ),
+                            IgnorePointer(
+                              ignoring: cf.hide,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  Requisicao req = requisicao.data[index];
+
+                                  if (req == null) {
+                                    return map;
+                                  } else if (req.aceito == null) {
+                                    if (req.motoristas_chamados
+                                        .contains(Helper.localUser.id)) {
+                                      return Padding(
+                                          padding: EdgeInsets.only(
+                                              bottom:
+                                                  getAltura(context) * .045),
+                                          child: SolicitacaoDoPassageiro(
+                                              req, cf.hide));
+                                    } else {
+                                      return Container();
+                                    }
+                                  } else {
+                                    return Container();
+                                  }
+                                },
+                                itemCount: requisicao.data.length,
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                );
+              }else if (req.aceito.motorista == Helper.localUser.id) {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => InicioDeViagemPage()));
+              }
+            }
+          {
+            return Scaffold(
+              drawer: CustomDrawerWidget(),
+              appBar: myAppBar('', context, actions: [
+                StreamBuilder<bool>(
+                    stream: cf.outHide,
+                    builder: (context, snapshot) {
+                      if (cf.hide == null) {
+                        cf.hide = false;
+                      }
+                      return IconButton(
+                        icon: Icon(
+                          cf.hide == true ? MdiIcons.eyeOff : MdiIcons.eye,
+                          color: Colors.blue,
+                        ),
+                        onPressed: () {
+                          cf.hide = !cf.hide;
+                          cf.inHide.add(snapshot.data);
+                        },
+                      );
+                    }),
+              ]),
+              bottomSheet: Container(
+                color: Colors.white,
+                child: StreamBuilder<Carro>(
+                  stream: corridaController.outCarro,
+                  builder: (context, carro) {
+                    return StreamBuilder<List<Requisicao>>(
+                        stream: requisicaoController.outRequisicoes,
+                        builder: (context,
+                            AsyncSnapshot<List<Requisicao>> requisicao) {
+                          if (requisicao.data == null ||
+                              requisicao.data.isEmpty) {
+                            return StreamBuilder<bool>(
+                                stream: corridaController.outStarted,
+                                builder: (context, started) {
+                                  return Container(
+                                    width: getLargura(context),
+                                    height: getAltura(context) * .060,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        carro.data == null
+                                            ? Expanded(
+                                                child: hText(
+                                                    'Não conseguimos encontrar seu carro contate o suporte',
+                                                    context,
+                                                    color: Colors.white,
+                                                    textaling:
+                                                        TextAlign.center),
+                                              )
+                                            : GestureDetector(
+                                                onTap: () async {
+                                                  corridaController
+                                                      .finalizarCorrida();
+                                                },
+                                                child: hTextAbel(
+                                                    'OFFLINE', context,
+                                                    size: 20,
+                                                    weight: FontWeight.bold,
+                                                    color: started.data == false
+                                                        ? Color.fromRGBO(
+                                                            255, 184, 0, 30)
+                                                        : Colors.black),
+                                              ),
+                                        sb,
+                                        sb,
+                                        hTextAbel('|', context, size: 20),
+                                        sb,
+                                        sb,
+                                        GestureDetector(
+                                          onTap: () async {
+                                            corridaController.iniciarCorrida();
+                                          },
+                                          child: hTextAbel(
+                                            'ONLINE',
+                                            context,
+                                            size: 20,
+                                            weight: FontWeight.bold,
+                                            color: started.data == true
+                                                ? Color.fromRGBO(
+                                                    255, 184, 0, 30)
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                });
+                          } else {
+                            for (Requisicao i in requisicao.data) {
+                              return StreamBuilder<bool>(
+                                  stream: corridaController.outStarted,
+                                  builder: (context, started) {
+                                    return Container(
+                                        width: getLargura(context),
+                                        height: getAltura(context) * .060,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: i.motoristas_chamados
+                                                  .contains(Helper.localUser.id)
+                                              ? Container()
+                                              : Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    carro.data == null
+                                                        ? Expanded(
+                                                            child: hText(
+                                                                'Não conseguimos encontrar seu carro contate o suporte',
+                                                                context,
+                                                                color: Colors
+                                                                    .white,
+                                                                textaling:
+                                                                    TextAlign
+                                                                        .center),
+                                                          )
+                                                        : GestureDetector(
+                                                            onTap: () async {
+                                                              corridaController
+                                                                  .finalizarCorrida();
+                                                            },
+                                                            child: hTextAbel(
+                                                                'OFFLINE', context,
+                                                                size: 20,
+                                                                weight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: started
+                                                                            .data ==
+                                                                        false
+                                                                    ? Color
+                                                                        .fromRGBO(
+                                                                            255,
+                                                                            184,
+                                                                            0,
+                                                                            30)
+                                                                    : Colors
+                                                                        .black),
+                                                          ),
+                                                    sb,
+                                                    sb,
+                                                    hTextAbel('|', context,
+                                                        size: 20),
+                                                    sb,
+                                                    sb,
+                                                    GestureDetector(
+                                                      onTap: () async {
+                                                        corridaController
+                                                            .iniciarCorrida();
+                                                      },
+                                                      child: hTextAbel(
+                                                        'ONLINE',
+                                                        context,
+                                                        size: 20,
+                                                        weight: FontWeight.bold,
+                                                        color: started.data ==
+                                                                true
+                                                            ? Color.fromRGBO(
+                                                                255, 184, 0, 30)
+                                                            : Colors.black,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                        ));
+                                  });
+                            }
+                          }
+                        });
+                  },
+                ),
+              ),
+              body: StreamBuilder<bool>(
+                  stream: cf.outHide,
+                  builder: (context, hide) {
+                    if (cf.hide == null) {
+                      cf.hide = false;
+                    }
+
+                    return Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: <Widget>[
+                        map,
+                        Positioned(
+                          bottom: getLargura(context) * .250,
+                          right: getAltura(context) * .025,
+                          child: FloatingActionButton(
+                            onPressed: () {
+                              localizacaoInicial();
+                            },
+                            child: Icon(Icons.my_location, color: Colors.black),
+                            backgroundColor: Colors.white,
+                          ),
+                        ),
+                        StreamBuilder<List<Requisicao>>(
+                            stream: requisicaoController.outRequisicoes,
+                            builder: (context,
+                                AsyncSnapshot<List<Requisicao>> requisicao) {
+                              return IgnorePointer(
+                                ignoring: cf.hide,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, index) {
+                                    Requisicao req = requisicao.data[index];
+
+                                    if (req == null) {
+                                      return map;
+                                    } else if (req.aceito == null) {
+                                      if (req.motoristas_chamados
+                                          .contains(Helper.localUser.id)) {
+                                        return Padding(
+                                            padding: EdgeInsets.only(
+                                                bottom:
+                                                    getAltura(context) * .045),
+                                            child: SolicitacaoDoPassageiro(
+                                                req, cf.hide));
+                                      } else {
+                                        return Container();
+                                      }
+                                    } else {
+                                      return Container();
+                                    }
+                                  },
+                                  itemCount: requisicao.data.length,
+                                ),
+                              );
+                            }),
+                      ],
+                    );
+                  }),
+            );
           }
-      );
+        });
   }
-
 
   Widget SolicitacaoDoPassageiro(requisicaoController, hide) {
     double preco_recebo = ((double.parse(controllerPreco.text
@@ -1677,54 +1738,24 @@ class _CorridaPageState extends State<CorridaPage> {
                                               .add(oferta.toJson())
                                               .then((v) {
                                             oferta.id = v.id;
-                                            List jumento = [];
-                                            jumento.add(v.id);
+                                            List ofertas = [];
+                                            ofertas.add(v.id);
                                             requisicaoController.ofertas =
-                                                jumento;
+                                                ofertas;
                                             ofertacorridaRef
                                                 .doc(oferta.id)
                                                 .update(oferta.toJson());
 
-                                            Requisicao req = Requisicao(
-                                              ofertas: jumento,
-envioPassageiro: requisicaoController.envioPassageiro,
-
-                                              motoristas_chamados:
-                                                  requisicaoController
-                                                      .motoristas_chamados,
-                                              valid_until: requisicaoController
-                                                  .valid_until,
-                                              tempo_estimado:
-                                                  requisicaoController
-                                                      .tempo_estimado,
-                                              rota: requisicaoController.rota,
-                                              distancia: requisicaoController
-                                                  .distancia,
-                                              destino:
-                                                  requisicaoController.destino,
-                                              created_at: requisicaoController
-                                                  .created_at,
-                                              id: requisicaoController.id,
-                                              deleted_at: requisicaoController
-                                                  .deleted_at,
-                                              isViagem:
-                                                  requisicaoController.isViagem,
-                                              origem:
-                                                  requisicaoController.origem,
-                                              updated_at: requisicaoController
-                                                  .updated_at,
-                                              user: requisicaoController.user,
-                                              user_nome: requisicaoController
-                                                  .user_nome,
-                                            );
-
                                             return requisicaoRef
-                                                .doc(req.id)
-                                                .update(req.toJson())
+                                                .doc(requisicaoController.id)
+                                                .update(requisicaoController
+                                                    .toJson())
                                                 .then((v) {
                                               dToast('Você aceitou a viagem');
 
-                                              requisicaoRef.doc(req.id).update({
+                                              requisicaoRef
+                                                  .doc(requisicaoController.id)
+                                                  .update({
                                                 'motoristas_chamados':
                                                     FieldValue.arrayRemove([
                                                   '${Helper.localUser.id}'
@@ -1792,26 +1823,23 @@ envioPassageiro: requisicaoController.envioPassageiro,
     controller.animateCamera(cameraUpdate);
   }
 
-
- Widget chamadaMotoristaAceita() {
-     StreamBuilder<List<Requisicao>>(
+  Widget chamadaMotoristaAceita() {
+    StreamBuilder<List<Requisicao>>(
         stream: requisicaoController.outRequisicoes,
         builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-
-          for(var req in requisicao.data){
-            if(req.aceito.motorista == Helper.localUser.id){
+          for (var req in requisicao.data) {
+            if (req.aceito.motorista == Helper.localUser.id) {
               print('aqui 231321312543');
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => InicioDeViagemPage()));
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => InicioDeViagemPage()));
             }
           }
-    });
+        });
   }
 
   Future<void> telaCentralizada(Position position) async {
     chamadaMotoristaAceita();
     motorista_latlng = LatLng(position.latitude, position.longitude);
-
-
 
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
@@ -1900,7 +1928,6 @@ envioPassageiro: requisicaoController.envioPassageiro,
     return poly;
   }
 
-
   localizacaoInicial() {
     Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
@@ -1908,16 +1935,12 @@ envioPassageiro: requisicaoController.envioPassageiro,
       print('localizacao ${v.latitude}');
       telaCentralizada(v);
 
-      if(possuiChamadaViagem == true){
+      if (possuiChamadaViagem == true) {
         print('viagem true ${possuiChamadaViagem}');
       }
       rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
       _initialPosition = LatLng(v.latitude, v.longitude);
-
-
-
     });
-
   }
 }
 
@@ -1950,8 +1973,6 @@ void onCameraMove(CameraPosition position, LatLng l) {
 
 BitmapDescriptor sourceIcon;
 List<Marker> getMarkers(data, {ways}) {
-
-
   List<Marker> markers = [];
   if (data == null) {
     return markers;
@@ -1966,16 +1987,16 @@ List<Marker> getMarkers(data, {ways}) {
               title: i == 0
                   ? 'Passageiro'
                   : i == 1
-                  ? 'Destino'
-                  : 'Minha Posição'),
+                      ? 'Destino'
+                      : 'Minha Posição'),
           markerId: MarkerId(i < 2 ? 'marcas${i}' : 'posicao'),
           icon: i == 0
               ? BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueViolet)
+                  BitmapDescriptor.hueViolet)
               : i == 1
-              ? BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueGreen)
-              : BitmapDescriptor.fromAsset('assets/marker.png'),
+                  ? BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueGreen)
+                  : BitmapDescriptor.fromAsset('assets/marker.png'),
           position: data[i]));
     }
   } catch (err) {
@@ -1988,8 +2009,7 @@ List<Marker> getMarkers(data, {ways}) {
       markers.add(Marker(
         infoWindow: InfoWindow(title: 'Parada nº ${i + 1}'),
         markerId: markerWay,
-        icon:
-        BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
         position: ways[i],
       ));
     }

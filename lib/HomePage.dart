@@ -560,8 +560,7 @@ class _HomePageState extends State<HomePage> {
                                         builder:
                                         AddressDialogBuilder(),
                                         onDone: (address) {
-                                          print(
-                                              'aqui address ${address.coords}');
+
                                           requisicao(
                                               inicialController.text,
                                               locationController
@@ -583,7 +582,7 @@ class _HomePageState extends State<HomePage> {
           });
     }
     SizeConfig().init(context);
-    print('aqui filtro ${filtro}');
+
     ResponsivePixelHandler.init(
       baseWidth: 360, //A largura usado pelo designer no modelo desenhado
     );
@@ -610,13 +609,13 @@ class _HomePageState extends State<HomePage> {
         return StreamBuilder<LatLng>(
             stream: rc.outLocalizacao,
             builder: (context, localizacao) {
-              print('aqui localização ${localizacao.data}');
+
               if (localizacao.data == null) {
                 return StreamBuilder<Position>(
                     stream: localizacaoInicial(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
-                        print('aqui position ${snapshot.data}');
+
                         return localizacaoInicial();
                       }
                       return StreamBuilder(
@@ -679,10 +678,10 @@ class _HomePageState extends State<HomePage> {
                   stream: reqc.outRequisicoes,
                   builder: (context,
                       AsyncSnapshot<List<Requisicao>> requisicao) {
-                    print('aqui reqqqqqq${requisicao.data}');
+
 
                     if (requisicao.data == null) {
-                      print('aqui reqqqqqq2${requisicao.data}');
+
                       return Scaffold(
 
                         // drawer: CustomDrawerWidget(),
@@ -793,7 +792,7 @@ class _HomePageState extends State<HomePage> {
                     } else
                       for (var req in requisicao.data) {
                         if (req.aceito == null) {
-                          print('aqui reqqqqqq3${requisicao.data}');
+
                           return Scaffold(
 
                             // drawer: CustomDrawerWidget(),
@@ -904,8 +903,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           );
                         }
-                        if (req.aceito.id_usuario == Helper.localUser.id && req.motorista_aceitou == Helper.localUser.id) {
-                          print('aqui reqqqqqq4${requisicao.data}');
+                        if (req.aceito.id_usuario == Helper.localUser.id) {
+
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => ChamandoMotoristaPage()));
                         }
@@ -1035,7 +1034,7 @@ class _HomePageState extends State<HomePage> {
       rc.inLocalizacao.add(LatLng(v.latitude, v.longitude));
 
       _initialPosition = LatLng(v.latitude, v.longitude);
-      print('aqui localização ${_initialPosition}');
+
 
         List<Placemark> mark = await Geolocator()
             .placemarkFromCoordinates(v.latitude, v.longitude);
@@ -1044,15 +1043,14 @@ class _HomePageState extends State<HomePage> {
         filtro = '${place.subAdministrativeArea}';
         _currentAddress =
             '${place.name.isNotEmpty ? place.name + ', ' : ''}${place.thoroughfare.isNotEmpty ? place.thoroughfare + ', ' : ''}${place.subLocality.isNotEmpty ? place.subLocality + ', ' : ''}${place.locality.isNotEmpty ? place.locality: ''}';
-        print('aqui place ${_currentAddress}');
-        print('aqui place ${place.toString()}');
+
     
     });
   }
 
   Future<void> telaCentralizada(Position position) async {
     final GoogleMapController controller = await _controller.future;
-    print('aqui o zoom ${Helper.localUser.zoom.toStringAsFixed(2)}');
+
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(position.latitude, position.longitude),
         zoom: Helper.localUser.zoom)));
@@ -1272,7 +1270,7 @@ class _HomePageState extends State<HomePage> {
                                                   } else{
                                                     forma_de_pagamento = 'DINHEIRO';
                                                   }
-                                                  print('aqui pagamento ${forma_de_pagamento}');
+
                                                   cf.inFiltro.add(snapshot.data);
                                                 }  ,
                                                 child: Container(
@@ -1310,7 +1308,7 @@ class _HomePageState extends State<HomePage> {
                                                   } else{
                                                     forma_de_pagamento = 'CARTAO';
                                                   }
-                                                  print('aqui pagamento ${forma_de_pagamento}');
+
                                                   cf.inFiltro.add(snapshot.data);
                                                 }        ,
                                                 child: Container(
@@ -1365,7 +1363,7 @@ class _HomePageState extends State<HomePage> {
                                                       f.viagem = true;
 
                                                       cf.inFiltro.add(f);
-                                                      print('aqui viagem ${f.viagem}');
+
                                                     },
                                                     child: hTextAbel('Viagens', context,
                                                         size: 25,
@@ -1383,7 +1381,7 @@ class _HomePageState extends State<HomePage> {
                                                       f.viagem = false;
 
                                                       cf.inFiltro.add(f);
-                                                      print('aqui viagem ${f.viagem}');
+
                                                     },
                                                     child: hTextAbel(
                                                       'Entregas',
@@ -1580,7 +1578,7 @@ class _HomePageState extends State<HomePage> {
   void requisitarMotoristas(requiup, filtro, String forma_de_pagamento) {
     double soma = calculateDistance(_initialPosition.latitude,
         _initialPosition.longitude, destino.latitude, destino.longitude);
-    print('aqui ativos ac.ativos ${ac.ativos}');
+
     Endereco _destino = endereco_destino;
     Endereco inicial = endereco_origem;
     double tempo_estimado;
@@ -1594,23 +1592,22 @@ class _HomePageState extends State<HomePage> {
 
     for (CarroAtivo ca in ac.ativos) {
       if(ca.isAtivo == true) {
-        print('aqui motorista ativo ${ca.user_id}');
+
         double distancia = calculateDistance(
             ca.localizacao.latitude,
             ca.localizacao.longitude,
             _initialPosition.latitude,
             _initialPosition.longitude);
-        print('aqui motorista ativo ${distancia}');
+
 
         if (isInAlcance(ca, _initialPosition)) {
           motorista.add(ca.user_id);
-          print('aqui motorista ativo2 ${motorista}');
+
         }
       }
     }
 
     if (requiup == null || requiup.user != Helper.localUser.id) {
-      print('entrou aqui cria ${forma_de_pagamento}');
 
 
       Requisicao requisicao2 = Requisicao(
@@ -1637,12 +1634,12 @@ class _HomePageState extends State<HomePage> {
       );
 
 
-      print('requisicao2 ${requisicao2.toJson()}');
+
 
         criaRc.CriarRequisicao(requisicao2);
 
     } else {
-      print('entrou aqui update ${requiup}');
+
 
       Requisicao requisicao = Requisicao(
         id: requiup.id,
@@ -1680,7 +1677,7 @@ class _HomePageState extends State<HomePage> {
   bool isInAlcance(CarroAtivo ca, LatLng origem) {
     double distancia = calculateDistance(ca.localizacao.latitude,
         ca.localizacao.longitude, origem.latitude, origem.longitude);
-    print('aqui distancia ${distancia}');
+
 
     return 50 > distancia || ca.isAtivo == true;
   }
@@ -1777,9 +1774,9 @@ List<Marker> getMarkers(inicio, destino, way, ) {
     print(err.toString());
   }
   try {
-    print('aqui o way ${way}');
+
     for(int i = 0; i < way.length; i++) {
-      print('aqui o way ${way.length}');
+
       markers.add(Marker(
           infoWindow:
           InfoWindow(title: 'Parada nº ${i+1}'),

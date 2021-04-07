@@ -130,7 +130,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                   if (requisicao.data.length == 0) {
                     return Container();
                   }
-                  print('aqui req ${requisicao.data}');
+
                   for (var requi in requisicao.data) {
                     if(requi.aceito == null){
                       return Scaffold(
@@ -203,11 +203,9 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                       );
                     }else
                     if(requi.aceito.id_usuario == Helper.localUser.id) {
-                      if (requi.motorista_aceitou == true) {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ChamandoMotoristaPage()));
-                      }
-                      else{
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ChamandoMotoristaPage()));
+                    }else{
                         return Scaffold(
                           appBar: myAppBar(
                             'Motoristas',
@@ -279,7 +277,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                           backgroundColor: Color.fromRGBO(255, 190, 0, 10),
                         );
                       }
-                    }
+
                   }
                 }),
           );

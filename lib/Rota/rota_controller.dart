@@ -219,49 +219,37 @@ class RotaController extends BlocBase {
 
   Future<List<List<LatLng>>> CalcularRotaMotorista(LatLng v, LatLng c, {bool isdestinoFinal = true}) async {
     List<List<LatLng>> polylineCoordinatesMotorista = [];
-
     http
         .get(
       ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude),
     )
         .then((result) {
-              print('aqui body ${result.body}');
       localizacaoUsuario = v;
-
       if (isdestinoFinal == true) {
         destinoFinal = c;
       }
       Rota r = Rota.fromJson(json.decode(result.body));
       rota = r;
-
       for (int i = 0; i < r.routes.length; i++) {
         List<LatLng> rotas = [];
-
         if (i == 0) {
-
           rotas.add(LatLng(
               localizacaoUsuario.latitude, localizacaoUsuario.longitude));
-
         }
-
         for (var l in r.routes[0].legs) {
+print('aqui a duração ${l.duration/3600}');
           for (var s in l.steps) {
             for (var i in s.intersections) {
-
               rotas.add(LatLng(i.location[1], i.location[0]));
-
             }
           }
         }
-
         polylineCoordinatesMotorista.add(rotas);
       }
-
       polylineCoordinatesMotorista.last.add(LatLng(
           polylineCoordinatesMotorista.last.last.latitude,
           polylineCoordinatesMotorista.last.last.longitude));
       inPolyMotorista.add(polylineCoordinatesMotorista);
-
       return polylineCoordinatesMotorista;
     });
   }

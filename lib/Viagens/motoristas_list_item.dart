@@ -388,9 +388,9 @@ class MotoristasListItem extends StatelessWidget {
                                                           size: 25),
                                                       sb,
                                                       sb,
+
                                                       requi.motorista_aceitou == null ?
-                                                      requi.envioPassageiro.contains(motorista.id_usuario) ?
-                                                      // ignore: missing_return
+                                                      requi.envioPassageiro.contains(motorista.id_usuario)?
                                                       GestureDetector(
                                                         onTap: () async {
                                                           try {
@@ -450,88 +450,42 @@ class MotoristasListItem extends StatelessWidget {
                                                         onTap: () {
 
                                                           motorista_aceitos.add(motorista.id_usuario);
+                                                          requi.envioPassageiro = motorista_aceitos;
+                                                          requi.updated_at =  DateTime.now();
+                                                          criaRc.UpdateRequisicao(
+                                                              requi);
+                                                          print('aqui requisicao ${requi.envioPassageiro}');
 
-                                                          Requisicao requisicao =
-                                                              Requisicao(
-                                                            id: requi.id,
-                                                            motorista_aceitou: requi
-                                                                .motorista_aceitou,
-                                                            envioPassageiro: motorista_aceitos,
-
-                                                            isViagem:
-                                                                requi.isViagem,
-                                                            forma_de_pagamento: requi
-                                                                .forma_de_pagamento,
-                                                            user: requi.user,
-                                                            created_at:
-                                                                DateTime.now(),
-                                                            updated_at:
-                                                                DateTime.now(),
-                                                            destino: requi.destino,
-                                                            primeiraParada_lat: requi
-                                                                .primeiraParada_lat,
-                                                            segundaParada_lat: requi
-                                                                .segundaParada_lat,
-                                                            terceiraParada_lat: requi
-                                                                .terceiraParada_lat,
-                                                            primeiraParada_lng: requi
-                                                                .primeiraParada_lng,
-                                                            segundaParada_lng: requi
-                                                                .segundaParada_lng,
-                                                            terceiraParada_lng: requi
-                                                                .terceiraParada_lng,
-                                                            user_nome:
-                                                                requi.user_nome,
-                                                            origem: requi.origem,
-                                                            distancia:
-                                                                requi.distancia,
-                                                            tempo_estimado: requi
-                                                                .tempo_estimado,
-                                                            rota: requi.rota,
-                                                            valid_until:
-                                                                DateTime.now().add(
-                                                                    Duration(
-                                                                        minutes:
-                                                                            5)),
-                                                            motoristas_chamados: requi
-                                                                .motoristas_chamados,
-                                                          );
-                                                          Timer(
-                                                              Duration(seconds: 1),
-                                                              () {
-                                                            criaRc.UpdateRequisicao(
-                                                                requisicao);
-                                                          });
                                                         },
                                                         child:
                                                         Padding(
                                                           padding: EdgeInsets.only(
                                                               top:
-                                                                  ResponsivePixelHandler
-                                                                      .toPixel(5,
-                                                                          context)),
+                                                              ResponsivePixelHandler
+                                                                  .toPixel(5,
+                                                                  context)),
                                                           child: Container(
                                                             decoration:
-                                                                BoxDecoration(
+                                                            BoxDecoration(
                                                               borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(10),
+                                                              BorderRadius
+                                                                  .circular(10),
                                                               color: Color.fromRGBO(
                                                                   255, 184, 0, 30),
                                                             ),
                                                             height:
-                                                                getAltura(context) *
-                                                                    .060,
+                                                            getAltura(context) *
+                                                                .060,
                                                             child: Center(
                                                               child: Padding(
                                                                   padding: EdgeInsets.only(
                                                                       left: ResponsivePixelHandler
                                                                           .toPixel(
-                                                                              15, context),
+                                                                          15, context),
                                                                       right: ResponsivePixelHandler
                                                                           .toPixel(
-                                                                              15,
-                                                                              context)),
+                                                                          15,
+                                                                          context)),
                                                                   child: hTextMal(
                                                                       'Solicitar',
                                                                       context,
@@ -540,24 +494,14 @@ class MotoristasListItem extends StatelessWidget {
                                                           ),
                                                         ),
                                                       ):
+                                                      requi.motorista_aceitou.contains((Helper.localUser.id))?
                                                       GestureDetector(
-                                                        onTap: () async {
-                                                          try {
-                                                            // ignore: missing_return
-                                                            await requisicaoRef
-                                                                .doc(requi.id)
-                                                                .update({
-                                                              'envioPassageiro':
-                                                              FieldValue.arrayRemove(
-                                                                  ['${motorista.id_usuario}'])
-                                                            }).then((v) {
-                                                              print(
-                                                                  'sucesso ao tirar motorista da lista');
-                                                            });
-                                                          } catch (e) {
-                                                            print(e);
-                                                          }
-
+                                                        onTap: ()  {
+                                                          requi.aceito = oferta;
+                                                          criaRc.UpdateRequisicao(
+                                                              requi);
+                                                          Navigator.of(context).push(MaterialPageRoute(
+                                                              builder: (context) => ChamandoMotoristaPage()));
                                                         },
                                                         child:
                                                         Padding(
@@ -594,7 +538,9 @@ class MotoristasListItem extends StatelessWidget {
                                                             ),
                                                           ),
                                                         ),
-                                                      )
+                                                      ):  Container()
+
+
 
                                                     ],
                                                   ),

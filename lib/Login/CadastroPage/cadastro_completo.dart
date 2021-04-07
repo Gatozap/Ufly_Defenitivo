@@ -1294,15 +1294,10 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                                                           dToast('Usuário criado com sucesso!');
                                                                           Navigator.of(context).pushReplacement(
                                                                               MaterialPageRoute(
-                                                                                  builder: (context) => Helper.localUser.isMotorista == true? Consumer<Position>(
-                                                                                      builder: (context, position, widget) {
-                                                                                        return CorridaPage();
-                                                                                      }
-                                                                                  ): Consumer<Position>(
-                                                                                      builder: (context, position, widget) {
-                                                                                        return HomePage();
-                                                                                      }
-                                                                                  )));
+                                                                                  builder: (context) => Helper.localUser.isMotorista == true?  CorridaPage()
+                                                                                    :
+                                                                                         HomePage()
+                                                                                   ));
                                                                         });
                                                                       },
                                                                       child:
@@ -2839,6 +2834,9 @@ class _CadastroCompletoState extends State<CadastroCompleto> {
                                                             Motorista motorista =
                                                                 Motorista(
                                                                   isOnline: false,
+                                                              rating: 5,
+                                                              rating_quantidade: 1,
+                                                              rating_total: 5,
                                                               id_usuario:
                                                                   Helper.localUser.id,
                                                               nome_usuario: Helper
