@@ -29,6 +29,13 @@ class ControllerFiltros extends BlocBase{
   Stream<bool> get outDesembarque => controllerDesembarque.stream;
   Sink<bool> get inDesembarque => controllerDesembarque.sink;
 
+  BehaviorSubject<bool> controllerPassageiroFinalizou = new BehaviorSubject<bool>();
+  Stream<bool> get outPassageiroFinalizou => controllerPassageiroFinalizou.stream;
+  Sink<bool> get inPassageiroFinalizou => controllerPassageiroFinalizou.sink;
+
+  BehaviorSubject<bool> controllerMotoristaFinalizou = new BehaviorSubject<bool>();
+  Stream<bool> get outMotoristaFinalizou => controllerMotoristaFinalizou.stream;
+  Sink<bool> get inMotoristaFinalizou => controllerMotoristaFinalizou.sink;
 
   BehaviorSubject<bool> controllerRequisicaoChegou = new BehaviorSubject<bool>();
   Stream<bool> get outRequisicaoChegou=> controllerRequisicaoChegou.stream;
@@ -75,6 +82,8 @@ class ControllerFiltros extends BlocBase{
     controllerRequisicaoChegou.close();
     controllerPreenchimento.close();
     controllerDesembarque.close();
+    controllerMotoristaFinalizou.close();
+    controllerPassageiroFinalizou.close();
   }
 
 }

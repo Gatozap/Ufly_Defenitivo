@@ -463,7 +463,8 @@ class _CorridaPageState extends State<CorridaPage> {
                           if (req.user == us.id) {
                             print('aquiididsisadisadisad ${nome}');
 
-                            return AlertDialog(
+                            return
+                              AlertDialog(
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -1829,7 +1830,7 @@ class _CorridaPageState extends State<CorridaPage> {
         builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
           for (var req in requisicao.data) {
             if (req.aceito.motorista == Helper.localUser.id) {
-              print('aqui 231321312543');
+
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => InicioDeViagemPage()));
             }

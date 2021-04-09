@@ -27,15 +27,17 @@ class Requisicao{
   OfertaCorrida aceito;
   List motorista_aceitou;
   List envioPassageiro;
+  String cancelou;
 
   @override
   String toString() {
-    return 'Requisicao{id: $id, user: $user, user_nome: $user_nome,envioPassageiro: $envioPassageiro,motorista_aceitou: $motorista_aceitou foto: $foto, isViagem: $isViagem, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, primeiraParada_lat: $primeiraParada_lat, primeiraParada_lng: $primeiraParada_lng, segundaParada_lat: $segundaParada_lat, segundaParada_lng: $segundaParada_lng, terceiraParada_lat: $terceiraParada_lat, terceiraParada_lng: $terceiraParada_lng, forma_de_pagamento: $forma_de_pagamento, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
+    return 'Requisicao{id: $id, user: $user, cancelou: $cancelou, user_nome: $user_nome,envioPassageiro: $envioPassageiro,motorista_aceitou: $motorista_aceitou foto: $foto, isViagem: $isViagem, motoristas_chamados: $motoristas_chamados, created_at: $created_at, valid_until: $valid_until, updated_at: $updated_at, deleted_at: $deleted_at, destino: $destino, origem: $origem, primeiraParada_lat: $primeiraParada_lat, primeiraParada_lng: $primeiraParada_lng, segundaParada_lat: $segundaParada_lat, segundaParada_lng: $segundaParada_lng, terceiraParada_lat: $terceiraParada_lat, terceiraParada_lng: $terceiraParada_lng, forma_de_pagamento: $forma_de_pagamento, rota: $rota, tempo_estimado: $tempo_estimado, distancia: $distancia, ofertas: $ofertas, aceito: $aceito}';
   }
 
   Requisicao.fromJson(json)
       : id = json['id'] == null? null: json['id'],
         foto = json['foto'] == null? null: json['foto'],
+        cancelou = json['cancelou'],
         envioPassageiro = json['envioPassageiro'] == null? null: json['envioPassageiro'],
         forma_de_pagamento = json['forma_de_pagamento'],
         motorista_aceitou = json['motorista_aceitou'] == null? null :json['motorista_aceitou'],
@@ -66,6 +68,7 @@ class Requisicao{
         'id': id  == null? null: this.id,
         'user': user  == null? null: this.user,
     'foto': foto,
+    'cancelou': cancelou,
     'envioPassageiro': envioPassageiro == null? null: this.envioPassageiro,
     'user_nome': user_nome,
     'motorista_aceitou': motorista_aceitou == null? null: this.motorista_aceitou,

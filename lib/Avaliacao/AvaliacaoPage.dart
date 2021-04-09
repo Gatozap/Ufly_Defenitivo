@@ -35,8 +35,8 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
 
 
     // TODO: implement build
-    return
-          Scaffold(
+    return Scaffold();
+         /* Scaffold(
             body: Container(
                 width: getLargura(context),
                 height: getAltura(context),
@@ -211,7 +211,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
 
                     ),child: Center(child: hTextMal('Avaliar', context, color: Colors.black, size: 80)))
                   ],
-                )));
+                )));*/
 
   }
 }

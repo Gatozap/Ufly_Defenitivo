@@ -903,11 +903,11 @@ dToastPassageiro(String msg, {int timeInSecForIoss, String cor }) {
   Fluttertoast.showToast(
       msg: msg,
       toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.TOP,
+      gravity: ToastGravity.CENTER,
       timeInSecForIos: timeInSecForIoss,
       backgroundColor: Colors.blue,
       textColor: Colors.white,
-      fontSize: 18.0);
+      fontSize: 20.0);
 }
 
 myAppBar(String titulo, context,
