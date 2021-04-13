@@ -10,11 +10,12 @@ import 'package:ufly/Ativos/AtivosController.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:ufly/Avaliacao/AvaliacaoPage.dart';
+
 import 'package:ufly/CorridaBackground/requisicao_corrida_controller.dart';
 import 'package:ufly/GoogleServices/geolocator_service.dart';
 import 'package:ufly/Motorista/motorista_controller.dart';
 import 'package:ufly/Objetos/CarroAtivo.dart';
-import 'package:ufly/Objetos/Motorista.dart';
+
 import 'package:ufly/Objetos/OfertaCorrida.dart';
 import 'package:ufly/Objetos/Requisicao.dart';
 import 'package:ufly/Objetos/User.dart';
@@ -89,6 +90,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
 
   @override
   Widget build(BuildContext context) {
+
     // TODO: implement build
     if (requisicaoController == null) {
       requisicaoController = RequisicaoCorridaController();
@@ -152,12 +154,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                                       builder: (context, snap) {
                                         if (snapshot.data != null) {
                                           if (parada1 == null) {
-                                            markers = getMarkers(
-                                              snap.data,
-                                            );
-                                          } else {
-                                            markers = getMarkers(snap.data,
-                                                ways: snapshot.data);
+                                            markers = getMarkers2(passageiro_latlng, destino,initialPosition);
                                           }
                                         }
 
@@ -253,6 +250,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
             alignment: Alignment.topCenter,
             children: <Widget>[
               map,
+              botaoNavegar(),
               Positioned(
                   top: getAltura(context) * .060,
                   child: Container(
@@ -302,40 +300,29 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                       ],
                     ),
                   )),
-              Positioned(
-                right: getLargura(context) * .060,
-                bottom: getAltura(context) * .350,
-                child: FloatingActionButton(
-                  heroTag: '2',
-                  onPressed: () {
-                    return  showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return
-                            AlertDialog(
-                            content:
-                            Container(
-                              child: hTextAbel(
-                                  'Deseja finalizar essa corrida?',
-                                  context,
-                                  size: 20),
-                            ),
-                          );
 
-                        });
-
-                  },
-                  child: Icon(Icons.zoom_out_map, color: Colors.black),
-                  backgroundColor: Colors.white,
-                ),
-              ),
             ],
           ),
         ),
       ),
     );
   }
-
+  botaoNavegar(){
+    return     Positioned(
+      right: getLargura(context) * .060,
+      bottom: getAltura(context) * .350,
+      child: FloatingActionButton(
+        heroTag: '2',
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_)=> AvaliacaoPage()));
+        },
+        child: Icon(
+            Icons.zoom_out_map,
+            color: Colors.black),
+        backgroundColor: Colors.white,
+      ),
+    );
+  }
   BitmapDescriptor customIcon;
 
   List<Marker> getMarkers(data, {ways}) {
@@ -387,7 +374,69 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
     }
     return markers;
   }
+  List<Marker> getMarkers2(inicio, destino,motorista,{ way} ) {
+    List<Marker> markers = [];
+    if (destino == null) {
+      return markers;
+    }
+    if (inicio == null) {
+      return markers;
+    }
 
+    try {
+      markers.add(Marker(
+          infoWindow: InfoWindow(title: 'Embarque'),
+          markerId: MarkerId('id${0}'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueBlue),
+          position: inicio));
+    }
+    catch (err) {
+      print(err.toString());
+    }
+    try {
+
+      markers.add(Marker(
+          infoWindow: InfoWindow(title: 'Desembarque'),
+          markerId: MarkerId('id${69}'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueGreen),
+          position: destino));
+
+    }
+    catch (err) {
+      print(err.toString());
+    }
+    try {
+
+      markers.add(Marker(
+          infoWindow: InfoWindow(title: 'Minha Posição'),
+          markerId: MarkerId('id${10}'),
+          icon: BitmapDescriptor.fromAsset('assets/marker.png'),
+          position: initialPosition));
+    }
+    catch (err) {
+      print(err.toString());
+    }
+    try {
+
+      for(int i = 0; i < way.length; i++) {
+
+        markers.add(Marker(
+            infoWindow:
+            InfoWindow(title: 'Parada nº ${i+1}'),
+            markerId: MarkerId('id${i+1}'),
+
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueYellow),
+            position: way[i]));
+      }
+    }
+    catch (err) {
+      print('err.toString() ${err.toString()}');
+    }
+    return markers;
+  }
   List<Polyline> getPolys(motorista, data) {
     List<Polyline> poly = [];
 
@@ -480,6 +529,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
 
     rc.inLocalizacaoNome.add(nomeLocalizacao);
   }
+
 
   Future<void> telaCentralizada(position) async {
     final GoogleMapController controller = await _controller.future;
@@ -639,20 +689,25 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                                         }),
 
 
-                                    child:    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                        BorderRadius.circular(10),
-                                        color: Colors.red,
+                                    child:    GestureDetector(
+                                      onTap:(){
+                                        Navigator.push(context, MaterialPageRoute(builder: (_)=> AvaliacaoPage()));
+                            },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(10),
+                                          color: Colors.red,
+                                        ),
+                                        width: getLargura(context) * .70,
+                                        height: getAltura(context) * .070,
+                                        child: Center(
+                                            child: hTextMal(
+                                                'Finalizar Corrida', context,
+                                                size: 20,
+                                                color: Colors.white,
+                                                weight: FontWeight.bold)),
                                       ),
-                                      width: getLargura(context) * .70,
-                                      height: getAltura(context) * .070,
-                                      child: Center(
-                                          child: hTextMal(
-                                              'Finalizar Corrida', context,
-                                              size: 20,
-                                              color: Colors.white,
-                                              weight: FontWeight.bold)),
                                     ),
                                     )
                                   ],

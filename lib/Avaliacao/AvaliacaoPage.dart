@@ -1,12 +1,12 @@
+
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ufly/Controllers/ControllerFiltros.dart';
 import 'package:ufly/Helpers/Helper.dart';
-import 'package:ufly/Objetos/FiltroMotorista.dart';
-import 'package:ufly/Objetos/Motorista.dart';
 
 class AvaliacaoPage extends StatefulWidget {
-      Motorista motorista;
-  AvaliacaoPage({Key key, this.motorista}) : super(key: key);
+
+  AvaliacaoPage();
 
   @override
   _AvaliacaoPageState createState() {
@@ -26,7 +26,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
     super.dispose();
   }
 
-   int nota;
+
   
 
   @override
@@ -35,8 +35,8 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
 
 
     // TODO: implement build
-    return Scaffold();
-         /* Scaffold(
+    return
+         Scaffold(
             body: Container(
                 width: getLargura(context),
                 height: getAltura(context),
@@ -211,7 +211,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
 
                     ),child: Center(child: hTextMal('Avaliar', context, color: Colors.black, size: 80)))
                   ],
-                )));*/
+                )));
 
   }
 }

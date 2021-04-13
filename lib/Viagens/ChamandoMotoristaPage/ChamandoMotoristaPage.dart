@@ -22,6 +22,7 @@ import 'package:ufly/Ativos/AtivosController.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:ufly/Avaliacao/AvaliacaoPage.dart';
+import 'package:ufly/Compartilhados/SideBar.dart';
 import 'package:ufly/Controllers/ControllerFiltros.dart';
 
 import 'package:ufly/CorridaBackground/requisicao_corrida_controller.dart';
@@ -237,15 +238,12 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
             return StreamBuilder<bool>(
                 stream: cf.outDesembarque,
                 builder: (context, desembarque) {
+                  print('aqui desembarque ${desembarque.data} e ${finalDaCorrida} ');
                   if (desembarque.data == null) {
-                    Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                            builder: (context) => AvaliacaoPage()));
+                  return Container();
                   }
-                  /*else if (desembarque.data == true) {
-                    motoristaChegou = true;
 
-
+                  else if (desembarque.data == true && finalDaCorrida == false) {
 
                     return AlertDialog(
                       content: Column(
@@ -255,8 +253,13 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                         children: <Widget>[
                           Container(
                             alignment: Alignment.center,
-                            child: hTextAbel('Troco', context, size: 20),
+                            child: hTextAbel('Você chegou ao seu destino', context, size: 25),
                           ),
+                          sb,
+                          Container(
+                            alignment: Alignment.center,
+                            child: hTextAbel('Valor: R\$ ${req.aceito.preco.toStringAsFixed(2)}', context, size: 25),
+                          ),sb,
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -269,8 +272,8 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                                             builder: (context) => AvaliacaoPage())),
 
                                 child: Container(
-                                  height: getAltura(context) * .050,
-                                  width: getLargura(context) * .3,
+                                  height: getAltura(context) * .070,
+                                  width: getLargura(context) * .4,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     color: Color(0xFFf6aa3c),
@@ -283,8 +286,8 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                                         color: Color.fromRGBO(255, 184, 0, 30),
                                       ),
                                       child: Center(
-                                          child: hTextAbel('Cancelar', context,
-                                              size: 20))),
+                                          child: hTextAbel('Avaliar ', context,
+                                              size: 25))),
                                 ),
                               ),
                             ],
@@ -292,7 +295,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                         ],
                       ),
                     );
-                  }*/
+                  };
 
                   return StreamBuilder<List<Motorista>>(
                       stream: mt.outMotoristas,
@@ -381,9 +384,8 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                                           /*Timer(Duration(seconds: 2), () {
                                             centerView();
                                           });*/
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) => AvaliacaoPage()));
+                                          Navigator.of(context)
+                                              .push((MaterialPageRoute(builder: (context) => AvaliacaoPage())));
                                         },
                                         child: Icon(Icons.zoom_out_map,
                                             color: Colors.black),
@@ -481,6 +483,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                                             ],
                                           ),
                                         )),
+
                                   ],
                                 ),
                               ),
@@ -565,9 +568,15 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
             ],
           ),
           desembarque == true
-              ? Container(
-                  child: hTextAbel('seu motorista chegou', context),
-                )
+              ? GestureDetector(
+            onTap: (){
+              Navigator.of(context)
+                  .push((MaterialPageRoute(builder: (context) => AvaliacaoPage())));
+    },
+                child: Container(
+                    child: hTextAbel('seu motorista chegou', context),
+                  ),
+              )
               : Container(
                   child: hTextAbel('Seu motorista esta chegando', context),
                 )

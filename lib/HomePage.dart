@@ -904,9 +904,10 @@ class _HomePageState extends State<HomePage> {
                           );
                         }
                         if (req.aceito.id_usuario == Helper.localUser.id) {
-
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ChamandoMotoristaPage()));
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ChamandoMotoristaPage()));
+                          });
                         }
                       }
                     {
@@ -1410,10 +1411,12 @@ class _HomePageState extends State<HomePage> {
                                           requisitarMotoristas(
                                               requisicao.data, snap.data.viagem,
                                               forma_de_pagamento);
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      MotoristaProximoPage()));
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        MotoristaProximoPage()));
+                                          });
                                         }
 
                                     },
@@ -1462,10 +1465,12 @@ class _HomePageState extends State<HomePage> {
                                   sb,
                                   GestureDetector(
                                     onTap: () {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  MotoristaProximoPage()));
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          MotoristaProximoPage()));
+                            });
                                     },
                                     child: Container(
                                       height: getAltura(context) * .050,
@@ -1669,9 +1674,11 @@ class _HomePageState extends State<HomePage> {
 
         criaRc.UpdateRequisicao(requisicao);
     }
-
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => MotoristaProximoPage()));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context)
+          .push(
+          MaterialPageRoute(builder: (context) => MotoristaProximoPage()));
+    });
   }
 
   bool isInAlcance(CarroAtivo ca, LatLng origem) {
@@ -1736,6 +1743,7 @@ doLogout(context) async {
   Helper.fbmsg.unsubscribeFromTopic(Helper.localUser.id);
   await FirebaseAuth.instance.signOut();
   Helper.localUser = null;
+
   Navigator.of(context)
       .pushReplacement(MaterialPageRoute(builder: (context) => Login()));
 }

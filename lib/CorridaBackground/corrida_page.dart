@@ -28,6 +28,7 @@ import 'package:ufly/Perfil/PerfilController.dart';
 import 'package:ufly/Perfil/user_list_controller.dart';
 import 'package:ufly/Rota/rota_controller.dart';
 import 'package:ufly/Viagens/InicioDeViagemPage/InicioDeViagemPage.dart';
+import 'package:ufly/Viagens/InicioDeViagemPage/IniciaoDeViagemPage2.dart';
 import 'package:ufly/Viagens/OfertaCorrida/oferta_corrida_controller.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
@@ -236,6 +237,7 @@ class _CorridaPageState extends State<CorridaPage> {
     return StreamBuilder<List<Requisicao>>(
         stream: requisicaoController.outRequisicoes,
         builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+          Future.delayed (Duration (seconds: 3));
           if (requisicao.data == null) {
             for (var req in requisicao.data) {
               return Scaffold(
@@ -834,8 +836,10 @@ class _CorridaPageState extends State<CorridaPage> {
                       }),
                 );
               }else if (req.aceito.motorista == Helper.localUser.id) {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => InicioDeViagemPage()));
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => InicioDeViagemPage()));
+                });
               }
             }
           {
@@ -1827,18 +1831,21 @@ class _CorridaPageState extends State<CorridaPage> {
   Widget chamadaMotoristaAceita() {
     StreamBuilder<List<Requisicao>>(
         stream: requisicaoController.outRequisicoes,
-        builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+        builder: (context, AsyncSnapshot<List<Requisicao>> requisicao)  {
           for (var req in requisicao.data) {
-            if (req.aceito.motorista == Helper.localUser.id) {
-
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => InicioDeViagemPage()));
+            if (req.aceito.motorista == Helper.localUser.id)  {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(context).push(MaterialPageRoute(
+                  // ignore: missing_return
+                    builder: (context) => InicioDeViagemPage()));
+              });
             }
           }
         });
   }
 
   Future<void> telaCentralizada(Position position) async {
+    await Future.delayed (Duration (seconds: 3));
     chamadaMotoristaAceita();
     motorista_latlng = LatLng(position.latitude, position.longitude);
 
