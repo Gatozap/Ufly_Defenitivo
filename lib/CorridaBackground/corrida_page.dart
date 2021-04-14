@@ -28,7 +28,7 @@ import 'package:ufly/Perfil/PerfilController.dart';
 import 'package:ufly/Perfil/user_list_controller.dart';
 import 'package:ufly/Rota/rota_controller.dart';
 import 'package:ufly/Viagens/InicioDeViagemPage/InicioDeViagemPage.dart';
-import 'package:ufly/Viagens/InicioDeViagemPage/IniciaoDeViagemPage2.dart';
+
 import 'package:ufly/Viagens/OfertaCorrida/oferta_corrida_controller.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:ufly/Compartilhados/custom_drawer_widget.dart';
@@ -835,7 +835,7 @@ class _CorridaPageState extends State<CorridaPage> {
                         );
                       }),
                 );
-              }else if (req.aceito.motorista == Helper.localUser.id) {
+              }else if (req.aceito.motorista == Helper.localUser.id && req.deleted_at == null) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => InicioDeViagemPage()));
@@ -1833,7 +1833,7 @@ class _CorridaPageState extends State<CorridaPage> {
         stream: requisicaoController.outRequisicoes,
         builder: (context, AsyncSnapshot<List<Requisicao>> requisicao)  {
           for (var req in requisicao.data) {
-            if (req.aceito.motorista == Helper.localUser.id)  {
+            if (req.aceito.motorista == Helper.localUser.id && req.deleted_at == null)  {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).push(MaterialPageRoute(
                   // ignore: missing_return

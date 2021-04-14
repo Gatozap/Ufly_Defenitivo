@@ -314,7 +314,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
       child: FloatingActionButton(
         heroTag: '2',
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_)=> AvaliacaoPage()));
+
         },
         child: Icon(
             Icons.zoom_out_map,
@@ -691,7 +691,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
 
                                     child:    GestureDetector(
                                       onTap:(){
-                                        Navigator.push(context, MaterialPageRoute(builder: (_)=> AvaliacaoPage()));
+
                             },
                                       child: Container(
                                         decoration: BoxDecoration(

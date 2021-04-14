@@ -1,12 +1,14 @@
 
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ufly/Helpers/Helper.dart';
+import 'package:ufly/Objetos/Motorista.dart';
 
 class AvaliacaoPage extends StatefulWidget {
-
-  AvaliacaoPage();
+Motorista motorista;
+  AvaliacaoPage(this.motorista);
 
   @override
   _AvaliacaoPageState createState() {
@@ -26,7 +28,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
     super.dispose();
   }
 
-
+double nota;
   
 
   @override
@@ -55,18 +57,22 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
 
                               context,
                               color: Colors.black,
-                              size: 70,
+                              size: 25,
                               weight: FontWeight.bold),
                         ),
                       ),
                     ),
                     sb,
-               
+
                     CircleAvatar(
-                      backgroundImage: AssetImage('assets/julio.png'),
-                      radius: 50,
-                    ),
-                    hTextMal('Júlio', context, size: 80, weight: FontWeight.bold),
+                        backgroundImage:
+                        widget.motorista.foto == null
+                            ? AssetImage(
+                            'assets/logo_drawer.png')
+                            : CachedNetworkImageProvider(
+                            widget.motorista.foto),
+                        radius: 50),
+                    hTextMal('Júlio', context, size: 27, weight: FontWeight.bold),
                     Padding(
                       padding: EdgeInsets.only(top: getAltura(context) * .10),
                       child: Container(
@@ -79,7 +85,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                         ),
                         child: Center(
                             child: hTextAbel('Adicionar a sua Frota', context,
-                                size: 80, color: Colors.black)),
+                                size: 25, color: Colors.black)),
                       ),
                     ),
                     sb,
@@ -202,14 +208,14 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                       color: Color.fromRGBO(255, 184, 0, 30),
                       boxShadow: [
                         new BoxShadow(
-                          color: Colors.black,
+                          color: Colors.black26,
 
                           blurRadius: 4.0,
                         ),
                       ],
                       borderRadius: BorderRadius.circular(15.0),
 
-                    ),child: Center(child: hTextMal('Avaliar', context, color: Colors.black, size: 80)))
+                    ),child: Center(child: hTextMal('Avaliar', context, color: Colors.black, size: 25)))
                   ],
                 )));
 

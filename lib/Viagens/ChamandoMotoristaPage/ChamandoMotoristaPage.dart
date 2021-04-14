@@ -43,6 +43,7 @@ import 'package:ufly/Rota/rota_controller.dart';
 import 'package:ufly/Viagens/OfertaCorrida/oferta_corrida_controller.dart';
 
 import 'package:ufly/Helpers/Helper.dart';
+import 'package:ufly/Viagens/Requisicao/criar_requisicao_controller.dart';
 
 class ChamandoMotoristaPage extends StatefulWidget {
   ChamandoMotoristaPage({Key key}) : super(key: key);
@@ -78,10 +79,14 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
   bool finalDaCorrida;
   double distancia;
   double distancia2;
+  CriarRequisicaoController criaRc;
   BitmapDescriptor bitmapIcon;
   final GeolocatorService geo = GeolocatorService();
   @override
   void initState() {
+    if (criaRc == null) {
+      criaRc = CriarRequisicaoController();
+    }
     if (finalDaCorrida == null) {
       finalDaCorrida = false;
     }
@@ -230,270 +235,334 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
           }
         });
 
-    return StreamBuilder<List<Requisicao>>(
-        stream: requisicaoController.outRequisicoes,
-        // ignore: missing_return
-        builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-          for (Requisicao req in requisicao.data) {
-            return StreamBuilder<bool>(
-                stream: cf.outDesembarque,
-                builder: (context, desembarque) {
-                  print('aqui desembarque ${desembarque.data} e ${finalDaCorrida} ');
-                  if (desembarque.data == null) {
-                  return Container();
-                  }
+    return
+      StreamBuilder<List<Motorista>>(
+          stream: mt.outMotoristas,
+          // ignore: missing_return
+          builder: (context, AsyncSnapshot<List<Motorista>> snap) {
+      if (snap.data == null) {
+        return Container();
+      }
+      if (snap.data.length == 0) {
+        return Container(
+            child: hTextMal(
+                'Sem motorista disponiveis', context,
+                size: 20));
+      }
+      for (var motorista in snap.data) {
+        return StreamBuilder<List<Requisicao>>(
+            stream: requisicaoController.outRequisicoes,
+            // ignore: missing_return
+            builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+              if (requisicao.data == null) {
+                return Container();
+              }
+              for (Requisicao req in requisicao.data) {
+                return StreamBuilder<bool>(
+                    stream: cf.outDesembarque,
+                    builder: (context, desembarque) {
+                      print('aqui desembarque ${desembarque
+                          .data} e ${finalDaCorrida} ');
+                      if (desembarque.data == null) {
+                        return Container();
+                      }
 
-                  else if (desembarque.data == true && finalDaCorrida == false) {
-
-                    return AlertDialog(
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            alignment: Alignment.center,
-                            child: hTextAbel('Você chegou ao seu destino', context, size: 25),
-                          ),
-                          sb,
-                          Container(
-                            alignment: Alignment.center,
-                            child: hTextAbel('Valor: R\$ ${req.aceito.preco.toStringAsFixed(2)}', context, size: 25),
-                          ),sb,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap:() =>
-
-
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) => AvaliacaoPage())),
-
-                                child: Container(
-                                  height: getAltura(context) * .070,
-                                  width: getLargura(context) * .4,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Color(0xFFf6aa3c),
-                                  ),
-                                  child: Container(
-                                      height: getAltura(context) * .125,
-                                      width: getLargura(context) * .85,
+                      else if (desembarque.data == true &&
+                          finalDaCorrida == false) {
+                        return AlertDialog(
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Container(
+                                alignment: Alignment.center,
+                                child: hTextAbel(
+                                    'Você chegou ao seu destino', context,
+                                    size: 25),
+                              ),
+                              sb,
+                              Container(
+                                alignment: Alignment.center,
+                                child: hTextAbel(
+                                    'Valor: R\$ ${req.aceito.preco
+                                        .toStringAsFixed(2)}', context,
+                                    size: 25),
+                              ), sb,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      AvaliacaoPage(motorista)));
+                                       // req.deleted_at = DateTime.now();
+                                      // criaRc.UpdateRequisicao(req);
+                                    },
+                                    child: Container(
+                                      height: getAltura(context) * .070,
+                                      width: getLargura(context) * .4,
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Color.fromRGBO(255, 184, 0, 30),
+                                        borderRadius: BorderRadius.circular(
+                                            10),
+                                        color: Color(0xFFf6aa3c),
                                       ),
-                                      child: Center(
-                                          child: hTextAbel('Avaliar ', context,
-                                              size: 25))),
-                                ),
+                                      child: Container(
+                                          height: getAltura(context) * .125,
+                                          width: getLargura(context) * .85,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius
+                                                .circular(10),
+                                            color: Color.fromRGBO(
+                                                255, 184, 0, 30),
+                                          ),
+                                          child: Center(
+                                              child: hTextAbel(
+                                                  'Avaliar ', context,
+                                                  size: 25))),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    );
-                  };
+                        );
+                      };
 
-                  return StreamBuilder<List<Motorista>>(
-                      stream: mt.outMotoristas,
-                      // ignore: missing_return
-                      builder: (context, AsyncSnapshot<List<Motorista>> snap) {
-                        if (snap.data == null) {
-                          return Container();
-                        }
-                        if (snap.data.length == 0) {
-                          return Container(
-                              child: hTextMal(
-                                  'Sem motorista disponiveis', context,
-                                  size: 20));
-                        }
-                        for (var motorista in snap.data) {
-                          return Scaffold(
-                            body: SlidingUpPanel(
-                              renderPanelSheet: false,
-                              minHeight: 60,
-                              maxHeight: getAltura(context) * .25,
-                              borderRadius: BorderRadius.circular(20),
-                              collapsed: Container(
-                                margin: const EdgeInsets.only(
-                                    left: 24.0, right: 24),
-                                child: Row(
-                                  children: <Widget>[
-                                    Stack(
+                      return StreamBuilder<List<Motorista>>(
+                          stream: mt.outMotoristas,
+                          // ignore: missing_return
+                          builder: (context, AsyncSnapshot<
+                              List<Motorista>> snap) {
+                            if (snap.data == null) {
+                              return Container();
+                            }
+                            if (snap.data.length == 0) {
+                              return Container(
+                                  child: hTextMal(
+                                      'Sem motorista disponiveis', context,
+                                      size: 20));
+                            }
+                            for (var motorista in snap.data) {
+                              return Scaffold(
+                                body: SlidingUpPanel(
+                                  renderPanelSheet: false,
+                                  minHeight: 60,
+                                  maxHeight: getAltura(context) * .25,
+                                  borderRadius: BorderRadius.circular(20),
+                                  collapsed: Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 24.0, right: 24),
+                                    child: Row(
                                       children: <Widget>[
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 30.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(24.0),
-                                                    topRight:
-                                                        Radius.circular(24.0)),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    blurRadius: 20.0,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ]),
-                                            width: getLargura(context) - 48,
-                                            child: Column(
-                                              mainAxisAlignment:
+                                        Stack(
+                                          children: <Widget>[
+                                            Padding(
+                                              padding:
+                                              const EdgeInsets.only(
+                                                  top: 30.0),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius
+                                                        .only(
+                                                        topLeft:
+                                                        Radius.circular(
+                                                            24.0),
+                                                        topRight:
+                                                        Radius.circular(
+                                                            24.0)),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        blurRadius: 20.0,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ]),
+                                                width: getLargura(context) -
+                                                    48,
+                                                child: Column(
+                                                  mainAxisAlignment:
                                                   MainAxisAlignment.start,
-                                              crossAxisAlignment:
+                                                  crossAxisAlignment:
                                                   CrossAxisAlignment.center,
-                                              children: <Widget>[
-                                                sb,
-                                                sb,
-                                                Container(
-                                                  child: Container(
-                                                      width:
-                                                          getLargura(context) *
+                                                  children: <Widget>[
+                                                    sb,
+                                                    sb,
+                                                    Container(
+                                                      child: Container(
+                                                          width:
+                                                          getLargura(
+                                                              context) *
                                                               .4,
-                                                      color: Colors.grey,
-                                                      height: 3),
-                                                )
-                                              ],
+                                                          color: Colors
+                                                              .grey,
+                                                          height: 3),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                          ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              panel: viagemWidget(motorista, desembarque.data),
-                              body: Container(
-                                height: getAltura(context),
-                                width: getLargura(context),
-                                child: Stack(
-                                  alignment: Alignment.topCenter,
-                                  children: <Widget>[
-                                    map,
-                                    Positioned(
-                                      right: getLargura(context) * .060,
-                                      bottom: getAltura(context) * .350,
-                                      child: FloatingActionButton(
-                                        heroTag: '2',
-                                        onPressed: () {
-                                          /*Timer(Duration(seconds: 2), () {
+                                  ),
+                                  panel: viagemWidget(
+                                      motorista, desembarque.data),
+                                  body: Container(
+                                    height: getAltura(context),
+                                    width: getLargura(context),
+                                    child: Stack(
+                                      alignment: Alignment.topCenter,
+                                      children: <Widget>[
+                                        map,
+                                        Positioned(
+                                          right: getLargura(context) * .060,
+                                          bottom: getAltura(context) * .350,
+                                          child: FloatingActionButton(
+                                            heroTag: '2',
+                                            onPressed: () {
+                                              /*Timer(Duration(seconds: 2), () {
                                             centerView();
                                           });*/
-                                          Navigator.of(context)
-                                              .push((MaterialPageRoute(builder: (context) => AvaliacaoPage())));
-                                        },
-                                        child: Icon(Icons.zoom_out_map,
-                                            color: Colors.black),
-                                        backgroundColor: Colors.white,
-                                      ),
-                                    ),
-                                    Positioned(
-                                        top: getAltura(context) * .060,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            color: Colors.black,
+                                              Navigator.of(context)
+                                                  .push((MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      AvaliacaoPage(
+                                                          motorista))));
+                                            },
+                                            child: Icon(Icons.zoom_out_map,
+                                                color: Colors.black),
+                                            backgroundColor: Colors.white,
                                           ),
-                                          height: getAltura(context) * .150,
-                                          width: getLargura(context) * .82,
-                                          child: Row(
-                                            children: <Widget>[
-                                              Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                        ),
+                                        Positioned(
+                                            top: getAltura(context) * .060,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius.circular(10),
+                                                color: Colors.black,
+                                              ),
+                                              height: getAltura(context) *
+                                                  .150,
+                                              width: getLargura(context) *
+                                                  .82,
+                                              child: Row(
                                                 children: <Widget>[
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        top:
-                                                            getAltura(context) *
-                                                                .030,
-                                                        left: getLargura(
+                                                  Column(
+                                                    mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                    CrossAxisAlignment
+                                                        .start,
+                                                    children: <Widget>[
+                                                      Padding(
+                                                        padding: EdgeInsets
+                                                            .only(
+                                                            top:
+                                                            getAltura(
                                                                 context) *
-                                                            .110),
-                                                    child: Icon(
-                                                      FontAwesomeIcons
-                                                          .mapMarkedAlt,
-                                                      color: Colors.white,
-                                                      size: 25,
-                                                    ),
+                                                                .030,
+                                                            left: getLargura(
+                                                                context) *
+                                                                .110),
+                                                        child: Icon(
+                                                          FontAwesomeIcons
+                                                              .mapMarkedAlt,
+                                                          color: Colors
+                                                              .white,
+                                                          size: 25,
+                                                        ),
+                                                      ),
+                                                      StreamBuilder<double>(
+                                                          stream: rc
+                                                              .outDistancia,
+                                                          builder:
+                                                              (context,
+                                                              snapshot) {
+                                                            distanciaKm =
+                                                                snapshot
+                                                                    .data;
+                                                            return Padding(
+                                                              padding: EdgeInsets
+                                                                  .only(
+                                                                  top: getAltura(
+                                                                      context) *
+                                                                      .020,
+                                                                  left: getLargura(
+                                                                      context) *
+                                                                      .080),
+                                                              child: hTextMal(
+                                                                  '${snapshot
+                                                                      .data
+                                                                      .toStringAsFixed(
+                                                                      3)}km',
+                                                                  context,
+                                                                  color:
+                                                                  Colors
+                                                                      .white,
+                                                                  size: 18),
+                                                            );
+                                                          })
+                                                    ],
                                                   ),
-                                                  StreamBuilder<double>(
-                                                      stream: rc.outDistancia,
-                                                      builder:
-                                                          (context, snapshot) {
-                                                        distanciaKm =
-                                                            snapshot.data;
-                                                        return Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top: getAltura(
+                                                  StreamBuilder<String>(
+                                                      stream: rc
+                                                          .outLocalizacaoNome,
+                                                      builder: (context,
+                                                          snapshot) {
+                                                        return Expanded(
+                                                          child: Container(
+                                                            width: getLargura(
+                                                                context) *
+                                                                .52,
+                                                            child: Padding(
+                                                              padding: EdgeInsets
+                                                                  .only(
+                                                                  left: getLargura(
                                                                       context) *
-                                                                  .020,
-                                                              left: getLargura(
+                                                                      .050,
+                                                                  right: getLargura(
                                                                       context) *
-                                                                  .080),
-                                                          child: hTextMal(
-                                                              '${snapshot.data.toStringAsFixed(3)}km',
-                                                              context,
-                                                              color:
-                                                                  Colors.white,
-                                                              size: 18),
+                                                                      .010),
+                                                              child: hTextMal(
+                                                                  desembarque ==
+                                                                      false
+                                                                      ? 'Embarque: ${req
+                                                                      .origem
+                                                                      .endereco}'
+                                                                      : 'Desembarque: ${req
+                                                                      .destino
+                                                                      .endereco}',
+                                                                  context,
+                                                                  size: 16,
+                                                                  color:
+                                                                  Colors
+                                                                      .white,
+                                                                  weight: FontWeight
+                                                                      .bold),
+                                                            ),
+                                                          ),
                                                         );
                                                       })
                                                 ],
                                               ),
-                                              StreamBuilder<String>(
-                                                  stream: rc.outLocalizacaoNome,
-                                                  builder: (context, snapshot) {
-                                                    return Expanded(
-                                                      child: Container(
-                                                        width: getLargura(
-                                                                context) *
-                                                            .52,
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: getLargura(
-                                                                      context) *
-                                                                  .050,
-                                                              right: getLargura(
-                                                                      context) *
-                                                                  .010),
-                                                          child: hTextMal(
-                                                              desembarque ==
-                                                                      false
-                                                                  ? 'Embarque: ${req.origem.endereco}'
-                                                                  : 'Desembarque: ${req.destino.endereco}',
-                                                              context,
-                                                              size: 16,
-                                                              color:
-                                                                  Colors.white,
-                                                              weight: FontWeight
-                                                                  .bold),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  })
-                                            ],
-                                          ),
-                                        )),
+                                            )),
 
-                                  ],
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          );
-                        }
-                      });
-                });
-          }
-        });
+                              );
+                            }
+                          });
+                    });
+              }
+            });
+      }});
   }
 
   Widget viagemWidget(motorista, desembarque) {
@@ -571,7 +640,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
               ? GestureDetector(
             onTap: (){
               Navigator.of(context)
-                  .push((MaterialPageRoute(builder: (context) => AvaliacaoPage())));
+                  .push((MaterialPageRoute(builder: (context) => AvaliacaoPage(motorista))));
     },
                 child: Container(
                     child: hTextAbel('seu motorista chegou', context),

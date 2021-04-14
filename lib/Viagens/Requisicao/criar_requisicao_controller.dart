@@ -22,24 +22,24 @@ class CriarRequisicaoController extends BlocBase {
 
 
   CriarRequisicaoController() {
-    print('aqui r423543253');
+
     requisicaoRef
         .snapshots()
         .listen((QuerySnapshot snap) {
-      print('aqui 2 ');
+
       requisicoes = [];
       if (snap.docs.length > 0) {
         for (DocumentSnapshot ds in snap.docs) {
-          print('aqui3 ${ds.id} ');
+
           Requisicao p =  Requisicao.fromJson(ds.data());
          
           p.id = ds.id;
           requisicoes.add(p);
-          print('aqui4');
+
         }
         requisicoes.sort(
                 (Requisicao a, Requisicao b) => a.user.compareTo(b.user));
-        print('aqui 5');
+
         requisicoesmain = requisicoes;
         inRequisicoes.add(requisicoes);
       } else {
@@ -53,15 +53,14 @@ class CriarRequisicaoController extends BlocBase {
   CriarRequisicao(Requisicao requisicao)  {
     requisicao.created_at = DateTime.now();
     requisicao.updated_at = DateTime.now();
-    print('aqui id');
+
     return requisicaoRef.add(requisicao.toJson()).then((v) {
-      print('aqui id ${v.id}');
+
       requisicao.id = v.id;
-      print('aqui id ${v.id}');
+
 
       return requisicaoRef.doc(requisicao.id).update(requisicao.toJson()).then((v) {
-        print('aqui id ${requisicao.id}');
-        return dToast('Requisição criada com sucesso ${requisicao.id}');
+
 
       }).catchError((err) {
         print('erro 1 ${err}');
@@ -74,15 +73,15 @@ class CriarRequisicaoController extends BlocBase {
   }
   UpdateRequisicao(Requisicao requisicao)  {
     requisicao.updated_at = DateTime.now();
-    print('aqui 3 ${requisicao.id}');
+
     if (requisicao != null) {
-      print('aqui ${requisicao.id}');
+
       return requisicaoRef
           .doc(requisicao.id)
           .update(requisicao.toJson())
           .then((v) {
 
-            dToast('atualizado com sucesso');
+
         return 'Atualizado com sucesso!';
       }).catchError((err) {
         print('Error 23: ${err}');

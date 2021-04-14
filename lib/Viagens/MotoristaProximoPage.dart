@@ -202,7 +202,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                         backgroundColor: Color.fromRGBO(255, 190, 0, 10),
                       );
                     }else
-                    if(requi.aceito.id_usuario == Helper.localUser.id) {
+                    if(requi.aceito.id_usuario == Helper.localUser.id && requi.deleted_at == null) {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => ChamandoMotoristaPage()));
                     }else{

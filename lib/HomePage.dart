@@ -903,7 +903,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           );
                         }
-                        if (req.aceito.id_usuario == Helper.localUser.id) {
+                        if (req.aceito.id_usuario == Helper.localUser.id && req.deleted_at ==null) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => ChamandoMotoristaPage()));
@@ -1130,8 +1130,7 @@ class _HomePageState extends State<HomePage> {
 
 
 
-
-
+      
     });
   }
 
@@ -1232,7 +1231,7 @@ class _HomePageState extends State<HomePage> {
                 return GestureDetector(
                   onTap: () {
                     if (requisicao.data == null ||
-                        requisicao.data.user != Helper.localUser.id)
+                        requisicao.data.user != Helper.localUser.id && requisicao.data.deleted_at == null)
                     {
                       showDialog(
                           context: context,
