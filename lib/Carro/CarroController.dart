@@ -69,7 +69,7 @@ class CarroController extends BlocBase {
 
         if (motorista != null) {
           if (motorista.carro == null) {
-            motorista.carro = new List<Carro>();
+            motorista.carro = [];
           }
 
           motorista.carro.add(carro);

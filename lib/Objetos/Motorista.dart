@@ -15,7 +15,6 @@ class Motorista{
   double rating;
   double rating_total;
   double rating_quantidade;
-
   DateTime created_at;
   DateTime updated_at;
   DateTime deleted_at;
@@ -52,9 +51,9 @@ class Motorista{
  this. id_carro = j['id_carro'] == null? null: j['id_carro'],
  this.       favoritos= j['favoritos'] == null ? null : Helper().jsonToList(j["favoritos"]),
 
- this.       rating = j['rating'] == null? 0: j['rating'],
-this.       rating_quantidade = j['rating_quantidade'] == null? 0: j['rating_quantidade'],
-this.       rating_total = j['rating_total'] == null? 0: j['rating_total'],
+ this.       rating = j['rating'] == null? 5.0: j['rating'],
+this.       rating_quantidade = j['rating_quantidade']== null? 1.0: j['rating_quantidade'],
+this.       rating_total = j['rating_total'] == null? 5.0: j['rating_total'],
  this.        id_usuario = j['id_usuario'] == null? null: j['id_usuario'],
  this. nome_usuario = j['nome_usuario'] == null? null: j['nome_usuario'],
  this. id = j['id'] == null? null: j['id'],
@@ -77,9 +76,9 @@ this.       rating_total = j['rating_total'] == null? 0: j['rating_total'],
   Map<String, dynamic> toJson() => {
         'foto': foto ==null? null: this.foto,
         'nome': nome == null? null: this.nome,
-        'rating': rating == null? null: this.rating,
-    'rating_total': rating_total == null? null: this.rating_total,
-    'rating_quantidade': rating_quantidade == null? null: this.rating_quantidade,
+        'rating': rating ,
+    'rating_total': rating_total ,
+    'rating_quantidade': rating_quantidade ,
 
 
         'agua': agua,

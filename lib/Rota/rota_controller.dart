@@ -237,7 +237,7 @@ class RotaController extends BlocBase {
               localizacaoUsuario.latitude, localizacaoUsuario.longitude));
         }
         for (var l in r.routes[0].legs) {
-print('aqui a duração ${l.duration/3600}');
+        print('aqui a duração ${l.duration/3600}');
           for (var s in l.steps) {
             for (var i in s.intersections) {
               rotas.add(LatLng(i.location[1], i.location[0]));

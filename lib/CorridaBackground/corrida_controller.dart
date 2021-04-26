@@ -84,18 +84,6 @@ class CorridaController extends BlocBase {
 
 
 
-
-
-
-  MarkerLayerOptions UserLocation;
-  MarkerLayerOptions LastUserLocation;
-  BehaviorSubject<MarkerLayerOptions> userLocationController =
-  BehaviorSubject<MarkerLayerOptions>();
-  Stream<MarkerLayerOptions> get outUserLocation =>
-      userLocationController.stream;
-  Sink<MarkerLayerOptions> get inUserLocation => userLocationController.sink;
-  // final geolocator = Geolocator();
-
   SharedPreferences sp;
   double distanciaPercorrida = 0.0;
   BehaviorSubject<double> distanciaPercorridaController =
@@ -328,7 +316,7 @@ class CorridaController extends BlocBase {
   }
 
   CorridaController() {
-    inUserLocation.add(UserLocation);
+
     inStarted.add(started);
     distanciaPercorrida = 0;
     inDistanciaPercorrida.add(distanciaPercorrida);
@@ -370,20 +358,7 @@ class CorridaController extends BlocBase {
       Localizacao loc;
 
 
-      UserLocation = new MarkerLayerOptions(
-        markers: [
-          new Marker(
-            width: 25,
-            height: 25,
-            point: l,
-            builder: (ctx) => new Container(
-              child: Image.asset(
-                "assets/marker.png",
-              ),
-            ),
-          ),
-        ],
-      );
+
 
       loc = Localizacao(
         latitude: l.latitude,
@@ -403,21 +378,7 @@ class CorridaController extends BlocBase {
         }
       }
 
-      if (LastUserLocation != null) {
-        if (UserLocation.markers[0].point.latitude !=
-            LastUserLocation.markers[0].point.latitude &&
-            UserLocation.markers[0].point.longitude !=
-                LastUserLocation.markers[0].point.latitude) {
 
-          cfs.AdicionarLatLng(loc, distanciaPercorrida);
-
-          inUserLocation.add(UserLocation);
-          LastUserLocation = UserLocation;
-        }
-      } else {
-        inUserLocation.add(UserLocation);
-        LastUserLocation = UserLocation;
-      }
     } else {
       distanciaPercorrida = 0;
       inDistanciaPercorrida.add(distanciaPercorrida);
@@ -429,7 +390,7 @@ class CorridaController extends BlocBase {
     carroController.close();
     startedController.close();
 
-    userLocationController.close();
+
     distanciaPercorridaController.close();
   }
 

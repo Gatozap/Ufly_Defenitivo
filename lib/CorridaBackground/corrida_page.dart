@@ -61,6 +61,7 @@ class _CorridaPageState extends State<CorridaPage> {
   ControllerFiltros cf;
   MotoristaControllerEdit mt;
   Placemark placemark;
+  bool online;
   OfertaCorridaController ofertaCorridaController;
   UserListController usc;
   Requisicao rr;
@@ -107,6 +108,9 @@ class _CorridaPageState extends State<CorridaPage> {
 
   @override
   Widget build(BuildContext context) {
+    if(online == null){
+      online = false;
+    }
     if (criaRc == null) {
       criaRc = CriarRequisicaoController();
     }
@@ -197,11 +201,11 @@ class _CorridaPageState extends State<CorridaPage> {
                                 if (snapshot.data != null) {
                                   if (parada1 == null) {
                                     markers = getMarkers(
-                                      snap.data,
+                                      snap.data, online
                                     );
                                   } else {
-                                    markers = getMarkers(snap.data,
-                                        ways: snapshot.data);
+                                    markers = getMarkers(snap.data,online,
+                                        ways: snapshot.data,  );
                                   }
                                 }
                                 return GoogleMap(
@@ -210,7 +214,9 @@ class _CorridaPageState extends State<CorridaPage> {
                                   trafficEnabled: true,
                                   polylines: polylines.toSet(),
                                   markers:
-                                      destino != null ? markers.toSet() : null,
+                                  markers == null
+                                      ? <Marker>[].toSet()
+                                      : markers.toSet(),
                                   mapType: MapType.terrain,
                                   zoomGesturesEnabled: true,
                                   zoomControlsEnabled: false,
@@ -286,6 +292,9 @@ class _CorridaPageState extends State<CorridaPage> {
                                           )
                                         : GestureDetector(
                                             onTap: () async {
+
+                                              online = false;
+                                              print('aqui bool ${online}');
                                               corridaController
                                                   .finalizarCorrida();
                                             },
@@ -304,6 +313,8 @@ class _CorridaPageState extends State<CorridaPage> {
                                     sb,
                                     GestureDetector(
                                       onTap: () async {
+                                        online = true;
+                                        print('aqui bool ${online}');
                                         corridaController.iniciarCorrida();
                                       },
                                       child: hTextAbel(
@@ -347,6 +358,8 @@ class _CorridaPageState extends State<CorridaPage> {
                                                     )
                                                   : GestureDetector(
                                                       onTap: () async {
+                                                        online = false;
+                                                        print('aqui bool ${online}');
                                                         corridaController
                                                             .finalizarCorrida();
                                                       },
@@ -371,6 +384,8 @@ class _CorridaPageState extends State<CorridaPage> {
                                               sb,
                                               GestureDetector(
                                                 onTap: () async {
+                                                  online = true;
+                                                  print('aqui bool ${online}');
                                                   corridaController
                                                       .iniciarCorrida();
                                                 },
@@ -1980,7 +1995,8 @@ void onCameraMove(CameraPosition position, LatLng l) {
 }
 
 BitmapDescriptor sourceIcon;
-List<Marker> getMarkers(data, {ways}) {
+List<Marker>  getMarkers(data,bool online,{ways}) {
+  print('aqui bool ${online}');
   List<Marker> markers = [];
   if (data == null) {
     return markers;
@@ -2004,7 +2020,7 @@ List<Marker> getMarkers(data, {ways}) {
               : i == 1
                   ? BitmapDescriptor.defaultMarkerWithHue(
                       BitmapDescriptor.hueGreen)
-                  : BitmapDescriptor.fromAsset('assets/marker.png'),
+                  : online == true?BitmapDescriptor.fromAsset('assets/marker.png'): Container(),
           position: data[i]));
     }
   } catch (err) {

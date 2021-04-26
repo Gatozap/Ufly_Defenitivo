@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:responsive_pixel/responsive_pixel.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,6 +11,7 @@ import 'package:ufly/Ativos/AtivosController.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:ufly/Avaliacao/AvaliacaoPage.dart';
+import 'package:ufly/CorridaBackground/corrida_page.dart';
 
 import 'package:ufly/CorridaBackground/requisicao_corrida_controller.dart';
 import 'package:ufly/GoogleServices/geolocator_service.dart';
@@ -23,6 +25,7 @@ import 'package:ufly/Perfil/user_controller.dart';
 import 'package:ufly/Rota/rota_controller.dart';
 import 'package:ufly/Viagens/OfertaCorrida/oferta_corrida_controller.dart';
 import 'package:ufly/Helpers/Helper.dart';
+import 'package:ufly/Viagens/Requisicao/criar_requisicao_controller.dart';
 
 class InicioDeViagemPage extends StatefulWidget {
   InicioDeViagemPage({Key key}) : super(key: key);
@@ -39,6 +42,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
   LatLng passageiro_latlng;
   LatLng initialPosition;
   LatLng destino;
+  CriarRequisicaoController criaRc;
   List<LatLng> marcasRota = [];
   Completer<GoogleMapController> _controller = Completer();
   GoogleMapController controllerGoogle;
@@ -54,6 +58,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
   AtivosController ac;
   MotoristaController mt;
   bool segundaetapa = false;
+  bool final_corrida = false;
   double distancia;
   double distancia2;
   final GeolocatorService geo = GeolocatorService();
@@ -61,8 +66,12 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
   @override
   void initState() {
     segundaetapa = false;
+    final_corrida = false;
     if (ac == null) {
       ac = AtivosController();
+    }
+    if(criaRc == null){
+      criaRc = CriarRequisicaoController();
     }
     if (ofertaCorridaController == null) {
       ofertaCorridaController = OfertaCorridaController();
@@ -90,7 +99,9 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
 
   @override
   Widget build(BuildContext context) {
-
+    ResponsivePixelHandler.init(
+      baseWidth: 360, //A largura usado pelo designer no modelo desenhado
+    );
     // TODO: implement build
     if (requisicaoController == null) {
       requisicaoController = RequisicaoCorridaController();
@@ -194,117 +205,189 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                 });
           }
         });
-    return Scaffold(
-      body: SlidingUpPanel(
-        renderPanelSheet: false,
-        minHeight: 60,
-        panel: FinalizarCorrida(),
-        maxHeight: getAltura(context) * .25,
-        borderRadius: BorderRadius.circular(20),
-        collapsed: Container(
-          margin: const EdgeInsets.only(left: 24.0, right: 24),
-          child: Row(
-            children: <Widget>[
-              Stack(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(top: 30.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(24.0),
-                              topRight: Radius.circular(24.0)),
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 20.0,
-                              color: Colors.grey,
-                            ),
-                          ]),
-                      width: getLargura(context) - 48,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          sb,
-                          sb,
-                          Container(
-                            child: Container(
-                                width: getLargura(context) * .4,
-                                color: Colors.grey,
-                                height: 3),
-                          )
-                        ],
+    return StreamBuilder<List<Requisicao>>(
+        stream: requisicaoController.outRequisicoes,
+        builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+          for (var req in requisicao.data) {
+            if (final_corrida == true) {
+              return
+                AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(
+                        alignment: Alignment.center,
+                        child: hTextAbel(
+                            'Você chegou ao seu destino', context,
+                            size: 25),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        body: Container(
-          height: getAltura(context),
-          width: getLargura(context),
-          child: Stack(
-            alignment: Alignment.topCenter,
-            children: <Widget>[
-              map,
-              botaoNavegar(),
-              Positioned(
-                  top: getAltura(context) * .060,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.black,
-                    ),
-                    height: getAltura(context) * .150,
-                    width: getLargura(context) * .80,
-                    child: Row(
-                      children: <Widget>[
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                                padding: EdgeInsets.only(
-                                    top: getAltura(context) * .020,
-                                    left: getLargura(context) * .110),
-                                child: Container(
-                                  child: Image.asset('assets/seta_frente.png'),
-                                )),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  top: getAltura(context) * .020,
-                                  left: getLargura(context) * .050),
-                              child: Center(
-                                child: hTextMal('120 m', context,
-                                    color: Colors.white, size: 20),
+                      sb,
+                      Container(
+                        alignment: Alignment.center,
+                        child: hTextAbel(
+                            'Valor: R\$ ${req.aceito.preco
+                                .toStringAsFixed(2)}', context,
+                            size: 25),
+                      ), sb,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              req.deleted_at = DateTime.now();
+                              criaRc.UpdateRequisicao(req);
+                              Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          CorridaPage()));
+                            },
+                            child: Container(
+                              height: getAltura(context) * .070,
+                              width: getLargura(context) * .4,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(
+                                    10),
+                                color: Color(0xFFf6aa3c),
                               ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          width: getLargura(context) * .50,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                                left: getLargura(context) * .020),
-                            child: Center(
-                              child: hTextMal('Av. Itavuvu', context,
-                                  size: 20,
-                                  color: Colors.white,
-                                  weight: FontWeight.bold),
+                              child: Container(
+                                  height: getAltura(context) * .125,
+                                  width: getLargura(context) * .85,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius
+                                        .circular(10),
+                                    color: Color.fromRGBO(
+                                        255, 184, 0, 30),
+                                  ),
+                                  child: Center(
+                                      child: hTextAbel(
+                                          'Encerrar ', context,
+                                          size: 25))),
                             ),
                           ),
-                        )
-                      ],
-                    ),
-                  )),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+            };
+            return Scaffold(
+              body:
+              SlidingUpPanel(
+                renderPanelSheet: false,
+                minHeight: 60,
+                panel: FinalizarCorrida(),
+                maxHeight: getAltura(context) * .25,
+                borderRadius: BorderRadius.circular(20),
+                collapsed: Container(
+                  margin: const EdgeInsets.only(left: 24.0, right: 24),
+                  child: Row(
+                    children: <Widget>[
+                      Stack(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(top: 30.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(24.0),
+                                      topRight: Radius.circular(24.0)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 20.0,
+                                      color: Colors.grey,
+                                    ),
+                                  ]),
+                              width: getLargura(context) - 48,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  sb,
+                                  sb,
+                                  Container(
+                                    child: Container(
+                                        width: getLargura(context) * .4,
+                                        color: Colors.grey,
+                                        height: 3),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                body: Container(
+                  height: getAltura(context),
+                  width: getLargura(context),
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: <Widget>[
+                      map,
+                      botaoNavegar(),
+                      Positioned(
+                          top: getAltura(context) * .060,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.black,
+                            ),
+                            height: getAltura(context) * .150,
+                            width: getLargura(context) * .80,
+                            child: Row(
+                              children: <Widget>[
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Padding(
+                                        padding: EdgeInsets.only(
+                                            top: getAltura(context) * .020,
+                                            left: getLargura(context) * .110),
+                                        child: Container(
+                                          child: Image.asset(
+                                              'assets/seta_frente.png'),
+                                        )),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          top: getAltura(context) * .020,
+                                          left: getLargura(context) * .050),
+                                      child: Center(
+                                        child: hTextMal('120 m', context,
+                                            color: Colors.white, size: 20),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  width: getLargura(context) * .50,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                        left: getLargura(context) * .020),
+                                    child: Center(
+                                      child: hTextMal('Av. Itavuvu', context,
+                                          size: 20,
+                                          color: Colors.white,
+                                          weight: FontWeight.bold),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          )),
 
-            ],
-          ),
-        ),
-      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+      }
     );
   }
   botaoNavegar(){
@@ -408,7 +491,6 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
       print(err.toString());
     }
     try {
-
       markers.add(Marker(
           infoWindow: InfoWindow(title: 'Minha Posição'),
           markerId: MarkerId('id${10}'),
@@ -504,7 +586,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
         passageiro_latlng.longitude, position.latitude, position.longitude);
     print('aqui a soma ${distancia.toStringAsFixed(2)}');
     rc.inDistancia.add(distancia);
-    print('aqui bool ${segundaetapa}');
+
     if(distancia <0.4){
       segundaetapa = true;
 
@@ -514,14 +596,14 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
           position.latitude,
           position.longitude);
       rc.inDistancia.add(distancia2);
-      return dToastPassageiro('Seu motorista chegou, não esqueça de usar mascara, cinto de seguranção e alcool em gel');
+      return dToastPassageiro('Você chegou no embarque');
 
     }
     if(segundaetapa) {
 
       if (distancia2 < 0.4) {
-        segundaetapa = false;
-        return dToastPassageiro('Você chegou ao seu destino');
+        final_corrida = true;
+
       }
     }
     Placemark place = mark[0];

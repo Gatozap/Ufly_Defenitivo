@@ -11,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:responsive_pixel/responsive_pixel.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 
@@ -129,6 +130,9 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
 
   @override
   Widget build(BuildContext context) {
+    ResponsivePixelHandler.init(
+      baseWidth: 360, //A largura usado pelo designer no modelo desenhado
+    );
     // TODO: implement build
     var map = StreamBuilder<List<Requisicao>>(
         stream: requisicaoController.outRequisicoes,
@@ -240,6 +244,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
           stream: mt.outMotoristas,
           // ignore: missing_return
           builder: (context, AsyncSnapshot<List<Motorista>> snap) {
+
       if (snap.data == null) {
         return Container();
       }
@@ -250,6 +255,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                 size: 20));
       }
       for (var motorista in snap.data) {
+        print('aqui a merda do motorista ${motorista.rating.runtimeType}');
         return StreamBuilder<List<Requisicao>>(
             stream: requisicaoController.outRequisicoes,
             // ignore: missing_return
@@ -261,15 +267,15 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                 return StreamBuilder<bool>(
                     stream: cf.outDesembarque,
                     builder: (context, desembarque) {
-                      print('aqui desembarque ${desembarque
-                          .data} e ${finalDaCorrida} ');
+
                       if (desembarque.data == null) {
                         return Container();
                       }
 
                       else if (desembarque.data == true &&
-                          finalDaCorrida == false) {
-                        return AlertDialog(
+                          finalDaCorrida == true) {
+                        return
+                          AlertDialog(
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -294,12 +300,13 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
                                 children: [
                                   GestureDetector(
                                     onTap: () {
+                                      //req.deleted_at = DateTime.now();
+                                     // criaRc.UpdateRequisicao(req);
                                       Navigator.of(context).push(
                                               MaterialPageRoute(
                                                   builder: (context) =>
                                                       AvaliacaoPage(motorista)));
-                                       // req.deleted_at = DateTime.now();
-                                      // criaRc.UpdateRequisicao(req);
+
                                     },
                                     child: Container(
                                       height: getAltura(context) * .070,
