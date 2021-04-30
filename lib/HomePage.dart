@@ -1230,7 +1230,7 @@ class _HomePageState extends State<HomePage> {
 
                 return GestureDetector(
                   onTap: () {
-                    if (requisicao.data == null ||
+                    if (requisicao.data == null && requisicao.data.deleted_at == null||
                         requisicao.data.user != Helper.localUser.id && requisicao.data.deleted_at == null)
                     {
                       showDialog(

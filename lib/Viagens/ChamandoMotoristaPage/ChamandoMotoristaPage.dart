@@ -139,6 +139,7 @@ class _ChamandoMotoristaPageState extends State<ChamandoMotoristaPage> {
         // ignore: missing_return
         builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
           for (var req in requisicao.data) {
+            Future.delayed(const Duration(seconds : 3));
             rotaPassageiro(req);
             Timer(Duration(seconds: 5), () {
               centerView();

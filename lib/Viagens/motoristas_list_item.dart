@@ -371,7 +371,7 @@ class MotoristasListItem extends StatelessWidget {
                                                         child: Row(
                                                           children: <Widget>[
                                                             hTextAbel(
-                                                                '${motorista.rating == null ? 0 : motorista.rating}',
+                                                                '${motorista.rating == null ? 0 : motorista.rating.toStringAsFixed(1)}',
                                                                 context,
                                                                 size: 20),
                                                             Container(
