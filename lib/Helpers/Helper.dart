@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'dart:math';
 import 'dart:ui';
 import 'package:android_alarm_manager/android_alarm_manager.dart';
@@ -13,7 +14,6 @@ import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -794,6 +794,7 @@ Widget TextFieldChange(String label, String content, function, context,
   );
 }
 
+
 Widget Loading({
   int duration = 3,
   Widget completed,
@@ -803,9 +804,13 @@ Widget Loading({
   return Center(
     child: FutureBuilder(
       builder: (context, future) {
+        if(future.data == null){
+          return Container();
+        }
         if (future.data != null) {
           return completed;
         }
+
 
       },
       future: Future.delayed(Duration(seconds: duration)).then((v) {
@@ -1024,7 +1029,23 @@ class Helper {
   static String token;
   static FirebaseAnalytics analytics = FirebaseAnalytics();
  // static CieloEcommerce cielo;
+  Widget _onLoading(text) {
+    showDialog(
 
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: new Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              new CircularProgressIndicator(),
+              new Text("$text"),
+            ],
+          ),
+        );
+      },
+    );
+  }
   static TextStyle labelStyle = TextStyle(
     color: Colors.grey[400],
     fontSize: 18,

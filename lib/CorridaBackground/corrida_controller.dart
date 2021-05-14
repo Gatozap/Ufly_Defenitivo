@@ -132,7 +132,6 @@ class CorridaController extends BlocBase {
   }
 
   iniciarCorrida() async {
-    print("CHAMANDO LALAL");
     enabled = (await bg.BackgroundGeolocation.state).enabled;
     started = true;
     if (!enabled) {
@@ -145,17 +144,14 @@ class CorridaController extends BlocBase {
           sp.setBool('started', started);
         }
         inStarted.add(started);
-
-
+        print("AQUI CAPETA CORRIDA");
         var LocalizacoesTemp = await getAll();
-
         rota = LocalizacoesTemp == null ? [] : LocalizacoesTemp;
         inRota.add(rota);
         distanciaPercorrida = 0.0;
         if (rota.length != 0) {
           var lastPoint;
           for (var l in rota) {
-
             if (lastPoint != null) {
               distanciaPercorrida += calculateDistance(
                 l.latitude,
@@ -167,7 +163,7 @@ class CorridaController extends BlocBase {
             lastPoint = l;
           }
         }
-
+        print("CHEGOU AQUI LOLO2  ");
 
         inDistanciaPercorrida.add(distanciaPercorrida);
         //if (started) {
@@ -176,7 +172,7 @@ class CorridaController extends BlocBase {
         bg.BackgroundGeolocation.changePace(true).then((bool isMoving) {
           print('[changePace] success $isMoving');
         }).catchError((e) {
-          print('[changePace] ERROR 33: ' + e.toString());
+          print('[changePace] ERROR: ' + e.toString());
           //setupBackground();
         });
         print("CHEGOU AQUI ");
@@ -200,9 +196,7 @@ class CorridaController extends BlocBase {
       bg.BackgroundGeolocation.start().then(callback).catchError((onError) {
         print("Error: ${onError.toString()}");
       });
-    }
-
-    else {
+    } else {
       try {
         sp.setBool('started', started);
       } catch (err) {
@@ -210,12 +204,9 @@ class CorridaController extends BlocBase {
         sp.setBool('started', started);
       }
       inStarted.add(started);
-
-
       print("AQUI CAPETA CORRIDA");
       var LocalizacoesTemp = await getAll();
-
-      rota = LocalizacoesTemp == null ? new List() : LocalizacoesTemp;
+      rota = LocalizacoesTemp == null ? [] : LocalizacoesTemp;
       inRota.add(rota);
       distanciaPercorrida = 0.0;
       if (rota.length != 0) {
@@ -245,10 +236,11 @@ class CorridaController extends BlocBase {
         print('[changePace] ERROR: ' + e.toString());
         //setupBackground();
       });
-      print("CHEGOU AQUI 32");
+      print("CHEGOU AQUI ");
       bg.BackgroundGeolocation.onLocation((bg.Location location) {
         novaLocalizacao(
             LatLng(location.coords.latitude, location.coords.longitude));
+
       }, (err) {
         print("Error: ${err.toString()}");
       });
@@ -326,7 +318,7 @@ class CorridaController extends BlocBase {
     carrosRef.where('id_usuario', isEqualTo: Helper.localUser.id)
         .get()
         .then((v) {
-      List<Carro> carros = new List<Carro>();
+      List<Carro> carros = <Carro>[];
       for (var d in v.docs) {
         Carro c = Carro.fromJson(d.data());
         print('aqui carro 232 ${c.toJson()}');
@@ -345,7 +337,7 @@ class CorridaController extends BlocBase {
         }
       });
     }).catchError((err) {
-      print('aqui erro 1 ${err}');
+      print('aqui erro moto 2 ${err}');
       carro = null;
       inCarro.add(carro);
     });
@@ -377,11 +369,12 @@ class CorridaController extends BlocBase {
 
         }
       }
-
+      cfs.AdicionarLatLng(loc, distanciaPercorrida);
 
     } else {
       distanciaPercorrida = 0;
       inDistanciaPercorrida.add(distanciaPercorrida);
+
     }
   }
 

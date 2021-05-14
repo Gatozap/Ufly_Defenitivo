@@ -93,9 +93,9 @@ class RotaController extends BlocBase {
     List<List<LatLng>> polylineCoordinates = [];
 
     return http
-        .get(
+        .get(Uri.parse(
         ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude)
-    )
+    ))
         .then((result) {
 
       localizacaoUsuario = v;
@@ -220,8 +220,8 @@ class RotaController extends BlocBase {
   Future<List<List<LatLng>>> CalcularRotaMotorista(LatLng v, LatLng c, {bool isdestinoFinal = true}) async {
     List<List<LatLng>> polylineCoordinatesMotorista = [];
     http
-        .get(
-      ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude),
+        .get(Uri.parse(
+      ROUTE_QUERY(v.latitude, v.longitude, c.latitude, c.longitude),)
     )
         .then((result) {
       localizacaoUsuario = v;

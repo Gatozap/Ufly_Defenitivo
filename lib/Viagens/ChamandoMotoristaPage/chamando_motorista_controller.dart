@@ -3,45 +3,46 @@ import 'package:rxdart/rxdart.dart';
 import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/Helpers/References.dart';
 import 'package:ufly/Objetos/Motorista.dart';
+import 'package:ufly/Objetos/Requisicao.dart';
 
-class MotoristaControllerEdit extends BlocBase {
-  BehaviorSubject<Motorista> _controllerMotorista =
+class MotoristaControllerChamado extends BlocBase {
+  BehaviorSubject<Motorista> _controllerMotoristaChamado =
   new BehaviorSubject<Motorista>();
 
-  Stream<Motorista> get outMotorista => _controllerMotorista.stream;
+  Stream<Motorista> get outMotoristaChamado => _controllerMotoristaChamado.stream;
 
-  Sink<Motorista> get inMotorista => _controllerMotorista.sink;
+  Sink<Motorista> get inMotoristaChamado => _controllerMotoristaChamado.sink;
   Motorista motorista;
 
- 
-  MotoristaControllerEdit() {
+
+  MotoristaControllerChamado({Requisicao requisicao}) {
 
     // Fired whenever a location is recorded
 
-    motoristaRef.where('id_usuario', isEqualTo: Helper.localUser.id)
+    motoristaRef
         .get()
         .then((v) {
-      print('aqui carro 232');
+
       List<Motorista> motoristas = [];
       for (var d in v.docs) {
-        print('aqui carro 232');
+
         Motorista m = Motorista.fromJson(d.data());
-        print('aqui carro 232 ${m.toJson()}');
+
 
         motoristas.add(m);
       }
       motorista = motoristas[0];
-      inMotorista.add(motorista);
+      inMotoristaChamado.add(motorista);
 
     }).catchError((err) {
       print('aqui erro moto 1 ${err}');
       motorista = null;
-      inMotorista.add(motorista);
+      inMotoristaChamado.add(motorista);
     });
   }
 
   @override
   void dispose() {
-    _controllerMotorista.close(); // TODO: implement dispose
+    _controllerMotoristaChamado.close(); // TODO: implement dispose
   }
 }

@@ -94,6 +94,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                 child: hTextMal('Sem carros disponiveis', context));
           }
           return WillPopScope(
+            // ignore: missing_return
             onWillPop: () {
               showDialog(
                   context: context,
@@ -123,6 +124,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
             },
             child: StreamBuilder<List<Requisicao>>(
                 stream: requisicaoController.outRequisicoes,
+                // ignore: missing_return
                 builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
                   if (requisicao.data == null) {
                     return Container();
@@ -150,7 +152,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                                 return Center(
                                     child: Container(
                                         child: hTextAbel(
-                                            'Nenhum motorista disponível',
+                                            'Motoristas Solicitados: ${requi.motoristas_chamados.length}',
                                             context,
                                             size: 30)));
                               }
@@ -158,7 +160,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                                 return Center(
                                     child: Container(
                                         child: hTextAbel(
-                                            'Nenhum motorista disponível',
+                                            'Motoristas Solicitados: ${requi.motoristas_chamados.length}',
                                             context,
                                             size: 30)));
                               }
@@ -167,6 +169,7 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                                   height: getAltura(context),
                                   child: ListView.builder(
                                     shrinkWrap: true,
+                                    // ignore: missing_return
                                     itemBuilder: (context, index) {
                                       Motorista motorista =
                                       snapshot.data[index];
@@ -181,11 +184,13 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                                                 Helper.localUser.id)) {
                                               for (CarroAtivo a in ac
                                                   .ativos) {
-                                                return a.user_id ==
-                                                    motorista.id_usuario
-                                                    ? MotoristasListItem(
-                                                    motorista)
-                                                    : Container();
+                                              
+                                                  return a.user_id ==
+                                                      motorista.id_usuario
+                                                      ? MotoristasListItem(
+                                                      motorista)
+                                                      : Container();
+
                                               }
                                             } else {
                                               return Container();
@@ -203,8 +208,10 @@ class _MotoristaProximoPageState extends State<MotoristaProximoPage> {
                       );
                     }else
                     if(requi.aceito.id_usuario == Helper.localUser.id && requi.deleted_at == null) {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ChamandoMotoristaPage()));
+
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => ChamandoMotoristaPage()));
+
                     }else{
                         return Scaffold(
                           appBar: myAppBar(

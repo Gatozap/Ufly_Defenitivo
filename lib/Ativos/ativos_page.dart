@@ -70,7 +70,7 @@ class _AtivosPageState extends State<AtivosPage> {
               ca.localizacao.longitude,
           ),
           infoWindow: InfoWindow(onTap: () async {
-            Carro carro = Carro.fromJson((await carrosRef.doc(ca.carro_id).get()).data);
+            Carro carro = Carro.fromJson((await carrosRef.doc(ca.carro_id).get()).data());
             print("AQUI CARRO ${carro.id}");
 
           },

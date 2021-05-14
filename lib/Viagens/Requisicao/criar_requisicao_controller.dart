@@ -71,6 +71,7 @@ class CriarRequisicaoController extends BlocBase {
       return null;
     });
   }
+
   UpdateRequisicao(Requisicao requisicao)  {
     requisicao.updated_at = DateTime.now();
 

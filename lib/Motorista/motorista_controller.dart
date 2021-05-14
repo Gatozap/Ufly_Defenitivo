@@ -46,8 +46,7 @@ class MotoristaController extends BlocBase {
       if (snap.docs.length > 0) {
         for (DocumentSnapshot ds in snap.docs) {
 
-          print('aqui tipo 2 ${ds.data()}');
-          print('aqui tipo ${ds.runtimeType}');
+
           Motorista p =  Motorista.fromJson(ds.data());
           p.id = ds.id;
           motoristas.add(p);

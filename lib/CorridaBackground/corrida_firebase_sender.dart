@@ -82,8 +82,9 @@ class CorridaFirebaseSender {
       print('INICIANDO LIGAÇÂO ${started}');
       SharedPreferences.getInstance().then((value) {
         sp = value;
-        PrepararCarroAtivo(carroSelecionado);
+        return PrepararCarroAtivo(carroSelecionado);
       });
+
     }
   }
 
@@ -115,14 +116,16 @@ class CorridaFirebaseSender {
   }
 
   void PrepararCarroAtivo(Carro carro) {
+
     CarroAtivo ca = CarroAtivo(
         user_id: Helper.localUser.id,
         isAtivo: true,
         user_nome: Helper.localUser.nome,
         carro_id: carro.id,
-
         localizacao: null);
+
     sp.setString('ca', json.encode(ca.toJson()));
+    print('aqui sp ${ca.toJson()}');
     carrosAtivosRef.child(Helper.localUser.id).set(ca.toJson()).then((value) {
       print('Localização Preparada');
     });

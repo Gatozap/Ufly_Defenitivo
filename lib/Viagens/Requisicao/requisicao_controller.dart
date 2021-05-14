@@ -27,16 +27,19 @@ class RequisicaoController extends BlocBase {
         .then((v) {
       List<Requisicao> requisicoes = [];
       for (var d in v.docs) {
+        print('aqui requisicao 232 ${d.data()}');
         Requisicao m = Requisicao.fromJson(d.data());
-        print('aqui requisicao 232 ${m.toJson()}');
+
 
         requisicoes.add(m);
       }
+      print('aqui requisicao 0 ${requisicoes[0]}');
       requisicao = requisicoes[0];
       inRequisicao.add(requisicao);
 
     }).catchError((err) {
-      print('aqui erro 1 ${err}');
+      print('aqui erro req 1 ${err}');
+
       requisicao = null;
       inRequisicao.add(requisicao);
     });
@@ -55,7 +58,7 @@ class RequisicaoController extends BlocBase {
         return dToast('Requisição criada com sucesso ${requisicao.id}');
 
       }).catchError((err) {
-        print('erro 1 ${err}');
+        print('erro  req cria 1 ${err}');
         return null;
       });
     }).catchError((err) {

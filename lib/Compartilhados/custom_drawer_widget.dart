@@ -156,10 +156,14 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                         child: Image.asset('assets/home.png'),
                       ),
                       menuButton(context, 'Início', true, () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) =>
-                                   Helper.localUser.isMotorista == true? CorridaPage() :HomePage()
-                              ));
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                              Helper.localUser.isMotorista == true
+                                  ? CorridaPage()
+                                  : HomePage()
+                          ));
+                        });
                       }),
                     ],
                   ),
@@ -173,8 +177,10 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                         child: Image.asset('assets/map.png'),
                       ),
                       menuButton(context, 'Suas Viagens', true, () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => SuasViagensPage()));
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => SuasViagensPage()));
+                        });
                       }),
                     ],
                   ),
@@ -215,8 +221,10 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                         child: Image.asset('assets/ajuda.png'),
                       ),
                       menuButton(context, 'Ajuda', true, () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => AjudaPage()));
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => AjudaPage()));
+                        });
                       }),
                     ],
                   ),
@@ -230,9 +238,10 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
                         child: Image.asset('assets/configuracao.png'),
                       ),
                       menuButton(context, 'Configurações', true, () {
-
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ConfiguracaoPage()));
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ConfiguracaoPage()));
+                        });
                       }),
                     ],
                   ),
@@ -484,10 +493,16 @@ class CustomDrawerWidgetState extends State<CustomDrawerWidget> {
     }
   }
   doLogout(context) async {
+
     Helper.fbmsg.unsubscribeFromTopic(Helper.localUser.id);
     await FirebaseAuth.instance.signOut();
-    Helper.localUser = null;
-    Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (context) => Login()));
+
+Helper.localUser = null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => Login()));
+    });
+
+
   }
 }
