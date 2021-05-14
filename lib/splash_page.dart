@@ -41,7 +41,7 @@ class _SplashPageState extends State<SplashPage> {
 
     super.initState();
     Future.delayed(Duration(seconds: 3)).then((value) {
-
+print('aqui entrou splash');
                VerifyUser();
 
     });

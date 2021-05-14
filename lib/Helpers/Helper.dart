@@ -962,11 +962,11 @@ myAppBar(String titulo, context,
           }),
       backgroundColor: backgroundcolor == null? Colors.white: backgroundcolor,
 
-      iconTheme: new IconThemeData(color: Colors.black, size: 100),
+      iconTheme: new IconThemeData(color: Colors.black, size: 50),
       centerTitle: true,
       actionsIconTheme: new IconThemeData(color: Colors.black, ),
       actions: actions,
-      title:  hTextBank(titulo, context, color: color == null? Colors.black: color, weight: FontWeight.bold, size: size)
+      title:  hTextAbel(titulo, context, color: color == null? Colors.black: color, weight: FontWeight.bold, size: size)
       
 
 

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:responsive_pixel/responsive_pixel.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:geolocator/geolocator.dart';
@@ -17,6 +18,7 @@ import 'package:ufly/CorridaBackground/requisicao_corrida_controller.dart';
 import 'package:ufly/GoogleServices/geolocator_service.dart';
 import 'package:ufly/Motorista/motorista_controller.dart';
 import 'package:ufly/Objetos/CarroAtivo.dart';
+import 'package:ufly/Objetos/Motorista.dart';
 
 import 'package:ufly/Objetos/OfertaCorrida.dart';
 import 'package:ufly/Objetos/Requisicao.dart';
@@ -28,7 +30,9 @@ import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/Viagens/Requisicao/criar_requisicao_controller.dart';
 
 class InicioDeViagemPage extends StatefulWidget {
-  InicioDeViagemPage({Key key}) : super(key: key);
+  Motorista motorista;
+  Requisicao requisicao;
+  InicioDeViagemPage(this.motorista, this.requisicao) ;
 
   @override
   _InicioDeViagemPageState createState() {
@@ -57,6 +61,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
   List<Marker> markers;
   AtivosController ac;
   MotoristaController mt;
+  double distanciaKm;
   bool segundaetapa = false;
   bool final_corrida = false;
   double distancia;
@@ -65,6 +70,11 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
   OfertaCorridaController ofertaCorridaController;
   @override
   void initState() {
+    rotaPassageiro(widget.requisicao);
+
+    Timer(Duration(seconds: 5), () {
+      centerView();
+    });
     segundaetapa = false;
     final_corrida = false;
     if (ac == null) {
@@ -106,18 +116,23 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
     if (requisicaoController == null) {
       requisicaoController = RequisicaoCorridaController();
     }
-    var map = StreamBuilder<List<Requisicao>>(
+    var map =
+
+
+    StreamBuilder<List<Requisicao>>(
         stream: requisicaoController.outRequisicoes,
+        // ignore: missing_return
         builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
+          print('aqui chamando');
           for (var req in requisicao.data) {
-
-            rotaPassageiro(req);
-
+            rotaPassageiro(widget.requisicao);
             Timer(Duration(seconds: 5), () {
               centerView();
             });
+            // ignore: missing_return
             return StreamBuilder(
                 stream: rc.outPolyMotorista,
+                // ignore: missing_return
                 builder: (context, snapMotorista) {
                   return StreamBuilder(
                     stream: rc.outPolyPassageiro,
@@ -125,6 +140,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                       polylines =
                           getPolys(snapMotorista.data, snapPassageiro.data);
 
+                      // ignore: missing_return
                       return StreamBuilder<LatLng>(
                           stream: rc.outLocalizacao,
                           builder: (context, localizacao) {
@@ -132,8 +148,6 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                               return StreamBuilder<Position>(
                                   stream: localizacaoInicial(),
                                   builder: (context, snapshot) {
-                                    print(
-                                        'aqui position ${snapPassageiro.data}');
                                     if (!snapshot.hasData) {
                                       return localizacaoInicial();
                                     }
@@ -165,7 +179,12 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                                       builder: (context, snap) {
                                         if (snapshot.data != null) {
                                           if (parada1 == null) {
-                                            markers = getMarkers2(passageiro_latlng, destino,initialPosition);
+                                            markers = getMarkers(
+                                              snap.data,
+                                            );
+                                          } else {
+                                            markers = getMarkers(snap.data,
+                                                ways: snapshot.data);
                                           }
                                         }
 
@@ -205,10 +224,8 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                 });
           }
         });
-    return StreamBuilder<List<Requisicao>>(
-        stream: requisicaoController.outRequisicoes,
-        builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-          for (var req in requisicao.data) {
+
+
             if (final_corrida == true) {
               return
                 AlertDialog(
@@ -227,7 +244,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                       Container(
                         alignment: Alignment.center,
                         child: hTextAbel(
-                            'Valor: R\$ ${req.aceito.preco
+                            'Valor: R\$ ${widget.requisicao.aceito.preco
                                 .toStringAsFixed(2)}', context,
                             size: 25),
                       ), sb,
@@ -236,8 +253,8 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              req.deleted_at = DateTime.now();
-                              criaRc.UpdateRequisicao(req);
+                              widget.requisicao.deleted_at = DateTime.now();
+                              criaRc.UpdateRequisicao(widget.requisicao);
                               Navigator.of(context).push(
                                   MaterialPageRoute(
                                       builder: (context) =>
@@ -330,53 +347,117 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                     children: <Widget>[
                       map,
                       botaoNavegar(),
+                      botaoFinalCorrida(),
                       Positioned(
                           top: getAltura(context) * .060,
                           child: Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius:
+                              BorderRadius.circular(10),
                               color: Colors.black,
                             ),
-                            height: getAltura(context) * .150,
-                            width: getLargura(context) * .80,
+                            height: getAltura(context) *
+                                .150,
+                            width: getLargura(context) *
+                                .82,
                             child: Row(
                               children: <Widget>[
                                 Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.start,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment
+                                      .start,
                                   children: <Widget>[
                                     Padding(
-                                        padding: EdgeInsets.only(
-                                            top: getAltura(context) * .020,
-                                            left: getLargura(context) * .110),
-                                        child: Container(
-                                          child: Image.asset(
-                                              'assets/seta_frente.png'),
-                                        )),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          top: getAltura(context) * .020,
-                                          left: getLargura(context) * .050),
-                                      child: Center(
-                                        child: hTextMal('120 m', context,
-                                            color: Colors.white, size: 20),
+                                      padding: EdgeInsets
+                                          .only(
+                                          top:
+                                          getAltura(
+                                              context) *
+                                              .030,
+                                          left: getLargura(
+                                              context) *
+                                              .110),
+                                      child: Icon(
+                                        FontAwesomeIcons
+                                            .mapMarkedAlt,
+                                        color: Colors
+                                            .white,
+                                        size: 25,
                                       ),
                                     ),
+                                    StreamBuilder<double>(
+                                        stream: rc
+                                            .outDistancia,
+                                        builder:
+                                            (context,
+                                            snapshot) {
+                                          distanciaKm =
+                                              snapshot
+                                                  .data;
+                                          return Padding(
+                                            padding: EdgeInsets
+                                                .only(
+                                                top: getAltura(
+                                                    context) *
+                                                    .020,
+                                                left: getLargura(
+                                                    context) *
+                                                    .080),
+                                            child: hTextMal(
+                                                '${snapshot
+                                                    .data
+                                                    .toStringAsFixed(
+                                                    3)}km',
+                                                context,
+                                                color:
+                                                Colors
+                                                    .white,
+                                                size: 18),
+                                          );
+                                        })
                                   ],
                                 ),
-                                Container(
-                                  width: getLargura(context) * .50,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                        left: getLargura(context) * .020),
-                                    child: Center(
-                                      child: hTextMal('Av. Itavuvu', context,
-                                          size: 20,
-                                          color: Colors.white,
-                                          weight: FontWeight.bold),
-                                    ),
-                                  ),
-                                )
+                                StreamBuilder<String>(
+                                    stream: rc
+                                        .outLocalizacaoNome,
+                                    builder: (context,
+                                        snapshot) {
+                                      return Expanded(
+                                        child: Container(
+                                          width: getLargura(
+                                              context) *
+                                              .52,
+                                          child: Padding(
+                                            padding: EdgeInsets
+                                                .only(
+                                                left: getLargura(
+                                                    context) *
+                                                    .050,
+                                                right: getLargura(
+                                                    context) *
+                                                    .010),
+                                            child: hTextMal(
+                                                final_corrida ==
+                                                    false
+                                                    ? 'Embarque: ${widget.requisicao
+                                                    .origem
+                                                    .endereco}'
+                                                    : 'Desembarque: ${widget.requisicao
+                                                    .destino
+                                                    .endereco}',
+                                                context,
+                                                size: 16,
+                                                color:
+                                                Colors
+                                                    .white,
+                                                weight: FontWeight
+                                                    .bold),
+                                          ),
+                                        ),
+                                      );
+                                    })
                               ],
                             ),
                           )),
@@ -386,8 +467,24 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                 ),
               ),
             );
-          }
-      }
+
+  }
+  botaoFinalCorrida(){
+    return     Positioned(
+      right: getLargura(context) * .060,
+      bottom: getAltura(context) * .200,
+      child: FloatingActionButton(
+        heroTag: '2',
+        onPressed: () {
+          print('aqui o final ${final_corrida}');
+          setState(() {final_corrida = true;});
+
+        },
+        child: Icon(
+            Icons.close_fullscreen_sharp,
+            color: Colors.black),
+        backgroundColor: Colors.white,
+      ),
     );
   }
   botaoNavegar(){
@@ -397,7 +494,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
       child: FloatingActionButton(
         heroTag: '2',
         onPressed: () {
-
+centerView();
         },
         child: Icon(
             Icons.zoom_out_map,
@@ -572,7 +669,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
       northeast: LatLng(right, top),
     );
 
-    var cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 150);
+    var cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 130);
     controller.animateCamera(cameraUpdate);
   }
 
@@ -644,12 +741,10 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
       ),
       height: getAltura(context) * .250,
       width: getLargura(context) * .90,
-      child: StreamBuilder<List<Requisicao>>(
-          stream: requisicaoController.outRequisicoes,
-          builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-             for (var req in requisicao.data) {
-              return StreamBuilder<List<OfertaCorrida>>(
+      child:
+               StreamBuilder<List<OfertaCorrida>>(
                   stream: ofertaCorridaController.outOfertaCorrida,
+                  // ignore: missing_return
                   builder: (context,
                       AsyncSnapshot<List<OfertaCorrida>> ofertaCorrida) {
                     if (ofertaCorrida.data == null) {
@@ -661,9 +756,10 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                     for (OfertaCorrida oferta in ofertaCorrida.data) {
                       return StreamBuilder<List<User>>(
                           stream: userController.outUsers,
+                          // ignore: missing_return
                           builder: (context, AsyncSnapshot<List<User>> user) {
                             for (var us in user.data) {
-                              if (us.id == req.aceito.id_usuario) {
+                              if (us.id == widget.requisicao.aceito.id_usuario) {
                                 return Column(
                                   children: <Widget>[
                                     Row(
@@ -694,7 +790,7 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                                                       )),
                                             sb,
                                           ],
-                                        ),
+                                        ),sb,
                                         Padding(
                                           padding: EdgeInsets.only(
                                               top: getAltura(context) * .035,
@@ -798,9 +894,8 @@ class _InicioDeViagemPageState extends State<InicioDeViagemPage> {
                             }
                           });
                     }
-                  });
-            }
-          }),
+                  })
+
     );
   }
 

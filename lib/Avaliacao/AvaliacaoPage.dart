@@ -8,11 +8,14 @@ import 'package:ufly/Helpers/Helper.dart';
 import 'package:ufly/Helpers/References.dart';
 import 'package:ufly/HomePage.dart';
 import 'package:ufly/Objetos/Motorista.dart';
+import 'package:ufly/Objetos/OfertaCorrida.dart';
 import 'package:ufly/Objetos/Requisicao.dart';
 
 class AvaliacaoPage extends StatefulWidget {
 Motorista motorista;
-  AvaliacaoPage(this.motorista);
+Requisicao requisicao;
+OfertaCorrida ofertacorrida;
+  AvaliacaoPage(this.motorista, this.requisicao, this.ofertacorrida);
 
   @override
   _AvaliacaoPageState createState() {
@@ -47,12 +50,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
 
     // TODO: implement build
     return
-      StreamBuilder<List<Requisicao>>(
-          stream: requisicaoController.outRequisicoes,
-          // ignore: missing_return
-          builder: (context, AsyncSnapshot<List<Requisicao>> requisicao) {
-    for(Requisicao r in requisicao.data) {
-      return Scaffold(
+    Scaffold(
           body: Container(
               width: getLargura(context),
               height: getAltura(context),
@@ -254,10 +252,15 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                        nota_final = widget.motorista.rating =
                             widget.motorista.rating_total /
                                 widget.motorista.rating_quantidade;
-
                         widget.motorista.rating = nota_final;
-                        r.deleted_at = DateTime.now();
-                        requisicaoRef.doc(r.id).update(r.toJson());
+                        if(widget.requisicao.user == Helper.localUser.id) {
+                          requisicaoRef.doc(widget.requisicao.id).delete();
+
+                        }
+                        if(widget.ofertacorrida.id_usuario == Helper.localUser.id) {
+                          ofertacorridaRef.doc(widget.ofertacorrida.id)
+                              .delete();
+                        }
                         return motoristaRef.doc(widget.motorista.id).update(
                             widget.motorista.toJson()).then((v) {
 
@@ -291,9 +294,7 @@ class _AvaliacaoPageState extends State<AvaliacaoPage> {
                   )
                 ],
               )));
-    }
-           }
-         );
+
 
   }
 }

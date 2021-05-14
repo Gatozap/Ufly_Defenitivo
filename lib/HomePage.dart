@@ -38,6 +38,7 @@ import 'package:ufly/Objetos/Endereco.dart';
 
 
 import 'package:ufly/Objetos/Motorista.dart';
+import 'package:ufly/Objetos/OfertaCorrida.dart';
 
 import 'package:ufly/Objetos/Requisicao.dart';
 
@@ -48,6 +49,7 @@ import 'package:ufly/Rota/rota_controller.dart';
 import 'package:ufly/Rota/addres_teste.dart';
 import 'package:ufly/Viagens/ChamandoMotoristaPage/ChamandoMotoristaPage.dart';
 import 'package:ufly/Viagens/MotoristaProximoPage.dart';
+import 'package:ufly/Viagens/OfertaCorrida/oferta_corrida_controller.dart';
 
 import 'package:ufly/Viagens/Requisicao/criar_requisicao_controller.dart';
 import 'package:ufly/Viagens/SuasViagensPage.dart';
@@ -91,6 +93,7 @@ class _HomePageState extends State<HomePage> {
   CorridaController cc;
   AtivosController alc;
   List motorista =[];
+  OfertaCorridaController ofertacorridaController;
   double lat_parada_um;
   double lng_parada_um;
   double lat_parada_dois;
@@ -141,7 +144,9 @@ class _HomePageState extends State<HomePage> {
     if(reqc == null){
       reqc = RequisicaoCorridaController();
     }
-
+if(ofertacorridaController == null){
+  ofertacorridaController = OfertaCorridaController();
+}
     localizacaoInicial();
       geo.getCurrentLocation().listen((position) {
         telaCentralizada(position);
@@ -579,6 +584,13 @@ class _HomePageState extends State<HomePage> {
                       )),
                 ),
 
+                Padding(
+                  padding: EdgeInsets.only(
+                      top: getAltura(context) * .020,
+                      bottom: getAltura(context) * .010),
+                  child: ProcurarWidget(),
+
+                )
               ],
             );
           });
@@ -700,9 +712,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               textFieldParaPesquisarPontos(),
                               sb,
-                              Positioned(right: getLargura(context) * .160,
-                                  bottom: getAltura(context) * .250,
-                                  child: ProcurarWidget()),
+
                               Positioned(
                                 right: getLargura(context) * .060,
                                 bottom: getAltura(context) * .350,
@@ -761,10 +771,7 @@ class _HomePageState extends State<HomePage> {
                                     child: map,
                                   ),
                                   textFieldParaPesquisarPontos(),
-                                  sb,
-                                  Positioned(right: getLargura(context) * .160,
-                                      bottom: getAltura(context) * .250,
-                                      child: ProcurarWidget()),
+
                                   Positioned(
                                     right: getLargura(context) * .060,
                                     bottom: getAltura(context) * .350,
@@ -807,12 +814,30 @@ class _HomePageState extends State<HomePage> {
 
                           if (req.aceito.id_usuario == Helper.localUser.id) {
                             print('Aqui o re ${req.aceito.id_usuario} e ${Helper.localUser.id}');
-                                WidgetsBinding.instance.addPostFrameCallback((_) {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context){
-                                  return ChamandoMotoristaPage();
-                                  }));
+                            for(Motorista motorista in snapMoto.data) {
+                              if(motorista.id_usuario == req.aceito.motorista) {
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                    _) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) =>
+                                        StreamBuilder<List<OfertaCorrida>>(
+                                            stream: ofertacorridaController.outOfertaCorrida,
+                                            builder: (context,
+                                                AsyncSnapshot<List<OfertaCorrida>>
+                                                ofertaCorrida) {
+                                              for(OfertaCorrida oferta in ofertaCorrida.data) {
+                                                if(oferta.id_usuario == Helper.localUser.id ) {
+                                                  return ChamandoMotoristaPage(
+                                                      motorista, req, oferta);
+                                                }
+                                              }
+                                          }
+                                        )),
+                                  );
                                 });
+                              }
+                            }
                           }
                         }
                       {
@@ -828,9 +853,7 @@ class _HomePageState extends State<HomePage> {
                                 child: map,
                               ),
                               textFieldParaPesquisarPontos(),
-                              sb, Positioned(right: getLargura(context) * .160,
-                                  bottom: getAltura(context) * .250,
-                                  child: ProcurarWidget()),
+
                               Positioned(
                                 right: getLargura(context) * .060,
                                 bottom: getAltura(context) * .350,
@@ -1234,9 +1257,10 @@ class _HomePageState extends State<HomePage> {
                                             Color.fromRGBO(255, 184, 0, 30),
                                           ),
                                           child: Center(
-                                              child: hTextAbel(
-                                                  'Procurar', context,
-                                                  size: 20))),
+                                            child: hTextAbel(
+                                                'Procurar', context,
+                                                size: 20),
+                                          )),
                                     ),
                                   ),
                                 ],
@@ -1249,16 +1273,17 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.black,
-                      border: Border.all(),
+                      color:  Color.fromRGBO(255, 184, 0, 30),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    height: getLargura(context) * .2,
-                    width: getLargura(context) * .2,
-                    child: hTextAbel('Procurar', context,
-                        color: Colors.white,
-                        textaling: TextAlign.center,
-                        size: 15),
+                    height: getLargura(context) * .125,
+                    width: getLargura(context) * .65,
+                    child: Center(
+                      child: hTextAbel('Procurar Motorista', context,
+                          color: Colors.black,
+                          textaling: TextAlign.center,
+                          size: 15),
+                    ),
                   ),
                 );
               });

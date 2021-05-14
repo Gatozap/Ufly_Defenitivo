@@ -23,11 +23,12 @@ class MotoristasListItem extends StatelessWidget {
   CarroController cr;
   MotoristaController mt;
   List motorista_aceitos = [];
+  OfertaCorridaController ofertaCorridaController;
   RequisicaoCorridaController requisicaoController =
       RequisicaoCorridaController();
   CriarRequisicaoController criaRc;
   ControllerFiltros cf;
-  OfertaCorridaController ofertaCorridaController;
+
   @override
   Widget build(BuildContext context) {
     ResponsivePixelHandler.init(
@@ -39,7 +40,7 @@ class MotoristasListItem extends StatelessWidget {
     if (motorista.agua == null) {
       motorista.agua = false;
     }
-    if(cf == null){
+    if (cf == null) {
       cf = ControllerFiltros();
     }
     if (motorista.wifi == null) {
@@ -100,7 +101,6 @@ class MotoristasListItem extends StatelessWidget {
                           print('aqui motorista ${requi.envioPassageiro}');
                           print('aqui motorista ${motorista.id_usuario}');
                           return StreamBuilder<List<OfertaCorrida>>(
-
                               stream: ofertaCorridaController.outOfertaCorrida,
                               // ignore: missing_return
                               builder: (context,
@@ -115,135 +115,129 @@ class MotoristasListItem extends StatelessWidget {
                                 for (OfertaCorrida oferta
                                     in ofertaCorrida.data) {
                                   for (var of in requi.ofertas) {
-                                    if (oferta.id == of){
+                                    if (oferta.id == of) {
                                       return Container(
                                         height: getAltura(context) * .40,
                                         width: getLargura(context),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                              20),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                         ),
                                         child: Column(
                                           children: [
                                             Row(
-
                                               children: <Widget>[
                                                 Column(
                                                   crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
+                                                      CrossAxisAlignment.center,
                                                   mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-
+                                                      MainAxisAlignment.center,
                                                   children: <Widget>[
                                                     Padding(
                                                       padding: EdgeInsets.only(
                                                           top:
-                                                          ResponsivePixelHandler
-                                                              .toPixel(
-                                                              10, context),
+                                                              ResponsivePixelHandler
+                                                                  .toPixel(10,
+                                                                      context),
                                                           bottom:
-                                                          ResponsivePixelHandler
-                                                              .toPixel(
-                                                              5, context)),
+                                                              ResponsivePixelHandler
+                                                                  .toPixel(5,
+                                                                      context)),
                                                       child: Container(
-
-                                                        height: getAltura(
-                                                            context) *
-                                                            .16,
+                                                        height:
+                                                            getAltura(context) *
+                                                                .20,
                                                         width: getLargura(
-                                                            context) *
+                                                                context) *
                                                             .55,
-                                                        decoration: BoxDecoration(
-
-                                                          image: DecorationImage(
-
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          image:
+                                                              DecorationImage(
                                                             image: snapshot
-                                                                .data[0]
-                                                                .foto ==
-                                                                null
+                                                                        .data[0]
+                                                                        .foto ==
+                                                                    null
                                                                 ? AssetImage(
-                                                                'assets/logo_drawer.png')
+                                                                    'assets/logo_drawer.png')
                                                                 : CachedNetworkImageProvider(
-                                                                snapshot.data[0]
-                                                                    .foto),
+                                                                    snapshot
+                                                                        .data[0]
+                                                                        .foto),
                                                           ),
                                                           borderRadius:
-                                                          BorderRadius.circular(
-                                                              30),
+                                                              BorderRadius
+                                                                  .circular(30),
                                                         ),
                                                       ),
                                                     ),
                                                     Padding(
                                                       padding: EdgeInsets.only(
-                                                          left: ResponsivePixelHandler
-                                                              .toPixel(5,
-                                                              context)),
+                                                          left:
+                                                              ResponsivePixelHandler
+                                                                  .toPixel(5,
+                                                                      context)),
                                                       child: Container(
-
-                                                        width:
-                                                        getLargura(context) *
+                                                        width: getLargura(
+                                                                context) *
                                                             .60,
                                                         height:
-                                                        getAltura(context) *
-                                                            .090,
+                                                            getAltura(context) *
+                                                                .090,
                                                         child: ListView.builder(
-                                                            itemCount:
-                                                            snapshot.data
-                                                                .length,
+                                                            itemCount: snapshot
+                                                                .data.length,
                                                             shrinkWrap: true,
                                                             itemBuilder:
                                                                 (context,
-                                                                index) {
-                                                              Carro carro = snapshot
-                                                                  .data[index];
+                                                                    index) {
+                                                              Carro carro =
+                                                                  snapshot.data[
+                                                                      index];
 
                                                               return Padding(
-                                                                padding: EdgeInsets
-                                                                    .only(
+                                                                padding: EdgeInsets.only(
                                                                     top: ResponsivePixelHandler
                                                                         .toPixel(
-                                                                        15,
-                                                                        context)),
+                                                                            15,
+                                                                            context)),
                                                                 child: Row(
                                                                   mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
+                                                                      MainAxisAlignment
+                                                                          .center,
                                                                   children: [
                                                                     hTextAbel(
-                                                                        carro
-                                                                            .modelo ==
-                                                                            null
+                                                                        carro.modelo ==
+                                                                                null
                                                                             ? 'Modelo'
                                                                             : carro
-                                                                            .modelo,
+                                                                                .modelo,
                                                                         context,
                                                                         color: Colors
                                                                             .blue,
-                                                                        weight:
-                                                                        FontWeight
+                                                                        weight: FontWeight
                                                                             .bold,
-                                                                        size: 20),
-                                                                    carro
-                                                                        .categoria ==
-                                                                        null
+                                                                        size:
+                                                                            20),
+                                                                    carro.categoria ==
+                                                                            null
                                                                         ? hTextAbel(
-                                                                        ' | Categoria',
-                                                                        context,
-                                                                        color: Colors
-                                                                            .black,
-                                                                        weight: FontWeight
-                                                                            .bold,
-                                                                        size: 20)
+                                                                            ' | Categoria',
+                                                                            context,
+                                                                            color: Colors
+                                                                                .black,
+                                                                            weight: FontWeight
+                                                                                .bold,
+                                                                            size:
+                                                                                20)
                                                                         : hTextAbel(
-                                                                        ' | ${carro
-                                                                            .categoria}',
-                                                                        context,
-                                                                        color: Colors
-                                                                            .black,
-                                                                        weight: FontWeight
-                                                                            .bold,
-                                                                        size: 20),
+                                                                            ' | ${carro.categoria}',
+                                                                            context,
+                                                                            color:
+                                                                                Colors.black,
+                                                                            weight: FontWeight.bold,
+                                                                            size: 20),
                                                                   ],
                                                                 ),
                                                               );
@@ -254,91 +248,92 @@ class MotoristasListItem extends StatelessWidget {
                                                     Container(
                                                       child: Row(
                                                         mainAxisAlignment:
-                                                        MainAxisAlignment.start,
+                                                            MainAxisAlignment
+                                                                .start,
                                                         children: <Widget>[
                                                           motorista.agua
                                                               ? Container(
-                                                            height: getAltura(
-                                                                context) *
-                                                                .090,
-                                                            width: getLargura(
-                                                                context) *
-                                                                .170,
-                                                            child: Column(
-                                                              children: <
-                                                                  Widget>[
-                                                                Container(
                                                                   height: getAltura(
-                                                                      context) *
-                                                                      .050,
-                                                                  child: Image
-                                                                      .asset(
-                                                                    'assets/agua.png',
+                                                                          context) *
+                                                                      .090,
+                                                                  width: getLargura(
+                                                                          context) *
+                                                                      .170,
+                                                                  child: Column(
+                                                                    children: <
+                                                                        Widget>[
+                                                                      Container(
+                                                                        height: getAltura(context) *
+                                                                            .050,
+                                                                        child: Image
+                                                                            .asset(
+                                                                          'assets/agua.png',
+                                                                        ),
+                                                                      ),
+                                                                      hTextAbel(
+                                                                          'Água',
+                                                                          context,
+                                                                          size:
+                                                                              20)
+                                                                    ],
                                                                   ),
-                                                                ),
-                                                                hTextAbel(
-                                                                    'Água',
-                                                                    context,
-                                                                    size: 20)
-                                                              ],
-                                                            ),
-                                                          )
+                                                                )
                                                               : Container(),
                                                           motorista.balas
                                                               ? Container(
-                                                            height: getAltura(
-                                                                context) *
-                                                                .090,
-                                                            width: getLargura(
-                                                                context) *
-                                                                .170,
-                                                            child: Column(
-                                                              children: <
-                                                                  Widget>[
-                                                                Container(
                                                                   height: getAltura(
-                                                                      context) *
-                                                                      .050,
-                                                                  child: Image
-                                                                      .asset(
-                                                                    'assets/balas.png',
+                                                                          context) *
+                                                                      .090,
+                                                                  width: getLargura(
+                                                                          context) *
+                                                                      .170,
+                                                                  child: Column(
+                                                                    children: <
+                                                                        Widget>[
+                                                                      Container(
+                                                                        height: getAltura(context) *
+                                                                            .050,
+                                                                        child: Image
+                                                                            .asset(
+                                                                          'assets/balas.png',
+                                                                        ),
+                                                                      ),
+                                                                      hTextAbel(
+                                                                          'Balas',
+                                                                          context,
+                                                                          size:
+                                                                              20)
+                                                                    ],
                                                                   ),
-                                                                ),
-                                                                hTextAbel(
-                                                                    'Balas',
-                                                                    context,
-                                                                    size: 20)
-                                                              ],
-                                                            ),
-                                                          )
+                                                                )
                                                               : Container(),
                                                           motorista.wifi
                                                               ? Container(
-                                                            height: getAltura(
-                                                                context) *
-                                                                .090,
-                                                            width: getLargura(
-                                                                context) *
-                                                                .170,
-                                                            child: Column(
-                                                              children: <
-                                                                  Widget>[
-                                                                Container(
                                                                   height: getAltura(
-                                                                      context) *
-                                                                      .050,
-                                                                  child: Image
-                                                                      .asset(
-                                                                    'assets/wifi.png',
+                                                                          context) *
+                                                                      .090,
+                                                                  width: getLargura(
+                                                                          context) *
+                                                                      .170,
+                                                                  child: Column(
+                                                                    children: <
+                                                                        Widget>[
+                                                                      Container(
+                                                                        height: getAltura(context) *
+                                                                            .050,
+                                                                        child: Image
+                                                                            .asset(
+                                                                          'assets/wifi.png',
+                                                                        ),
+                                                                      ),
+                                                                      hTextAbel(
+                                                                          'Wi-fi',
+                                                                          context,
+                                                                          size:
+                                                                              20)
+                                                                    ],
                                                                   ),
-                                                                ),
-                                                                hTextAbel(
-                                                                    'Wi-fi',
-                                                                    context,
-                                                                    size: 20)
-                                                              ],
-                                                            ),
-                                                          )
+                                                                )
                                                               : Container(),
                                                         ],
                                                       ),
@@ -348,41 +343,41 @@ class MotoristasListItem extends StatelessWidget {
                                                 Container(
                                                   child: Column(
                                                     crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-
+                                                        CrossAxisAlignment
+                                                            .center,
                                                     children: <Widget>[
                                                       Padding(
-                                                          padding: EdgeInsets
-                                                              .only(
-                                                            top:
-                                                            ResponsivePixelHandler
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                            top: ResponsivePixelHandler
                                                                 .toPixel(10,
-                                                                context),
+                                                                    context),
                                                           ),
                                                           child: motorista
-                                                              .foto ==
-                                                              null
+                                                                      .foto ==
+                                                                  null
                                                               ? CircleAvatar(
-                                                            backgroundColor:
-                                                            Colors.white,
-                                                            backgroundImage:
-                                                            AssetImage(
-                                                                'assets/logo_drawer.png'),
-                                                            minRadius: 35,
-                                                            maxRadius: 45,
-                                                          )
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  backgroundImage:
+                                                                      AssetImage(
+                                                                          'assets/logo_drawer.png'),
+                                                                  minRadius: 35,
+                                                                  maxRadius: 45,
+                                                                )
                                                               : CircleAvatar(
-                                                            backgroundColor:
-                                                            Colors.white,
-                                                            backgroundImage:
-                                                            CachedNetworkImageProvider(
-                                                                motorista
-                                                                    .foto),
-                                                            minRadius: 35,
-                                                            maxRadius: 45,
-                                                          )),
-                                                      hTextAbel(
-                                                          motorista.nome,
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  backgroundImage:
+                                                                      CachedNetworkImageProvider(
+                                                                          motorista
+                                                                              .foto),
+                                                                  minRadius: 35,
+                                                                  maxRadius: 45,
+                                                                )),
+                                                      hTextAbel(motorista.nome,
                                                           context,
                                                           size: 20,
                                                           color: Colors.black),
@@ -390,19 +385,11 @@ class MotoristasListItem extends StatelessWidget {
                                                         child: Row(
                                                           children: <Widget>[
                                                             hTextAbel(
-                                                                '${motorista
-                                                                    .rating ==
-                                                                    null
-                                                                    ? 0
-                                                                    : motorista
-                                                                    .rating
-                                                                    .toStringAsFixed(
-                                                                    1)}',
+                                                                '${motorista.rating == null ? 0 : motorista.rating.toStringAsFixed(1)}',
                                                                 context,
                                                                 size: 20),
                                                             Container(
-                                                              child: Image
-                                                                  .asset(
+                                                              child: Image.asset(
                                                                   'assets/estrela.png'),
                                                             ),
                                                           ],
@@ -410,245 +397,217 @@ class MotoristasListItem extends StatelessWidget {
                                                       ),
                                                       sb,
                                                       hTextAbel(
-                                                          'R\$ ${oferta.preco
-                                                              .toStringAsFixed(
-                                                              2)}',
+                                                          'R\$ ${oferta.preco.toStringAsFixed(2)}',
                                                           context,
                                                           size: 25),
                                                       sb,
                                                       sb,
-
                                                       requi.motorista_aceitou ==
-                                                          null ?
-                                                      requi.envioPassageiro != null?
-                                                      requi.envioPassageiro.contains(motorista.id_usuario)?
+                                                              null
+                                                          ? requi.envioPassageiro !=
+                                                                  null
+                                                              ? requi.envioPassageiro
+                                                                      .contains(
+                                                                          motorista
+                                                                              .id_usuario)
+                                                                  ? GestureDetector(
+                                                                      onTap:
+                                                                          () async {
+                                                                        try {
+                                                                          // ignore: missing_return
+                                                                          await requisicaoRef
+                                                                              .doc(requi.id)
+                                                                              .update({
+                                                                            'envioPassageiro':
+                                                                                FieldValue.arrayRemove([
+                                                                              '${motorista.id_usuario}'
+                                                                            ])
+                                                                          }).then((v) {
+                                                                            print('sucesso ao tirar motorista da lista');
+                                                                          });
+                                                                        } catch (e) {
+                                                                          print(
+                                                                              e);
+                                                                        }
+                                                                      },
+                                                                      child:
+                                                                          Padding(
+                                                                        padding:
+                                                                            EdgeInsets.only(top: ResponsivePixelHandler.toPixel(5, context)),
+                                                                        child:
+                                                                            Container(
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(10),
+                                                                            color:
+                                                                                Colors.red,
+                                                                          ),
+                                                                          height:
+                                                                              getAltura(context) * .060,
+                                                                          child:
+                                                                              Center(
+                                                                            child:
+                                                                                Padding(padding: EdgeInsets.only(left: ResponsivePixelHandler.toPixel(15, context), right: ResponsivePixelHandler.toPixel(15, context)), child: hTextMal('Cancelar', context, size: 25, color: Colors.white)),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                  : GestureDetector(
+                                                                      onTap:
+                                                                          () {
+                                                                        motorista_aceitos
+                                                                            .add(motorista.id_usuario);
+                                                                        requi.envioPassageiro =
+                                                                            motorista_aceitos;
+                                                                        requi.updated_at =
+                                                                            DateTime.now();
+                                                                        criaRc.UpdateRequisicao(
+                                                                            requi);
+                                                                        print(
+                                                                            'aqui requisicao ${requi.envioPassageiro}');
+                                                                      },
+                                                                      child:
+                                                                          Padding(
+                                                                        padding:
+                                                                            EdgeInsets.only(top: ResponsivePixelHandler.toPixel(5, context)),
+                                                                        child:
+                                                                            Container(
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(10),
+                                                                            color: Color.fromRGBO(
+                                                                                255,
+                                                                                184,
+                                                                                0,
+                                                                                30),
+                                                                          ),
+                                                                          height:
+                                                                              getAltura(context) * .060,
+                                                                          child:
+                                                                              Center(
+                                                                            child:
+                                                                                Padding(padding: EdgeInsets.only(left: ResponsivePixelHandler.toPixel(15, context), right: ResponsivePixelHandler.toPixel(15, context)), child: hTextMal('Solicitar', context, size: 25)),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                              : GestureDetector(
+                                                                  onTap: () {
+                                                                    motorista_aceitos.add(
+                                                                        motorista
+                                                                            .id_usuario);
+                                                                    requi.envioPassageiro =
+                                                                        motorista_aceitos;
+                                                                    requi.updated_at =
+                                                                        DateTime
+                                                                            .now();
+                                                                    criaRc.UpdateRequisicao(
+                                                                        requi);
+                                                                    print(
+                                                                        'aqui requisicao ${requi.envioPassageiro}');
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: EdgeInsets.only(
+                                                                        top: ResponsivePixelHandler.toPixel(
+                                                                            5,
+                                                                            context)),
+                                                                    child:
+                                                                        Container(
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10),
+                                                                        color: Color.fromRGBO(
+                                                                            255,
+                                                                            184,
+                                                                            0,
+                                                                            30),
+                                                                      ),
+                                                                      height: getAltura(
+                                                                              context) *
+                                                                          .060,
+                                                                      child:
+                                                                          Center(
+                                                                        child: Padding(
+                                                                            padding:
+                                                                                EdgeInsets.only(left: ResponsivePixelHandler.toPixel(15, context), right: ResponsivePixelHandler.toPixel(15, context)),
+                                                                            child: hTextMal('Solicitar', context, size: 25)),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                          : requi.motorista_aceitou
+                                                                  .contains((Helper
+                                                                      .localUser
+                                                                      .id))
+                                                              ? GestureDetector(
+                                                                  onTap: () {
+                                                                    requi.aceito =          oferta;
+                                                                    criaRc.UpdateRequisicao(
+                                                                        requi);
 
-                                                      GestureDetector(
-                                                        onTap: () async {
-                                                          try {
-                                                            // ignore: missing_return
-                                                            await requisicaoRef
-                                                                .doc(requi.id)
-                                                                .update({
-                                                              'envioPassageiro':
-                                                              FieldValue
-                                                                  .arrayRemove(
-                                                                  [
-                                                                    '${motorista
-                                                                        .id_usuario}'
-                                                                  ])
-                                                            }).then((v) {
-                                                              print(
-                                                                  'sucesso ao tirar motorista da lista');
-                                                            });
-                                                          } catch (e) {
-                                                            print(e);
-                                                          }
-                                                        },
-                                                        child:
-                                                        Padding(
-                                                          padding: EdgeInsets
-                                                              .only(
-                                                              top:
-                                                              ResponsivePixelHandler
-                                                                  .toPixel(5,
-                                                                  context)),
-                                                          child: Container(
-                                                            decoration:
-                                                            BoxDecoration(
-                                                              borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                              color: Colors.red,
-                                                            ),
-                                                            height:
-                                                            getAltura(context) *
-                                                                .060,
-                                                            child: Center(
-                                                              child: Padding(
-                                                                  padding: EdgeInsets
-                                                                      .only(
-                                                                      left: ResponsivePixelHandler
-                                                                          .toPixel(
-                                                                          15,
-                                                                          context),
-                                                                      right: ResponsivePixelHandler
-                                                                          .toPixel(
-                                                                          15,
-                                                                          context)),
-                                                                  child: hTextMal(
-                                                                      'Cancelar',
-                                                                      context,
-                                                                      size: 25,
-                                                                      color: Colors
-                                                                          .white)),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ) :
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          motorista_aceitos.add(
-                                                              motorista.id_usuario);
-                                                          requi.envioPassageiro =
-                                                              motorista_aceitos;
-                                                          requi.updated_at = DateTime.now();
-                                                          criaRc.UpdateRequisicao(
-                                                              requi);
-                                                          print('aqui requisicao ${requi
-                                                              .envioPassageiro}');
-                                                        },
-                                                        child:
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                              ResponsivePixelHandler
-                                                                  .toPixel(5,
-                                                                  context)),
-                                                          child: Container(
-                                                            decoration:
-                                                            BoxDecoration(
-                                                              borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                              color: Color.fromRGBO(
-                                                                  255, 184, 0, 30),
-                                                            ),
-                                                            height:
-                                                            getAltura(context) *
-                                                                .060,
-                                                            child: Center(
-                                                              child: Padding(
-                                                                  padding: EdgeInsets.only(
-                                                                      left: ResponsivePixelHandler
-                                                                          .toPixel(
-                                                                          15, context),
-                                                                      right: ResponsivePixelHandler
-                                                                          .toPixel(
-                                                                          15,
-                                                                          context)),
-                                                                  child: hTextMal(
-                                                                      'Solicitar',
-                                                                      context,
-                                                                      size: 25)),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ): GestureDetector(
-                                                        onTap: () {
-                                                          motorista_aceitos.add(
-                                                              motorista.id_usuario);
-                                                          requi.envioPassageiro =
-                                                              motorista_aceitos;
-                                                          requi.updated_at = DateTime.now();
-                                                          criaRc.UpdateRequisicao(
-                                                              requi);
-                                                          print('aqui requisicao ${requi
-                                                              .envioPassageiro}');
-                                                        },
-                                                        child:
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                              ResponsivePixelHandler
-                                                                  .toPixel(5,
-                                                                  context)),
-                                                          child: Container(
-                                                            decoration:
-                                                            BoxDecoration(
-                                                              borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                              color: Color.fromRGBO(
-                                                                  255, 184, 0, 30),
-                                                            ),
-                                                            height:
-                                                            getAltura(context) *
-                                                                .060,
-                                                            child: Center(
-                                                              child: Padding(
-                                                                  padding: EdgeInsets.only(
-                                                                      left: ResponsivePixelHandler
-                                                                          .toPixel(
-                                                                          15, context),
-                                                                      right: ResponsivePixelHandler
-                                                                          .toPixel(
-                                                                          15,
-                                                                          context)),
-                                                                  child: hTextMal(
-                                                                      'Solicitar',
-                                                                      context,
-                                                                      size: 25)),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ):
-                                                      requi.motorista_aceitou
-                                                          .contains(
-                                                          (Helper.localUser.id))
-                                                          ?
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          requi.aceito = oferta;
-                                                          criaRc
-                                                              .UpdateRequisicao(
-                                                              requi);
-                                                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                                            Navigator.of(
-                                                                context)
-                                                                .push(
-                                                                MaterialPageRoute(
-                                                                    builder: (
-                                                                        context) =>
-                                                                        ChamandoMotoristaPage(
-                                                                        )));
-                                                          });
-                                                        },
-                                                        child:
-                                                        Padding(
-                                                          padding: EdgeInsets
-                                                              .only(
-                                                              top:
-                                                              ResponsivePixelHandler
-                                                                  .toPixel(5,
-                                                                  context)),
-                                                          child: Container(
-                                                            decoration:
-                                                            BoxDecoration(
-                                                              borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                              color: Colors
-                                                                  .green,
-                                                            ),
-                                                            height:
-                                                            getAltura(context) *
-                                                                .060,
-                                                            child: Center(
-                                                              child: Padding(
-                                                                  padding: EdgeInsets
-                                                                      .only(
-                                                                      left: ResponsivePixelHandler
-                                                                          .toPixel(
-                                                                          15,
-                                                                          context),
-                                                                      right: ResponsivePixelHandler
-                                                                          .toPixel(
-                                                                          15,
-                                                                          context)),
-                                                                  child: hTextMal(
-                                                                      'Viagem',
-                                                                      context,
-                                                                      size: 25,
-                                                                      color: Colors
-                                                                          .white)),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                          : Container()
-
-
+                                                                    if (requi.aceito.id_usuario ==  Helper.localUser.id) {
+                                                                      if (motorista
+                                                                              .id_usuario ==
+                                                                          requi
+                                                                              .aceito
+                                                                              .motorista) {
+                                                                        WidgetsBinding
+                                                                            .instance
+                                                                            .addPostFrameCallback((_) {
+                                                                          Navigator
+                                                                              .push(
+                                                                            context,
+                                                                            MaterialPageRoute(
+                                                                                builder: (context) => StreamBuilder<List<OfertaCorrida>>(
+                                                                                    stream: ofertaCorridaController.outOfertaCorrida,
+                                                                                    // ignore: missing_return
+                                                                                    builder: (context, AsyncSnapshot<List<OfertaCorrida>> ofertaCorrida) {
+                                                                                      for (OfertaCorrida oferta in ofertaCorrida.data) {
+                                                                                        if (oferta.id_usuario == Helper.localUser.id) {
+                                                                                          if (motorista.id_usuario == requi.aceito.motorista) {
+                                                                                            return ChamandoMotoristaPage(motorista, requi, oferta);
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    })),
+                                                                          );
+                                                                        });
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  child:
+                                                                      Padding(
+                                                                    padding: EdgeInsets.only(
+                                                                        top: ResponsivePixelHandler.toPixel(
+                                                                            5,
+                                                                            context)),
+                                                                    child:
+                                                                        Container(
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10),
+                                                                        color: Colors
+                                                                            .green,
+                                                                      ),
+                                                                      height: getAltura(
+                                                                              context) *
+                                                                          .060,
+                                                                      child:
+                                                                          Center(
+                                                                        child: Padding(
+                                                                            padding:
+                                                                                EdgeInsets.only(left: ResponsivePixelHandler.toPixel(15, context), right: ResponsivePixelHandler.toPixel(15, context)),
+                                                                            child: hTextMal('Viagem', context, size: 25, color: Colors.white)),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              : Container()
                                                     ],
                                                   ),
                                                 )
@@ -657,8 +616,9 @@ class MotoristasListItem extends StatelessWidget {
                                           ],
                                         ),
                                       );
+                                    }
                                   }
-                                }}
+                                }
                               });
                         }
                       }),
@@ -668,5 +628,5 @@ class MotoristasListItem extends StatelessWidget {
   }
 
   Motorista motorista;
-   MotoristasListItem(this.motorista);
+  MotoristasListItem(this.motorista);
 }
